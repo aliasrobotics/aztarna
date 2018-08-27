@@ -1,13 +1,16 @@
-from commons import BaseNode, BaseTopic
+from commons import BaseNode, BaseTopic, BaseService
 
 
 class Node(BaseNode):
     def __init__(self, name):
         super().__init__()
+        self.name = name
+        self.published_topics = []
+        self.subscribed_topics = []
+        self.services = []
 
-        self._published_topics = []
-        self._subscribed_topics = []
-        self._services = []
+    def __str__(self):
+        return '{} XMLRPCUri: http://{}:{}'.format(self.name, self.address, self.port)
 
 
 class Topic(BaseTopic):
@@ -18,3 +21,12 @@ class Topic(BaseTopic):
 
     def __str__(self):
         return self.name + '(Type: ' + self.type + ')'
+
+
+class Service(BaseService):
+    def __init__(self, name):
+        super().__init__()
+        self.name = name
+
+    def __str__(self):
+        return '{}'.format(self.name)

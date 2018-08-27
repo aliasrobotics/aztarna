@@ -38,9 +38,9 @@ class BaseTopic:
         self.type = ''
 
 
-class Service:
-    def __init__(self, name):
-        self.name = name
+class BaseService:
+    def __init__(self):
+        self.name = ''
 
 
 class Parameter:
@@ -52,9 +52,9 @@ class Parameter:
 
 class Communication:
     def __init__(self, topic):
-        self._publishers = []  # Node type
-        self._subscribers = []  # Node type
-        self._topic = topic # Topic() object
+        self.publishers = []  # Node type
+        self.subscribers = []  # Node type
+        self.topic = topic # Topic() object
 
 
 

@@ -1,6 +1,6 @@
 from argparse import ArgumentParser
-from commons import BaseScanner
 from sros.scanner import SROSScanner
+from ros.scanner import ROSScanner
 import logging
 
 
@@ -14,31 +14,35 @@ def main():
     parser.add_argument('-o', '--out_file', help='Output file for the results')
     parser.add_argument('-e', '--extended', help='Extended scan of the hosts')
     args = parser.parse_args()
-    if args.type == 'ROS':
-        scanner = ROSScanner()
-    elif args.type == 'SROS':
-        scanner = SROSScanner()
-    else:
-        logger.critical('Invalid type selected')
-        return
-
-    if args.input_file:
-        scanner.load_from_file(args.input_file)
-    else:
-        if args.address:
-            scanner.net_range = args.address
+    try:
+        if args.type == 'ROS':
+            scanner = ROSScanner()
+        elif args.type == 'SROS':
+            scanner = SROSScanner()
         else:
-            logger.critical('No file or addresses defined')
+            logger.critical('Invalid type selected')
             return
 
-    scanner.port = args.port
-    scanner.extended = args.extended
-    scanner.scan()
+        if args.input_file:
+            scanner.load_from_file(args.input_file)
+        else:
+            if args.address:
+                scanner.net_range = args.address
+            else:
+                logger.critical('No file or addresses defined')
+                return
 
-    if args.out_file:
-        scanner.write_to_file(args.out_file)
-    else:
-        scanner.print_results()
+        scanner.port = args.port
+        scanner.extended = args.extended
+        scanner.scan()
+
+        if args.out_file:
+            scanner.write_to_file(args.out_file)
+        else:
+            scanner.print_results()
+    except Exception as e:
+        logger.critical('Exception occurred during execution')
+        raise e
 
 
 if __name__ == '__main__':
