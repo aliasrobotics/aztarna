@@ -1,6 +1,8 @@
 from argparse import ArgumentParser
 from commons import BaseScanner
 import logging
+
+
 def main():
     logger = logging.getLogger(__name__)
     parser = ArgumentParser(description='Aztarna')
