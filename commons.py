@@ -1,6 +1,6 @@
 class BaseScanner:
 
-    def __init__(self, net_range, port, extended):
+    def __init__(self, net_range='', port=11311, extended=False):
         self.net_range = net_range
         self.port = port
         self.extended = extended
