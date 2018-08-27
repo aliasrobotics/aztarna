@@ -1,3 +1,6 @@
+import asyncio
+
+
 class BaseScanner:
 
     def __init__(self, net_range='', port=11311, extended=False):
@@ -46,3 +49,40 @@ class Parameter:
         self.name = ''
         self.type = ''
         self.value = ''
+
+
+class FileUtils:
+    @staticmethod
+    def load_from_file(in_file):
+        addresses = []
+        with open(in_file, 'r') as file:
+            for line in file.readlines():
+                addresses.append(line)
+        return addresses
+
+class PortScanner:
+
+    @staticmethod
+    async def check_port(ip, port):
+        conn = asyncio.open_connection(ip, port)
+        try:
+            reader, writer = await asyncio.wait_for(conn, timeout=3)
+            writer.close()
+            return port
+        except:
+            return None
+
+    @staticmethod
+    async def check_port_sem(sem, ip, port):
+        async with sem:
+            return await PortScanner.check_port(ip, port)
+
+    @staticmethod
+    async def scan_host(address, start_port, end_port, max_conns=400):
+        sem = asyncio.Semaphore(max_conns)
+        ports = range(start_port, end_port)
+        tasks = [asyncio.ensure_future(PortScanner.check_port_sem(sem, address, port)) for port in ports]
+        responses = await asyncio.gather(*tasks)
+        open_ports = list(filter(lambda x: x is not None, responses))
+        return open_ports
+
