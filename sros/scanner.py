@@ -1,7 +1,8 @@
 import asyncio
 from ipaddress import ip_network, IPv4Address, AddressValueError
 
-from commons import BaseScanner, FileUtils
+from commons import BaseScanner
+from helpers import FileUtils
 from sros.helpers import SROSNode, SROSHost, get_node_info, get_policies, get_sros_certificate
 
 
@@ -9,7 +10,7 @@ class SROSScanner(BaseScanner):
 
     def __init__(self):
         super().__init__()
-        self.hosts = None
+        self.hosts = []
         self.addresses = []
 
     async def scan_host(self, address, master_port, timeout=1):
@@ -36,30 +37,25 @@ class SROSScanner(BaseScanner):
 
         return sros_host
 
-    async def scan_network(network_range, port):
-        sros_hosts = []
+    async def scan_network(self):
         try:
-            network = ip_network(network_range)
+            network = ip_network(self.net_range)
             if network.netmask == IPv4Address('255.255.255.255'):
-                host_list = [IPv4Address(network_range)]
+                host_list = [IPv4Address(self.net_range)]
             else:
                 host_list = list(network.hosts())
             for host_address in host_list:
                 print('Scanning node {}'.format(host_address))
-                nodes = await scan_host(host_address, port)
-                if len(nodes) > 0:
-                    sros_host = SROSHost()
-                    sros_host.nodes = nodes
-                    sros_hosts.append(sros_host)
+                sros_host = await self.scan_host(host_address, self.port)
+                if sros_host:
+                    self.hosts.append(sros_host)
         except AddressValueError:
             print('Invalid network entered')
         except Exception as e:
             print(e)
 
-        return sros_hosts
-
     def scan(self):
-        pass
+        asyncio.get_event_loop().run_until_complete(self.scan_network())
 
     def print_results(self):
         for host in self.hosts:
@@ -93,7 +89,7 @@ class SROSScanner(BaseScanner):
             file.writelines(lines)
 
     def load_from_file(self, in_file):
-        self.addresses = FileUtils.load_from_file(in_file)
+        self.net_range = FileUtils.load_from_file(in_file)
 
 
 

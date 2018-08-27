@@ -50,6 +50,7 @@ class FileUtils:
                 addresses.append(line)
         return addresses
 
+
 class PortScanner:
 
     @staticmethod

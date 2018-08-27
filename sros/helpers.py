@@ -121,7 +121,7 @@ async def get_sros_certificate(address, port, timeout=3):
     received_data = b''
     is_sros = True
     try:
-        conn = asyncio.open_connection(str(address), port, loop=loop)
+        conn = asyncio.open_connection(str(address), port, loop=asyncio.get_event_loop())
         reader, writer = await asyncio.wait_for(conn, timeout=timeout)
         writer.write(bytes(client_hello))
         await writer.drain()
@@ -131,7 +131,7 @@ async def get_sros_certificate(address, port, timeout=3):
                 is_sros = False
                 break
     except Exception as e:
-        pass
+        print(e)
     else:
         if is_sros:
             server_hello = TLS(received_data)
