@@ -1,4 +1,5 @@
-from platform  import system as system_name  # Returns the system/OS name
+import asyncio
+from platform import system as system_name  # Returns the system/OS name
 from subprocess import call as system_call  # Execute a shell command
 
 

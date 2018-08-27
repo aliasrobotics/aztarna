@@ -1,6 +1,3 @@
-import asyncio
-
-
 class BaseScanner:
 
     def __init__(self, net_range='', port=11311, extended=False):
