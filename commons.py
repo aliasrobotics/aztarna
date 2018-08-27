@@ -18,12 +18,12 @@ class BaseScanner:
         raise NotImplementedError
 
 
-
 class BaseHost:
     def __init__(self):
         self.address = ''
         self.port = ''
         self.nodes = []
+
 
 class BaseNode:
     def __init__(self):
@@ -31,18 +31,28 @@ class BaseNode:
         self.address = ''
         self.port = ''
 
-class Topic:
+
+class BaseTopic:
     def __init__(self):
         self.name = ''
         self.type = ''
 
 
 class Service:
-    def __init__(self):
-        self.name = ''
+    def __init__(self, name):
+        self.name = name
+
 
 class Parameter:
     def __init__(self):
         self.name = ''
         self.type = ''
         self.value = ''
+
+
+class Communication:
+    def __init__(self, topic):
+        self._publishers = []  # Node type
+        self._subscribers = []  # Node type
+        self._topic = topic # Topic() object
+
