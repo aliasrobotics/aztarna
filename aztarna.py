@@ -1,5 +1,6 @@
 from argparse import ArgumentParser
 from commons import BaseScanner
+from sros.scanner import SROSScanner
 import logging
 def main():
     logger = logging.getLogger(__name__)
