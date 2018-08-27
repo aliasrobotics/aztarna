@@ -5,6 +5,9 @@ class BaseScanner:
         self.port = port
         self.extended = extended
 
+    def load_from_file(self,filename):
+        raise NotImplementedError
+
     def scan(self):
         raise NotImplementedError
 
