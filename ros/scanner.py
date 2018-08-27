@@ -5,6 +5,7 @@ from helpers import HelpersROS, FileUtils
 from ros.helpers import Node, Topic, Service
 from xmlrpc.client import ServerProxy
 import logging
+import socket
 
 
 class ROSScanner(BaseScanner):
@@ -20,32 +21,37 @@ class ROSScanner(BaseScanner):
 
     def analyze_nodes(self, host):  # similar to scan_
         ros_master_client = ServerProxy(host)
-        code, msg, val = ros_master_client.getSystemState('')
+        socket.setdefaulttimeout(2)
 
-        if code == 1:
-            publishers_array = val[0]
-            subscribers_array = val[1]
-            services_array = val[2]
-            found_topics = self.analyze_topic_types(ros_master_client)  # In order to analyze the nodes topics are needed
+        try:
+            code, msg, val = ros_master_client.getSystemState('')
 
-            self.extract_nodes(publishers_array, found_topics, 'pub')
-            self.extract_nodes(subscribers_array, found_topics, 'sub')
-            self.extract_services(services_array)
+            if code == 1:
+                publishers_array = val[0]
+                subscribers_array = val[1]
+                services_array = val[2]
+                found_topics = self.analyze_topic_types(ros_master_client)  # In order to analyze the nodes topics are needed
 
-            for topic_name, topic_type in found_topics.items():  # key, value
-                current_topic = Topic(topic_name, topic_type)
-                comm = Communication(current_topic)
-                for node in self.nodes:
-                    if next((x for x in node.published_topics if x.name == current_topic.name), None) is not None:
-                        comm.publishers.append(node)
-                    if next((x for x in node.subscribed_topics if x.name == current_topic.name),
-                            None) is not None:
-                        comm.subscribers.append(node)
-                self._communications.append(comm)
+                self.extract_nodes(publishers_array, found_topics, 'pub')
+                self.extract_nodes(subscribers_array, found_topics, 'sub')
+                self.extract_services(services_array)
 
-            self.set_xmlrpcuri_node(ros_master_client)
-        else:
-            self.logger.critical('[-] Error getting system state')
+                for topic_name, topic_type in found_topics.items():  # key, value
+                    current_topic = Topic(topic_name, topic_type)
+                    comm = Communication(current_topic)
+                    for node in self.nodes:
+                        if next((x for x in node.published_topics if x.name == current_topic.name), None) is not None:
+                            comm.publishers.append(node)
+                        if next((x for x in node.subscribed_topics if x.name == current_topic.name), None) is not None:
+                            comm.subscribers.append(node)
+                    self._communications.append(comm)
+
+                self.set_xmlrpcuri_node(ros_master_client)
+            else:
+                self.logger.critical('[-] Error getting system state')
+
+        except Exception as e:
+            self.logger.error('[-] Error connecting to host ' + str(host) + ': ' + str(e))
 
     def extract_nodes(self, source_array, topics, pub_or_sub):
         source_lines = list(map(HelpersROS.process_line, list(filter(lambda x: (list(x)) is not None, source_array))))
