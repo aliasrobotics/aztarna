@@ -1,11 +1,15 @@
+import asyncio
+import sys
+import traceback
+
+from aiohttp_xmlrpc.client import ServerProxy
+import aiohttp
 import re
 from ipaddress import ip_network, IPv4Address
 from commons import BaseScanner, Communication
 from helpers import HelpersROS, FileUtils
 from ros.helpers import Node, Topic, Service
-from xmlrpc.client import ServerProxy
 import logging
-import socket
 
 
 class ROSScanner(BaseScanner):
@@ -13,45 +17,48 @@ class ROSScanner(BaseScanner):
     def __init__(self):
         super().__init__()
 
+        self.timeout = aiohttp.ClientTimeout(total=3)
         self.nodes = []
         self._communications = []
         self._parameters = []
 
         self.logger = logging.getLogger(__name__)
 
-    def analyze_nodes(self, host):  # similar to scan_
-        ros_master_client = ServerProxy(host)
-        socket.setdefaulttimeout(2)
+    async def analyze_nodes(self, host):  # similar to scan_
+        async with aiohttp.ClientSession(loop=asyncio.get_event_loop(), timeout=self.timeout) as client:
 
-        try:
-            code, msg, val = ros_master_client.getSystemState('')
+            ros_master_client = ServerProxy(host, loop=asyncio.get_event_loop(), client=client)
 
-            if code == 1:
-                publishers_array = val[0]
-                subscribers_array = val[1]
-                services_array = val[2]
-                found_topics = self.analyze_topic_types(ros_master_client)  # In order to analyze the nodes topics are needed
+            try:
+                code, msg, val = await ros_master_client.getSystemState('')
 
-                self.extract_nodes(publishers_array, found_topics, 'pub')
-                self.extract_nodes(subscribers_array, found_topics, 'sub')
-                self.extract_services(services_array)
+                if code == 1:
+                    publishers_array = val[0]
+                    subscribers_array = val[1]
+                    services_array = val[2]
+                    found_topics = await self.analyze_topic_types(ros_master_client)  # In order to analyze the nodes topics are needed
 
-                for topic_name, topic_type in found_topics.items():  # key, value
-                    current_topic = Topic(topic_name, topic_type)
-                    comm = Communication(current_topic)
-                    for node in self.nodes:
-                        if next((x for x in node.published_topics if x.name == current_topic.name), None) is not None:
-                            comm.publishers.append(node)
-                        if next((x for x in node.subscribed_topics if x.name == current_topic.name), None) is not None:
-                            comm.subscribers.append(node)
-                    self._communications.append(comm)
+                    self.extract_nodes(publishers_array, found_topics, 'pub')
+                    self.extract_nodes(subscribers_array, found_topics, 'sub')
+                    self.extract_services(services_array)
 
-                self.set_xmlrpcuri_node(ros_master_client)
-            else:
-                self.logger.critical('[-] Error getting system state')
+                    for topic_name, topic_type in found_topics.items():  # key, value
+                        current_topic = Topic(topic_name, topic_type)
+                        comm = Communication(current_topic)
+                        for node in self.nodes:
+                            if next((x for x in node.published_topics if x.name == current_topic.name), None) is not None:
+                                comm.publishers.append(node)
+                            if next((x for x in node.subscribed_topics if x.name == current_topic.name), None) is not None:
+                                comm.subscribers.append(node)
+                        self._communications.append(comm)
 
-        except Exception as e:
-            self.logger.error('[-] Error connecting to host ' + str(host) + ': ' + str(e))
+                    await self.set_xmlrpcuri_node(ros_master_client)
+                else:
+                    self.logger.critical('[-] Error getting system state')
+
+            except Exception as e:
+                traceback.print_tb(e.__traceback__)
+                self.logger.error('[-] Error connecting to host ' + str(host) + ': ' + str(e))
 
     def extract_nodes(self, source_array, topics, pub_or_sub):
         source_lines = list(map(HelpersROS.process_line, list(filter(lambda x: (list(x)) is not None, source_array))))
@@ -77,20 +84,20 @@ class ROSScanner(BaseScanner):
 
         return ret_node
 
-    def set_xmlrpcuri_node(self, ros_master_client):
+    async def set_xmlrpcuri_node(self, ros_master_client):
         for node in self.nodes:
-            uri = ros_master_client.lookupNode('', node.name)[2]
-            if uri != '':
+            uri = await ros_master_client.lookupNode('', node.name)
+            if uri[2] != '':
                 regexp = re.compile(r'http://(?P<host>[a-zA-Z\.{0-4}0-9]+):(?P<port>[0-9]{1,5})')
-                uri_groups = regexp.search(uri)
+                uri_groups = regexp.search(uri[2])
                 node.address = uri_groups.group('host')
                 node.port = uri_groups.group('port')
 
     @staticmethod
-    def analyze_topic_types(ros_master_client):
-        topic_types = ros_master_client.getTopicTypes('')[2]
+    async def analyze_topic_types(ros_master_client):
+        topic_types = await ros_master_client.getTopicTypes('')
         topics = {}
-        for topic_type_element in topic_types:
+        for topic_type_element in topic_types[2]:
             topic_name = topic_type_element[0]
             topic_type = topic_type_element[1]
             topics[topic_name] = topic_type
@@ -107,8 +114,9 @@ class ROSScanner(BaseScanner):
     def load_from_file(self, filename):
         self.net_range = FileUtils.load_from_file(filename)
 
-    def scan(self):
+    async def scan_network(self):
         try:
+            results = []
             network = ip_network(self.net_range)
             if network.netmask == IPv4Address('255.255.255.255'):
                 host_list = [IPv4Address(self.net_range)]
@@ -116,10 +124,17 @@ class ROSScanner(BaseScanner):
                 host_list = list(network.hosts())
             for address in host_list:
                 full_host = 'http://' + str(address) + ':' + str(self.port)
-                self.analyze_nodes(full_host)
+                results.append(self.analyze_nodes(full_host))
+
+            for result in await asyncio.gather(*results):
+                pass
+
         except ValueError as e:
             self.logger.error('Invalid address entered')
             raise e
+
+    def scan(self):
+        asyncio.get_event_loop().run_until_complete(self.scan_network())
 
     def print_results(self):
         for node in self.nodes:
