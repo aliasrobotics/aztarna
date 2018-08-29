@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from aztarna.aztarna import main
+from aztarna.cmd import main
 
-main()
+if __name__ == '__main__':
+    main()

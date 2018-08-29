@@ -3,8 +3,8 @@
 
 import logging
 from argparse import ArgumentParser
-from .sros import SROSScanner
-from .ros import ROSScanner
+from aztarna.sros import SROSScanner
+from aztarna.ros import ROSScanner
 
 
 def main():
