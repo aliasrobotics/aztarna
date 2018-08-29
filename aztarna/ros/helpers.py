@@ -1,4 +1,7 @@
-from commons import BaseNode, BaseTopic, BaseService
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+from aztarna.commons import BaseNode, BaseTopic, BaseService
 
 
 class Node(BaseNode):

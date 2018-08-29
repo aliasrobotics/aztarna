@@ -1,11 +1,12 @@
-import asyncio
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
+import asyncio
 from scapy.layers.tls.extensions import TLS_Ext_SupportedGroups, TLS_Ext_SupportedPointFormat, \
     TLS_Ext_SignatureAlgorithms, TLS_Ext_Heartbeat, TLS_Ext_Padding
 from scapy.layers.tls.handshake import TLSClientHello
 from scapy.layers.tls.record import TLS
-
-from commons import BaseHost, BaseNode
+from aztarna.commons import BaseHost, BaseNode
 
 
 class SROSNode(BaseNode):

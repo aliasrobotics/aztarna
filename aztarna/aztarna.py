@@ -1,7 +1,10 @@
-from argparse import ArgumentParser
-from sros.scanner import SROSScanner
-from ros.scanner import ROSScanner
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 import logging
+from argparse import ArgumentParser
+from .sros import SROSScanner
+from .ros import ROSScanner
 
 
 def main():

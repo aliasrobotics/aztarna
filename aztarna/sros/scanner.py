@@ -1,9 +1,12 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 import asyncio
 from ipaddress import ip_network, IPv4Address, AddressValueError
 
-from commons import BaseScanner
-from helpers import FileUtils
-from sros.helpers import SROSNode, SROSHost, get_node_info, get_policies, get_sros_certificate
+from aztarna.commons import BaseScanner
+from aztarna.helpers import FileUtils
+from .helpers import SROSHost, get_node_info, get_policies, get_sros_certificate
 
 
 class SROSScanner(BaseScanner):
