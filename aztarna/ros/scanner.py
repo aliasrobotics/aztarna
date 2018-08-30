@@ -20,8 +20,8 @@ class ROSScanner(BaseScanner):
 
         self.timeout = aiohttp.ClientTimeout(total=3)
         self.nodes = []
-        self._communications = []
-        self._parameters = []
+        self.communications = []
+        self.parameters = []
 
         self.logger = logging.getLogger(__name__)
 
@@ -51,7 +51,7 @@ class ROSScanner(BaseScanner):
                                 comm.publishers.append(node)
                             if next((x for x in node.subscribed_topics if x.name == current_topic.name), None) is not None:
                                 comm.subscribers.append(node)
-                        self._communications.append(comm)
+                        self.communications.append(comm)
 
                     await self.set_xmlrpcuri_node(ros_master_client)
                 else:
@@ -165,6 +165,18 @@ class ROSScanner(BaseScanner):
         print('\n\n')
 
     def write_to_file(self, out_file):
-        pass
+        lines = []
+        header = 'Node;Address;Port;Published Topics;Subscribed Topics;Services\n'
+        lines.append(header)
+        for node in self.nodes:
+            for ptopic in node.published_topics:
+                for stopic in node.subscribed_topics:
+                    for service in node.services:
+                        line = '{};{};{};{};{};{}\n'.format(node.name, node.address, node.port, ptopic,
+                                                           stopic, service)
+                        lines.append(line)
+
+        with open(out_file, 'w') as file:
+            file.writelines(lines)
 
 
