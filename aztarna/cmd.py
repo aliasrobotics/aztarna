@@ -12,7 +12,7 @@ def main():
     parser = ArgumentParser(description='Aztarna')
     parser.add_argument('-t', '--type', help='<ROS/SROS> Scan ROS or SROS hosts', required=True)
     parser.add_argument('-a', '--address', help='Single address or network range to scan.')
-    parser.add_argument('-p', '--port', help='Port to scan', required=True)
+    parser.add_argument('-p', '--ports', help='Port or Port range to scan', required=True)
     parser.add_argument('-i', '--input_file', help='Input file of addresses to use for scanning')
     parser.add_argument('-o', '--out_file', help='Output file for the results')
     parser.add_argument('-e', '--extended', help='Extended scan of the hosts')
@@ -35,7 +35,7 @@ def main():
                 logger.critical('No file or addresses defined')
                 return
 
-        scanner.port = args.port
+        scanner.ports = range(int(args.ports.split('-')[0]), int(args.ports.split('-')[1]))
         scanner.extended = args.extended
         scanner.scan()
 

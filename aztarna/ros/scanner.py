@@ -13,7 +13,6 @@ from aztarna.helpers import HelpersROS, FileUtils
 from .helpers import Node, Topic, Service
 
 
-
 class ROSScanner(BaseScanner):
 
     def __init__(self):
@@ -59,7 +58,7 @@ class ROSScanner(BaseScanner):
                     self.logger.critical('[-] Error getting system state')
 
             except Exception as e:
-                traceback.print_tb(e.__traceback__)
+                # traceback.print_tb(e.__traceback__)
                 self.logger.error('[-] Error connecting to host ' + str(host) + ': ' + str(e))
 
     def extract_nodes(self, source_array, topics, pub_or_sub):
@@ -124,9 +123,10 @@ class ROSScanner(BaseScanner):
                 host_list = [IPv4Address(self.net_range)]
             else:
                 host_list = list(network.hosts())
-            for address in host_list:
-                full_host = 'http://' + str(address) + ':' + str(self.port)
-                results.append(self.analyze_nodes(full_host))
+            for port in self.ports:
+                for address in host_list:
+                    full_host = 'http://' + str(address) + ':' + str(port)
+                    results.append(self.analyze_nodes(full_host))
 
             for result in await asyncio.gather(*results):
                 pass
