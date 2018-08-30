@@ -55,7 +55,7 @@ class ROSScanner(BaseScanner):
 
                     await self.set_xmlrpcuri_node(ros_master_client)
                 else:
-                    self.logger.critical('[-] Error getting system state')
+                    self.logger.critical('[-] Error getting system state. Probably not a ROS Master')
 
             except Exception as e:
                 # traceback.print_tb(e.__traceback__)
