@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import logging
+import re
 from argparse import ArgumentParser
 from aztarna.sros import SROSScanner
 from aztarna.ros import ROSScanner
@@ -12,7 +13,7 @@ def main():
     parser = ArgumentParser(description='Aztarna')
     parser.add_argument('-t', '--type', help='<ROS/SROS> Scan ROS or SROS hosts', required=True)
     parser.add_argument('-a', '--address', help='Single address or network range to scan.')
-    parser.add_argument('-p', '--ports', help='Port or Port range to scan', required=True)
+    parser.add_argument('-p', '--ports', help='Ports to scan (format: 13311 or 11111-11155 or 1,2,3,4)', required=True)
     parser.add_argument('-i', '--input_file', help='Input file of addresses to use for scanning')
     parser.add_argument('-o', '--out_file', help='Output file for the results')
     parser.add_argument('-e', '--extended', help='Extended scan of the hosts')
@@ -35,7 +36,17 @@ def main():
                 logger.critical('No file or addresses defined')
                 return
 
-        scanner.ports = range(int(args.ports.split('-')[0]), int(args.ports.split('-')[1]))
+        try:
+            scanner.ports = range(int(args.ports.split('-')[0]), int(args.ports.split('-')[1]))
+        except:
+            try:
+                scanner.ports = [int(port) for port in args.ports.split(',')]
+            except:
+                try:
+                    scanner.ports.append(int(args.ports))
+                except Exception as e:
+                    print('[-] Error: ' + str(e))
+
         scanner.extended = args.extended
         scanner.scan()
 
