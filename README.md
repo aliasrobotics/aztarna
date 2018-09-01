@@ -16,3 +16,9 @@ A footprinting tool for ROS and SROS systems. The collected information includes
 sudo python3 setup.py install
 ```
 The only requirement is [setuptools](https://pypi.org/project/setuptools/) package, which is usually a defacto standard in a python3 installation.
+
+### RUN the code (example)
+
+```bash
+aztarna -t ROS -p 11311 -i ros_scan_s20.csv
+```
