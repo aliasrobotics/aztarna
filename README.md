@@ -52,3 +52,21 @@ aztarna -t ROS -p 11311 -i ros_scan_s20.csv
 ```bash
 aztarna -t ROS -p 11311 -a 115.129.241.241
 ```
+
+### Run the code (example subnet):
+
+```bash
+aztarna -t ROS -p 11311 -a 115.129.241.0/24
+```
+
+### Run the code (example single ip address, port range):
+
+```bash
+aztarna -t ROS -p 11311-11500 -a 115.129.241.241
+```
+
+### Run the code (example single ip address, port list):
+
+```bash
+aztarna -t ROS -p 11311,11312,11313 -a 115.129.241.241
+```
