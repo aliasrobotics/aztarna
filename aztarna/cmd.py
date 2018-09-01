@@ -11,7 +11,7 @@ from aztarna.ros import ROSScanner
 def main():
     logger = logging.getLogger(__name__)
     parser = ArgumentParser(description='Aztarna')
-    parser.add_argument('-t', '--type', help='<ROS/SROS> Scan ROS or SROS hosts', required=True)
+    parser.add_argument('-t', '--type', help='<ROS/ros/SROS/sros> Scan ROS or SROS hosts', required=True)
     parser.add_argument('-a', '--address', help='Single address or network range to scan.')
     parser.add_argument('-p', '--ports', help='Ports to scan (format: 13311 or 11111-11155 or 1,2,3,4)', required=True)
     parser.add_argument('-i', '--input_file', help='Input file of addresses to use for scanning')
