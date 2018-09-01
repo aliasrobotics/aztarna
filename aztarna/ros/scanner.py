@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import asyncio
-import traceback
+import sys
 import aiohttp
 import logging
 import re
@@ -113,8 +113,13 @@ class ROSScanner(BaseScanner):
                 node.services.append(Service(service_line[0]))
 
     def load_from_file(self, filename):
-        self.net_range = FileUtils.load_from_file(filename)
-        self.input = True
+        try:
+            self.net_range = FileUtils.load_from_file(filename)
+            self.input = True
+        except Exception as e:
+            print(e)
+            sys.exit(0)
+
 
     async def scan_network(self):
         try:
