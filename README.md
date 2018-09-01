@@ -41,8 +41,14 @@ optional arguments:
                         Extended scan of the hosts
 ```
 
-### RUN the code (example)
+### Run the code (example input file):
 
 ```bash
 aztarna -t ROS -p 11311 -i ros_scan_s20.csv
+```
+
+### Run the code (example single ip address):
+
+```bash
+aztarna -t ROS -p 11311 -a 115.129.241.241
 ```
