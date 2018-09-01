@@ -142,6 +142,31 @@ async def get_sros_certificate(address, port, timeout=3):
     return address, port, None
 
 
+async def check_port(ip, port):
+    conn = asyncio.open_connection(ip, port, loop=asyncio.get_event_loop())
+    try:
+        reader, writer = await asyncio.wait_for(conn, timeout=3)
+        return port
+    except:
+        pass
+    finally:
+        if 'writer' in locals():
+            writer.close()
+
+
+async def check_port_sem(sem, ip, port):
+    async with sem:
+        return await check_port(ip, port)
+
+
+async def find_node_ports(ports):
+    sem = asyncio.Semaphore(400)  # Change this value for concurrency limitation
+    tasks = [asyncio.ensure_future(check_port_sem(sem, p, asyncio.get_event_loop())) for p in ports]
+    responses = await asyncio.gather(*tasks)
+
+    return responses
+
+
 
 
 

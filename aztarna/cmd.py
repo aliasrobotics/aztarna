@@ -16,7 +16,7 @@ def main():
     parser.add_argument('-p', '--ports', help='Ports to scan (format: 13311 or 11111-11155 or 1,2,3,4)', required=True)
     parser.add_argument('-i', '--input_file', help='Input file of addresses to use for scanning')
     parser.add_argument('-o', '--out_file', help='Output file for the results')
-    parser.add_argument('-e', '--extended', help='Extended scan of the hosts')
+    parser.add_argument('-e', '--extended', help='Extended scan of the hosts', action='store_true')
     args = parser.parse_args()
     try:
         if args.type == 'ROS':

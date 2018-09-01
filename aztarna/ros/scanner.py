@@ -114,15 +114,21 @@ class ROSScanner(BaseScanner):
 
     def load_from_file(self, filename):
         self.net_range = FileUtils.load_from_file(filename)
+        self.input = True
 
     async def scan_network(self):
         try:
             results = []
-            network = ip_network(self.net_range)
-            if network.netmask == IPv4Address('255.255.255.255'):
-                host_list = [IPv4Address(self.net_range)]
+
+            if self.input is False:
+                network = ip_network(self.net_range)
+                if network.netmask == IPv4Address('255.255.255.255'):
+                    host_list = [IPv4Address(self.net_range)]
+                else:
+                    host_list = list(network.hosts())
             else:
-                host_list = list(network.hosts())
+                host_list = self.net_range
+
             for port in self.ports:
                 for address in host_list:
                     full_host = 'http://' + str(address) + ':' + str(port)
@@ -151,9 +157,8 @@ class ROSScanner(BaseScanner):
             for service in node.services:
                 print('\t\t * ' + str(service))
 
-        print('\nCommunications:')
-        for i in range(len(self._communications)):
-            comm = self._communications[i]
+        for i in range(len(self.communications)):
+            comm = self.communications[i]
             print('\n\t Communication ' + str(i) + ':')
             print('\t\t - Publishers:')
             for node in comm.publishers:

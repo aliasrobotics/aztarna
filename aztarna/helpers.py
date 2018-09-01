@@ -50,7 +50,7 @@ class FileUtils:
         addresses = []
         with open(in_file, 'r') as file:
             for line in file.readlines():
-                addresses.append(line)
+                addresses.append(line.rstrip('\n'))
         return addresses
 
 

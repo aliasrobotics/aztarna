@@ -6,7 +6,7 @@ from ipaddress import ip_network, IPv4Address, AddressValueError
 
 from aztarna.commons import BaseScanner
 from aztarna.helpers import FileUtils
-from .helpers import SROSHost, get_node_info, get_policies, get_sros_certificate
+from .helpers import SROSHost, get_node_info, get_policies, get_sros_certificate, find_node_ports
 
 
 class SROSScanner(BaseScanner):
@@ -19,7 +19,7 @@ class SROSScanner(BaseScanner):
     async def scan_host(self, address, master_port, timeout=1):
         sros_host = None
         master_address, port, master_cert = await get_sros_certificate(address, master_port, timeout)
-        sem = asyncio.Semaphore(10)
+        sem = asyncio.Semaphore(100)
         if master_cert:
             sros_host = SROSHost()
             sros_host.address = address
@@ -28,8 +28,9 @@ class SROSScanner(BaseScanner):
             sros_host.nodes.append(master_node)
             results = []
             if self.extended:
-                for port in range(11310, 50000):
-                    results.append(get_sros_certificate_sem(address, port, sem, timeout))
+                node_ports = find_node_ports(range(11310, 50000))
+                for port in node_ports:
+                    results.append(get_sros_certificate(address, port, sem, timeout))
 
                 for result in await asyncio.gather(*results):
                     print(result)
@@ -49,7 +50,7 @@ class SROSScanner(BaseScanner):
                 host_list = list(network.hosts())
             for host_address in host_list:
                 print('Scanning node {}'.format(host_address))
-                sros_host = await self.scan_host(host_address, self.port)
+                sros_host = await self.scan_host(host_address, self.ports[0])  # TODO add port range
                 if sros_host:
                     self.hosts.append(sros_host)
         except AddressValueError:
@@ -93,6 +94,7 @@ class SROSScanner(BaseScanner):
 
     def load_from_file(self, in_file):
         self.net_range = FileUtils.load_from_file(in_file)
+
 
 
 
