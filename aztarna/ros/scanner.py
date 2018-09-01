@@ -120,7 +120,6 @@ class ROSScanner(BaseScanner):
             print(e)
             sys.exit(0)
 
-
     async def scan_network(self):
         try:
             results = []

@@ -19,9 +19,9 @@ def main():
     parser.add_argument('-e', '--extended', help='Extended scan of the hosts', action='store_true')
     args = parser.parse_args()
     try:
-        if args.type == 'ROS':
+        if args.type == 'ROS' or args.type == 'ros':
             scanner = ROSScanner()
-        elif args.type == 'SROS':
+        elif args.type == 'SROS' or args.type == 'sros':
             scanner = SROSScanner()
         else:
             logger.critical('Invalid type selected')
