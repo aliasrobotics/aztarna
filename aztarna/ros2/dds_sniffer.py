@@ -28,8 +28,10 @@ def main():
                 print(TAB_1 + 'UDP Segment:')
                 print(TAB_2 + 'Source Port: {}, Destination Port: {}, Length: {}'.format(udp.src_port, udp.dest_port, udp.size))
                 print(udp.data)
-                if udp.src_port == 7411:  # TODO: search for interested dds ports
-                    conn.send(udp.data)
+                # TODO: search for interested dds ports
+                # At this point all the packet fields are bound to modify, so analyze a strategy
+                #if udp.src_port == 7411:  
+                    #conn.send(udp.data)
 
     pcap.close()
 
