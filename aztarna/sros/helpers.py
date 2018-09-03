@@ -2,11 +2,17 @@
 # -*- coding: utf-8 -*-
 
 import asyncio
+import socket
+import traceback
+
 from scapy.layers.tls.extensions import TLS_Ext_SupportedGroups, TLS_Ext_SupportedPointFormat, \
     TLS_Ext_SignatureAlgorithms, TLS_Ext_Heartbeat, TLS_Ext_Padding
 from scapy.layers.tls.handshake import TLSClientHello
 from scapy.layers.tls.record import TLS
+from scapy.all import *
 from aztarna.commons import BaseHost, BaseNode
+
+load_layer('tls')
 
 
 class SROSNode(BaseNode):
@@ -127,12 +133,12 @@ async def get_sros_certificate(address, port, timeout=3):
         writer.write(bytes(client_hello))
         await writer.drain()
         while received_data[-4:] != server_hello_done:
-            received_data += await asyncio.wait_for(reader.read(1024), timeout=timeout)
+            received_data += await asyncio.wait_for(reader.read(1024), timeout=3)
             if received_data[:3] != tls_header:
                 is_sros = False
                 break
     except Exception as e:
-        print(e)
+        traceback.print_exc(e)
     else:
         if is_sros:
             server_hello = TLS(received_data)
@@ -143,15 +149,18 @@ async def get_sros_certificate(address, port, timeout=3):
 
 
 async def check_port(ip, port):
-    conn = asyncio.open_connection(ip, port, loop=asyncio.get_event_loop())
     try:
-        reader, writer = await asyncio.wait_for(conn, timeout=3)
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        await asyncio.wait_for(asyncio.get_event_loop().sock_connect(sock, (str(ip), port,)), timeout=0.1)
+        print('Open' + str(port))
         return port
-    except:
+    except Exception as e:
         pass
     finally:
-        if 'writer' in locals():
-            writer.close()
+        try:
+            sock.close()
+        except:
+            pass
 
 
 async def check_port_sem(sem, ip, port):
@@ -159,12 +168,15 @@ async def check_port_sem(sem, ip, port):
         return await check_port(ip, port)
 
 
-async def find_node_ports(ports):
-    sem = asyncio.Semaphore(400)  # Change this value for concurrency limitation
-    tasks = [asyncio.ensure_future(check_port_sem(sem, p, asyncio.get_event_loop())) for p in ports]
-    responses = await asyncio.gather(*tasks)
+async def find_node_ports(address, ports):
+    sem = asyncio.Semaphore(4000)  # Change this value for concurrency limitation
+    tasks = [asyncio.ensure_future(check_port_sem(sem, address, p)) for p in ports]
+    found_ports = []
+    for response in await asyncio.gather(*tasks):
+        if response:
+            found_ports.append(response)
 
-    return responses
+    return found_ports
 
 
 

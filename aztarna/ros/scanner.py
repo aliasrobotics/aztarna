@@ -9,7 +9,7 @@ import re
 from aiohttp_xmlrpc.client import ServerProxy
 from ipaddress import ip_network, IPv4Address
 from aztarna.commons import BaseScanner, Communication
-from aztarna.helpers import HelpersROS, FileUtils
+from aztarna.helpers import HelpersROS
 from .helpers import Node, Topic, Service
 
 
@@ -112,29 +112,12 @@ class ROSScanner(BaseScanner):
                 node = self.get_create_node(node_name)
                 node.services.append(Service(service_line[0]))
 
-    def load_from_file(self, filename):
-        try:
-            self.net_range = FileUtils.load_from_file(filename)
-            self.input = True
-        except Exception as e:
-            print(e)
-            sys.exit(0)
-
     async def scan_network(self):
         try:
             results = []
 
-            if self.input is False:
-                network = ip_network(self.net_range)
-                if network.netmask == IPv4Address('255.255.255.255'):
-                    host_list = [IPv4Address(self.net_range)]
-                else:
-                    host_list = list(network.hosts())
-            else:
-                host_list = self.net_range
-
             for port in self.ports:
-                for address in host_list:
+                for address in self.host_list:
                     full_host = 'http://' + str(address) + ':' + str(port)
                     results.append(self.analyze_nodes(full_host))
 
