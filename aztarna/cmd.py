@@ -31,7 +31,7 @@ def main():
             scanner.load_from_file(args.input_file)
         else:
             if args.address:
-                scanner.net_range = args.address
+                scanner.load_range(args.address)
             else:
                 logger.critical('No file or addresses defined')
                 return

@@ -1,17 +1,29 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import ipaddress
+from ipaddress import IPv4Address, ip_network
 
 
 class BaseScanner:
 
-    def __init__(self, net_range='', ports=[11311], extended=False):
-        self.net_range = net_range
+    def __init__(self, ports=[11311], extended=False):
+        self.host_list = []
         self.ports = ports
         self.extended = extended
         self.input = False
 
-    def load_from_file(self,filename):
-        raise NotImplementedError
+    def load_from_file(self, filename):
+        with open(filename, 'r') as file:
+            for line in file.readlines():
+                address = ipaddress.ip_address(line.rstrip('\n'))
+                self.host_list.append(address)
+
+    def load_range(self, net_range):
+        network = ip_network(net_range)
+        if network.netmask == IPv4Address('255.255.255.255'):
+            self.host_list = [IPv4Address(net_range)]
+        else:
+            self.host_list = list(network.hosts())
 
     def scan(self):
         raise NotImplementedError

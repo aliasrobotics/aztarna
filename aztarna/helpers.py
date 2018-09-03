@@ -44,16 +44,6 @@ class HelpersNetWorking:
         return ret
 
 
-class FileUtils:
-    @staticmethod
-    def load_from_file(in_file):
-        addresses = []
-        with open(in_file, 'r') as file:
-            for line in file.readlines():
-                addresses.append(line.rstrip('\n'))
-        return addresses
-
-
 class PortScanner:
 
     @staticmethod
