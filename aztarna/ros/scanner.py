@@ -116,14 +116,14 @@ class ROSScanner(BaseScanner):
         sem = asyncio.Semaphore(4000)
         try:
             results = []
-            async with sem:
-                for port in self.ports:
-                    for address in self.host_list:
-                        full_host = 'http://' + str(address) + ':' + str(port)
-                        results.append(self.analyze_nodes(full_host))
+            for port in self.ports:
+                for address in self.host_list:
+                    full_host = 'http://' + str(address) + ':' + str(port)
+                    results.append(self.analyze_nodes(full_host))
 
-            for result in await asyncio.gather(*results):
-                pass
+            async with sem:
+                for result in await asyncio.gather(*results):
+                    pass
 
         except ValueError as e:
             self.logger.error('Invalid address entered')
