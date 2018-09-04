@@ -27,35 +27,36 @@ class ROSScanner(BaseScanner):
 
     async def analyze_nodes(self, host):  # similar to scan_
         async with aiohttp.ClientSession(loop=asyncio.get_event_loop(), timeout=self.timeout) as client:
-
+            sem = asyncio.Semaphore(4000)
             ros_master_client = ServerProxy(host, loop=asyncio.get_event_loop(), client=client)
 
             try:
-                code, msg, val = await ros_master_client.getSystemState('')
+                async with sem:
+                    code, msg, val = await ros_master_client.getSystemState('')
 
-                if code == 1:
-                    publishers_array = val[0]
-                    subscribers_array = val[1]
-                    services_array = val[2]
-                    found_topics = await self.analyze_topic_types(ros_master_client)  # In order to analyze the nodes topics are needed
+                    if code == 1:
+                        publishers_array = val[0]
+                        subscribers_array = val[1]
+                        services_array = val[2]
+                        found_topics = await self.analyze_topic_types(ros_master_client)  # In order to analyze the nodes topics are needed
 
-                    self.extract_nodes(publishers_array, found_topics, 'pub')
-                    self.extract_nodes(subscribers_array, found_topics, 'sub')
-                    self.extract_services(services_array)
+                        self.extract_nodes(publishers_array, found_topics, 'pub')
+                        self.extract_nodes(subscribers_array, found_topics, 'sub')
+                        self.extract_services(services_array)
 
-                    for topic_name, topic_type in found_topics.items():  # key, value
-                        current_topic = Topic(topic_name, topic_type)
-                        comm = Communication(current_topic)
-                        for node in self.nodes:
-                            if next((x for x in node.published_topics if x.name == current_topic.name), None) is not None:
-                                comm.publishers.append(node)
-                            if next((x for x in node.subscribed_topics if x.name == current_topic.name), None) is not None:
-                                comm.subscribers.append(node)
-                        self.communications.append(comm)
+                        for topic_name, topic_type in found_topics.items():  # key, value
+                            current_topic = Topic(topic_name, topic_type)
+                            comm = Communication(current_topic)
+                            for node in self.nodes:
+                                if next((x for x in node.published_topics if x.name == current_topic.name), None) is not None:
+                                    comm.publishers.append(node)
+                                if next((x for x in node.subscribed_topics if x.name == current_topic.name), None) is not None:
+                                    comm.subscribers.append(node)
+                            self.communications.append(comm)
 
-                    await self.set_xmlrpcuri_node(ros_master_client)
-                else:
-                    self.logger.critical('[-] Error getting system state. Probably not a ROS Master')
+                        await self.set_xmlrpcuri_node(ros_master_client)
+                    else:
+                        self.logger.critical('[-] Error getting system state. Probably not a ROS Master')
 
             except Exception as e:
                 # traceback.print_tb(e.__traceback__)
@@ -113,7 +114,6 @@ class ROSScanner(BaseScanner):
                 node.services.append(Service(service_line[0]))
 
     async def scan_network(self):
-        sem = asyncio.Semaphore(400)
         try:
             results = []
             for port in self.ports:
@@ -121,8 +121,7 @@ class ROSScanner(BaseScanner):
                     full_host = 'http://' + str(address) + ':' + str(port)
                     results.append(self.analyze_nodes(full_host))
 
-            async with sem:
-                for result in await asyncio.gather(*results):
+            for result in await asyncio.gather(*results):
                     pass
 
         except ValueError as e:
