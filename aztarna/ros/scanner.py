@@ -89,7 +89,7 @@ class ROSScanner(BaseScanner):
         for node in self.nodes:
             uri = await ros_master_client.lookupNode('', node.name)
             if uri[2] != '':
-                regexp = re.compile(r'http://(?P<host>[a-zA-Z\.{0-4}0-9]+):(?P<port>[0-9]{1,5})')
+                regexp = re.compile(r'http://(?P<host>\S+):(?P<port>[0-9]{1,5})')
                 uri_groups = regexp.search(uri[2])
                 node.address = uri_groups.group('host')
                 node.port = uri_groups.group('port')
@@ -113,13 +113,14 @@ class ROSScanner(BaseScanner):
                 node.services.append(Service(service_line[0]))
 
     async def scan_network(self):
+        sem = asyncio.Semaphore(4000)
         try:
             results = []
-
-            for port in self.ports:
-                for address in self.host_list:
-                    full_host = 'http://' + str(address) + ':' + str(port)
-                    results.append(self.analyze_nodes(full_host))
+            async with sem:
+                for port in self.ports:
+                    for address in self.host_list:
+                        full_host = 'http://' + str(address) + ':' + str(port)
+                        results.append(self.analyze_nodes(full_host))
 
             for result in await asyncio.gather(*results):
                 pass
