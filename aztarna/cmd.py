@@ -1,12 +1,16 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
+import asyncio
 import logging
 import re
 from argparse import ArgumentParser
+
+import uvloop
+
 from aztarna.sros import SROSScanner
 from aztarna.ros import ROSScanner
 
+asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 
 def main():
     logger = logging.getLogger(__name__)
@@ -17,7 +21,7 @@ def main():
     parser.add_argument('-i', '--input_file', help='Input file of addresses to use for scanning')
     parser.add_argument('-o', '--out_file', help='Output file for the results')
     parser.add_argument('-e', '--extended', help='Extended scan of the hosts', action='store_true')
-    parser.add_argument('-r', '--rate', help='Maximum simultaneous network connections', default=1000, type=int)
+    parser.add_argument('-r', '--rate', help='Maximum simultaneous network connections', default=100, type=int)
     args = parser.parse_args()
     try:
         if args.type == 'ROS' or args.type == 'ros':

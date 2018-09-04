@@ -25,11 +25,9 @@ class ROSScanner(BaseScanner):
 
     async def analyze_nodes(self, host):  # similar to scan_
         async with aiohttp.ClientSession(loop=asyncio.get_event_loop(), timeout=self.timeout) as client:
-
             ros_master_client = ServerProxy(host, loop=asyncio.get_event_loop(), client=client)
-
-            try:
-                async with self.semaphore:
+            async with self.semaphore:
+                try:
                     code, msg, val = await ros_master_client.getSystemState('')
 
                     if code == 1:
@@ -53,12 +51,15 @@ class ROSScanner(BaseScanner):
                             self.communications.append(comm)
 
                         await self.set_xmlrpcuri_node(ros_master_client)
+                        await client.close()
                     else:
                         self.logger.critical('[-] Error getting system state. Probably not a ROS Master')
 
-            except Exception as e:
-                # traceback.print_tb(e.__traceback__)
-                self.logger.error('[-] Error connecting to host ' + str(host) + ': ' + str(e) + '\n\tNot a ROS host')
+                except Exception as e:
+                    # traceback.print_tb(e.__traceback__)
+                    self.logger.error('[-] Error connecting to host ' + str(host) + ': ' + str(e) + '\n\tNot a ROS host')
+
+
 
     def extract_nodes(self, source_array, topics, pub_or_sub):
         source_lines = list(map(HelpersROS.process_line, list(filter(lambda x: (list(x)) is not None, source_array))))
@@ -85,13 +86,12 @@ class ROSScanner(BaseScanner):
 
     async def set_xmlrpcuri_node(self, ros_master_client):
         for node in self.nodes:
-            async with self.semaphore:
-                uri = await ros_master_client.lookupNode('', node.name)
-                if uri[2] != '':
-                    regexp = re.compile(r'http://(?P<host>\S+):(?P<port>[0-9]{1,5})')
-                    uri_groups = regexp.search(uri[2])
-                    node.address = uri_groups.group('host')
-                    node.port = uri_groups.group('port')
+            uri = await ros_master_client.lookupNode('', node.name)
+            if uri[2] != '':
+                regexp = re.compile(r'http://(?P<host>\S+):(?P<port>[0-9]{1,5})')
+                uri_groups = regexp.search(uri[2])
+                node.address = uri_groups.group('host')
+                node.port = uri_groups.group('port')
 
     @staticmethod
     async def analyze_topic_types(ros_master_client):
