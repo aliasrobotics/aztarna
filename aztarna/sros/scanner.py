@@ -4,11 +4,13 @@
 import asyncio
 import random
 import traceback
+import logging
 from ipaddress import ip_network, IPv4Address, AddressValueError
 
 from aztarna.commons import BaseScanner
 from .helpers import SROSHost, get_node_info, get_policies, get_sros_certificate, find_node_ports
 
+logger = logging.getLogger(__name__)
 
 class SROSScanner(BaseScanner):
 
@@ -18,43 +20,46 @@ class SROSScanner(BaseScanner):
         self.addresses = []
 
     async def scan_host(self, address, master_port, timeout=1):
-        sros_host = None
-        master_address, port, master_cert = await get_sros_certificate(address, master_port, timeout)
-        if master_cert:
-            sros_host = SROSHost()
-            sros_host.address = address
-            master_node = get_node_info(master_cert)
-            master_node.policies = get_policies(master_cert)
-            sros_host.nodes.append(master_node)
-            results = []
-            if self.extended:
-                port_range = list(range(11310, 25000))
-                random.shuffle(port_range)
-                node_ports = await find_node_ports(address, port_range)
-                for port in node_ports:
-                    results.append(get_sros_certificate(address, port))
-
-                for result in await asyncio.gather(*results):
-                    try:
-                        print(result)
-                        if result[2]:
-                            node_info = get_node_info(result[2])
-                            node_info.policies = get_policies(result[2])
-                            sros_host.nodes.append(node_info)
-                    except Exception as e:
-                        print(e)
+        async with self.semaphore:
+            sros_host = None
+            logger.warning('Connecting to {}:{}'.format(address, master_port))
+            master_address, port, master_cert = await get_sros_certificate(address, master_port, timeout)
+            if master_cert:
+                sros_host = SROSHost()
+                sros_host.address = address
+                master_node = get_node_info(master_cert)
+                master_node.policies = get_policies(master_cert)
+                sros_host.nodes.append(master_node)
+                results = []
+                if self.extended:
+                    port_range = list(range(11310, 25000))
+                    random.shuffle(port_range)
+                    node_ports = await find_node_ports(address, port_range)
+                    for port in node_ports:
+                        results.append(get_sros_certificate(address, port))
+                    for result in await asyncio.gather(*results):
+                        try:
+                            if result:
+                                print(result)
+                                if result[2]:
+                                    node_info = get_node_info(result[2])
+                                    node_info.policies = get_policies(result[2])
+                                    sros_host.nodes.append(node_info)
+                        except Exception as e:
+                            print(e)
 
         return sros_host
 
     async def scan_network(self):
-        sem = sem = asyncio.Semaphore(4000)
         try:
-            for host_address in self.host_list:
-                print('Scanning node {}'.format(host_address))
-                async with sem:
-                    sros_host = await self.scan_host(host_address, self.ports[0])  # TODO add port range
-                    if sros_host:
-                        self.hosts.append(sros_host)
+            results = []
+            for port in self.ports:
+                for host_address in self.host_list:
+                    results.append(self.scan_host(host_address, port))
+            for result in await asyncio.gather(*results):
+                    if result:
+                        self.hosts.append(result)
+
         except AddressValueError:
             print('Invalid network entered')
         except Exception as e:

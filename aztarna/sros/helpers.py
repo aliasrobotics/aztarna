@@ -2,9 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import asyncio
-import socket
-import traceback
-
+import logging
 from scapy.layers.tls.extensions import TLS_Ext_SupportedGroups, TLS_Ext_SupportedPointFormat, \
     TLS_Ext_SignatureAlgorithms, TLS_Ext_Heartbeat, TLS_Ext_Padding
 from scapy.layers.tls.handshake import TLSClientHello
@@ -14,6 +12,8 @@ from aztarna.commons import BaseHost, BaseNode
 
 load_layer('tls')
 
+
+logger = logging.getLogger(__name__)
 
 class SROSNode(BaseNode):
     def __init__(self):
@@ -138,7 +138,7 @@ async def get_sros_certificate(address, port, timeout=3):
                 is_sros = False
                 break
     except Exception as e:
-        print(e)
+        return address, port, None
     else:
         if is_sros:
             server_hello = TLS(received_data)
@@ -154,7 +154,7 @@ async def check_port(ip, port):
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         sock.settimeout(0.1)
         await asyncio.wait_for(asyncio.get_event_loop().sock_connect(sock, (str(ip), port,)), timeout=0.1)
-        print('Open' + str(port))
+        logger.warning('Scanning host {}:{}'.format(ip, port))
         return port
     except Exception as e:
         pass
