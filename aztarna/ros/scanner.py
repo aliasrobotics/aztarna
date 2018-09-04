@@ -12,6 +12,8 @@ from aztarna.commons import BaseScanner, Communication
 from aztarna.helpers import HelpersROS
 from .helpers import Node, Topic, Service
 
+sem = asyncio.Semaphore(4000)
+
 
 class ROSScanner(BaseScanner):
 
@@ -27,7 +29,7 @@ class ROSScanner(BaseScanner):
 
     async def analyze_nodes(self, host):  # similar to scan_
         async with aiohttp.ClientSession(loop=asyncio.get_event_loop(), timeout=self.timeout) as client:
-            sem = asyncio.Semaphore(4000)
+
             ros_master_client = ServerProxy(host, loop=asyncio.get_event_loop(), client=client)
 
             try:
@@ -88,21 +90,23 @@ class ROSScanner(BaseScanner):
 
     async def set_xmlrpcuri_node(self, ros_master_client):
         for node in self.nodes:
-            uri = await ros_master_client.lookupNode('', node.name)
-            if uri[2] != '':
-                regexp = re.compile(r'http://(?P<host>\S+):(?P<port>[0-9]{1,5})')
-                uri_groups = regexp.search(uri[2])
-                node.address = uri_groups.group('host')
-                node.port = uri_groups.group('port')
+            async with sem:
+                uri = await ros_master_client.lookupNode('', node.name)
+                if uri[2] != '':
+                    regexp = re.compile(r'http://(?P<host>\S+):(?P<port>[0-9]{1,5})')
+                    uri_groups = regexp.search(uri[2])
+                    node.address = uri_groups.group('host')
+                    node.port = uri_groups.group('port')
 
     @staticmethod
     async def analyze_topic_types(ros_master_client):
-        topic_types = await ros_master_client.getTopicTypes('')
-        topics = {}
-        for topic_type_element in topic_types[2]:
-            topic_name = topic_type_element[0]
-            topic_type = topic_type_element[1]
-            topics[topic_name] = topic_type
+        async with sem:
+            topic_types = await ros_master_client.getTopicTypes('')
+            topics = {}
+            for topic_type_element in topic_types[2]:
+                topic_name = topic_type_element[0]
+                topic_type = topic_type_element[1]
+                topics[topic_name] = topic_type
 
         return topics
 
