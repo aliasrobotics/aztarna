@@ -2,8 +2,10 @@
 # -*- coding: utf-8 -*-
 import asyncio
 import ipaddress
+import logging
 from ipaddress import IPv4Address, ip_network
 
+logger = logging.getLogger(__name__)
 
 class BaseScanner:
 
@@ -29,8 +31,11 @@ class BaseScanner:
     def load_from_file(self, filename):
         with open(filename, 'r') as file:
             for line in file.readlines():
-                address = ipaddress.ip_address(line.rstrip('\n'))
-                self.host_list.append(address)
+                try:
+                    address = ipaddress.ip_address(line.rstrip('\n'))
+                    self.host_list.append(address)
+                except ValueError:
+                    logger.warning('Invalid IP address in input file')
 
     def load_range(self, net_range):
         network = ip_network(net_range)
