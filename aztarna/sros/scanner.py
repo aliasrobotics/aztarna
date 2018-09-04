@@ -43,12 +43,14 @@ class SROSScanner(BaseScanner):
         return sros_host
 
     async def scan_network(self):
+        sem = sem = asyncio.Semaphore(4000)
         try:
             for host_address in self.host_list:
                 print('Scanning node {}'.format(host_address))
-                sros_host = await self.scan_host(host_address, self.ports[0])  # TODO add port range
-                if sros_host:
-                    self.hosts.append(sros_host)
+                async with sem:
+                    sros_host = await self.scan_host(host_address, self.ports[0])  # TODO add port range
+                    if sros_host:
+                        self.hosts.append(sros_host)
         except AddressValueError:
             print('Invalid network entered')
         except Exception as e:

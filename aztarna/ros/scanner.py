@@ -89,7 +89,7 @@ class ROSScanner(BaseScanner):
         for node in self.nodes:
             uri = await ros_master_client.lookupNode('', node.name)
             if uri[2] != '':
-                regexp = re.compile(r'http://(?P<host>[a-zA-Z\.{0-4}0-9]+):(?P<port>[0-9]{1,5})')
+                regexp = re.compile(r'http://(?P<host>\S+):(?P<port>[0-9]{1,5})')
                 uri_groups = regexp.search(uri[2])
                 node.address = uri_groups.group('host')
                 node.port = uri_groups.group('port')
