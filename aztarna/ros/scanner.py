@@ -12,6 +12,8 @@ from aztarna.commons import BaseScanner, Communication
 from aztarna.helpers import HelpersROS
 from .helpers import Node, Topic, Service
 
+sem = asyncio.Semaphore(4000)
+
 
 class ROSScanner(BaseScanner):
 
@@ -31,31 +33,32 @@ class ROSScanner(BaseScanner):
             ros_master_client = ServerProxy(host, loop=asyncio.get_event_loop(), client=client)
 
             try:
-                code, msg, val = await ros_master_client.getSystemState('')
+                async with sem:
+                    code, msg, val = await ros_master_client.getSystemState('')
 
-                if code == 1:
-                    publishers_array = val[0]
-                    subscribers_array = val[1]
-                    services_array = val[2]
-                    found_topics = await self.analyze_topic_types(ros_master_client)  # In order to analyze the nodes topics are needed
+                    if code == 1:
+                        publishers_array = val[0]
+                        subscribers_array = val[1]
+                        services_array = val[2]
+                        found_topics = await self.analyze_topic_types(ros_master_client)  # In order to analyze the nodes topics are needed
 
-                    self.extract_nodes(publishers_array, found_topics, 'pub')
-                    self.extract_nodes(subscribers_array, found_topics, 'sub')
-                    self.extract_services(services_array)
+                        self.extract_nodes(publishers_array, found_topics, 'pub')
+                        self.extract_nodes(subscribers_array, found_topics, 'sub')
+                        self.extract_services(services_array)
 
-                    for topic_name, topic_type in found_topics.items():  # key, value
-                        current_topic = Topic(topic_name, topic_type)
-                        comm = Communication(current_topic)
-                        for node in self.nodes:
-                            if next((x for x in node.published_topics if x.name == current_topic.name), None) is not None:
-                                comm.publishers.append(node)
-                            if next((x for x in node.subscribed_topics if x.name == current_topic.name), None) is not None:
-                                comm.subscribers.append(node)
-                        self.communications.append(comm)
+                        for topic_name, topic_type in found_topics.items():  # key, value
+                            current_topic = Topic(topic_name, topic_type)
+                            comm = Communication(current_topic)
+                            for node in self.nodes:
+                                if next((x for x in node.published_topics if x.name == current_topic.name), None) is not None:
+                                    comm.publishers.append(node)
+                                if next((x for x in node.subscribed_topics if x.name == current_topic.name), None) is not None:
+                                    comm.subscribers.append(node)
+                            self.communications.append(comm)
 
-                    await self.set_xmlrpcuri_node(ros_master_client)
-                else:
-                    self.logger.critical('[-] Error getting system state. Probably not a ROS Master')
+                        await self.set_xmlrpcuri_node(ros_master_client)
+                    else:
+                        self.logger.critical('[-] Error getting system state. Probably not a ROS Master')
 
             except Exception as e:
                 # traceback.print_tb(e.__traceback__)
@@ -87,21 +90,23 @@ class ROSScanner(BaseScanner):
 
     async def set_xmlrpcuri_node(self, ros_master_client):
         for node in self.nodes:
-            uri = await ros_master_client.lookupNode('', node.name)
-            if uri[2] != '':
-                regexp = re.compile(r'http://(?P<host>\S+):(?P<port>[0-9]{1,5})')
-                uri_groups = regexp.search(uri[2])
-                node.address = uri_groups.group('host')
-                node.port = uri_groups.group('port')
+            async with sem:
+                uri = await ros_master_client.lookupNode('', node.name)
+                if uri[2] != '':
+                    regexp = re.compile(r'http://(?P<host>\S+):(?P<port>[0-9]{1,5})')
+                    uri_groups = regexp.search(uri[2])
+                    node.address = uri_groups.group('host')
+                    node.port = uri_groups.group('port')
 
     @staticmethod
     async def analyze_topic_types(ros_master_client):
-        topic_types = await ros_master_client.getTopicTypes('')
-        topics = {}
-        for topic_type_element in topic_types[2]:
-            topic_name = topic_type_element[0]
-            topic_type = topic_type_element[1]
-            topics[topic_name] = topic_type
+        async with sem:
+            topic_types = await ros_master_client.getTopicTypes('')
+            topics = {}
+            for topic_type_element in topic_types[2]:
+                topic_name = topic_type_element[0]
+                topic_type = topic_type_element[1]
+                topics[topic_name] = topic_type
 
         return topics
 
@@ -113,17 +118,15 @@ class ROSScanner(BaseScanner):
                 node.services.append(Service(service_line[0]))
 
     async def scan_network(self):
-        sem = asyncio.Semaphore(4000)
         try:
             results = []
-            async with sem:
-                for port in self.ports:
-                    for address in self.host_list:
-                        full_host = 'http://' + str(address) + ':' + str(port)
-                        results.append(self.analyze_nodes(full_host))
+            for port in self.ports:
+                for address in self.host_list:
+                    full_host = 'http://' + str(address) + ':' + str(port)
+                    results.append(self.analyze_nodes(full_host))
 
             for result in await asyncio.gather(*results):
-                pass
+                    pass
 
         except ValueError as e:
             self.logger.error('Invalid address entered')
