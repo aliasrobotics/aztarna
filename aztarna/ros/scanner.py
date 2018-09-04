@@ -2,17 +2,13 @@
 # -*- coding: utf-8 -*-
 
 import asyncio
-import sys
 import aiohttp
 import logging
 import re
 from aiohttp_xmlrpc.client import ServerProxy
-from ipaddress import ip_network, IPv4Address
 from aztarna.commons import BaseScanner, Communication
 from aztarna.helpers import HelpersROS
 from .helpers import Node, Topic, Service
-
-sem = asyncio.Semaphore(4000)
 
 
 class ROSScanner(BaseScanner):
@@ -33,7 +29,7 @@ class ROSScanner(BaseScanner):
             ros_master_client = ServerProxy(host, loop=asyncio.get_event_loop(), client=client)
 
             try:
-                async with sem:
+                async with self.semaphore:
                     code, msg, val = await ros_master_client.getSystemState('')
 
                     if code == 1:
@@ -78,7 +74,6 @@ class ROSScanner(BaseScanner):
                     node.subscribed_topics.append(topic)
 
     def get_create_node(self, node_name):
-        ret_node = None
         node_name_attrs = [o.name for o in self.nodes]
         if node_name not in node_name_attrs:
             ret_node = Node(node_name)
@@ -90,7 +85,7 @@ class ROSScanner(BaseScanner):
 
     async def set_xmlrpcuri_node(self, ros_master_client):
         for node in self.nodes:
-            async with sem:
+            async with self.semaphore:
                 uri = await ros_master_client.lookupNode('', node.name)
                 if uri[2] != '':
                     regexp = re.compile(r'http://(?P<host>\S+):(?P<port>[0-9]{1,5})')
@@ -100,14 +95,12 @@ class ROSScanner(BaseScanner):
 
     @staticmethod
     async def analyze_topic_types(ros_master_client):
-        async with sem:
-            topic_types = await ros_master_client.getTopicTypes('')
-            topics = {}
-            for topic_type_element in topic_types[2]:
-                topic_name = topic_type_element[0]
-                topic_type = topic_type_element[1]
-                topics[topic_name] = topic_type
-
+        topic_types = await ros_master_client.getTopicTypes('')
+        topics = {}
+        for topic_type_element in topic_types[2]:
+            topic_name = topic_type_element[0]
+            topic_type = topic_type_element[1]
+            topics[topic_name] = topic_type
         return topics
 
     def extract_services(self, source_array):
@@ -126,7 +119,7 @@ class ROSScanner(BaseScanner):
                     results.append(self.analyze_nodes(full_host))
 
             for result in await asyncio.gather(*results):
-                    pass
+                pass
 
         except ValueError as e:
             self.logger.error('Invalid address entered')
