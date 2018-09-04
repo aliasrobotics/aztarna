@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 
 import asyncio
+import random
+import traceback
 from ipaddress import ip_network, IPv4Address, AddressValueError
 
 from aztarna.commons import BaseScanner
@@ -26,7 +28,9 @@ class SROSScanner(BaseScanner):
             sros_host.nodes.append(master_node)
             results = []
             if self.extended:
-                node_ports = await find_node_ports(address, range(11310, 50000))
+                port_range = list(range(11310, 25000))
+                random.shuffle(port_range)
+                node_ports = await find_node_ports(address, port_range)
                 for port in node_ports:
                     results.append(get_sros_certificate(address, port))
 
@@ -52,6 +56,7 @@ class SROSScanner(BaseScanner):
         except AddressValueError:
             print('Invalid network entered')
         except Exception as e:
+            traceback.print_tb(e)
             print(e)
 
     def scan(self):

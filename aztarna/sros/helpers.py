@@ -138,7 +138,7 @@ async def get_sros_certificate(address, port, timeout=3):
                 is_sros = False
                 break
     except Exception as e:
-        traceback.print_exc(e)
+        print(e)
     else:
         if is_sros:
             server_hello = TLS(received_data)
@@ -151,6 +151,8 @@ async def get_sros_certificate(address, port, timeout=3):
 async def check_port(ip, port):
     try:
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        sock.settimeout(0.1)
         await asyncio.wait_for(asyncio.get_event_loop().sock_connect(sock, (str(ip), port,)), timeout=0.1)
         print('Open' + str(port))
         return port
@@ -169,7 +171,7 @@ async def check_port_sem(sem, ip, port):
 
 
 async def find_node_ports(address, ports):
-    sem = asyncio.Semaphore(4000)  # Change this value for concurrency limitation
+    sem = asyncio.Semaphore(400)  # Change this value for concurrency limitation
     tasks = [asyncio.ensure_future(check_port_sem(sem, address, p)) for p in ports]
     found_ports = []
     for response in await asyncio.gather(*tasks):
