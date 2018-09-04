@@ -17,6 +17,7 @@ def main():
     parser.add_argument('-i', '--input_file', help='Input file of addresses to use for scanning')
     parser.add_argument('-o', '--out_file', help='Output file for the results')
     parser.add_argument('-e', '--extended', help='Extended scan of the hosts', action='store_true')
+    parser.add_argument('-r', '--rate', help='Maximum simultaneous network connections', default=1000, type=int)
     args = parser.parse_args()
     try:
         if args.type == 'ROS' or args.type == 'ros':
@@ -26,7 +27,6 @@ def main():
         else:
             logger.critical('Invalid type selected')
             return
-
         if args.input_file:
             scanner.load_from_file(args.input_file)
         else:
@@ -48,6 +48,7 @@ def main():
                     print('[-] Error: ' + str(e))
 
         scanner.extended = args.extended
+        scanner.rate = args.rate
         scanner.scan()
 
         if args.out_file:

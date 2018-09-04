@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import asyncio
 import ipaddress
 from ipaddress import IPv4Address, ip_network
 
@@ -11,6 +12,19 @@ class BaseScanner:
         self.ports = ports
         self.extended = extended
         self.input = False
+        self._rate = 1000
+        self.semaphore = asyncio.Semaphore(self._rate)
+
+    @property
+    def rate(self):
+        return self._rate
+
+    @rate.setter
+    def rate(self, rate):
+        self._rate = rate
+        self.semaphore = asyncio.Semaphore(rate)
+
+
 
     def load_from_file(self, filename):
         with open(filename, 'r') as file:
