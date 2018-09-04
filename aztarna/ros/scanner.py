@@ -113,7 +113,7 @@ class ROSScanner(BaseScanner):
                 node.services.append(Service(service_line[0]))
 
     async def scan_network(self):
-        sem = asyncio.Semaphore(4000)
+        sem = asyncio.Semaphore(400)
         try:
             results = []
             for port in self.ports:
