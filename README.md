@@ -39,6 +39,8 @@ optional arguments:
                         Output file for the results
   -e EXTENDED, --extended EXTENDED
                         Extended scan of the hosts
+  -r RATE, --rate RATE 
+                        Maximum simultaneous network connections
 ```
 
 ### Run the code (example input file):
