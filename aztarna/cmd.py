@@ -47,6 +47,7 @@ def main():
                 logger.critical('No file or addresses defined')
                 return
 
+        # TODO Implement a regex for port argument
         try:
             scanner.ports = range(int(args.ports.split('-')[0]), int(args.ports.split('-')[1]))
         except:
