@@ -12,7 +12,9 @@ from .helpers import Node, Topic, Service
 
 
 class ROSScanner(BaseScanner):
-
+    """
+    ROSScanner class, an extension of BaseScanner for ROS
+    """
     def __init__(self):
         super().__init__()
 
@@ -23,7 +25,11 @@ class ROSScanner(BaseScanner):
 
         self.logger = logging.getLogger(__name__)
 
-    async def analyze_nodes(self, host):  # similar to scan_
+    async def analyze_nodes(self, host):
+        """
+        Scan a node and gather all its data including topics, services and communications
+        :param host: Full hostname of the ROS master
+        """
         async with aiohttp.ClientSession(loop=asyncio.get_event_loop(), timeout=self.timeout) as client:
             ros_master_client = ServerProxy(host, loop=asyncio.get_event_loop(), client=client)
             async with self.semaphore:
@@ -59,9 +65,13 @@ class ROSScanner(BaseScanner):
                     # traceback.print_tb(e.__traceback__)
                     self.logger.error('[-] Error connecting to host ' + str(host) + ': ' + str(e) + '\n\tNot a ROS host')
 
-
-
     def extract_nodes(self, source_array, topics, pub_or_sub):
+        """
+        From all the data ROS Master returns, extract just the node info
+        :param source_array: A multiple level array containing data from the the ROS system state
+        :param topics: A list of all topics found in the ROS system
+        :param pub_or_sub: A boolean to separate publisher and subscriber nodes
+        """
         source_lines = list(map(HelpersROS.process_line, list(filter(lambda x: (list(x)) is not None, source_array))))
         for source_line in source_lines:
             for node_name in source_line[1]:  # source_line[1] == nodes from a topic, is a list
@@ -75,6 +85,11 @@ class ROSScanner(BaseScanner):
                     node.subscribed_topics.append(topic)
 
     def get_create_node(self, node_name):
+        """
+        Generate new :class:`.helpers.Node objects, and if they exist just return them
+        :param node_name: The name of the node to create or return
+        :return: The newly created node or an existing that matches :attr:node_name
+        """
         node_name_attrs = [o.name for o in self.nodes]
         if node_name not in node_name_attrs:
             ret_node = Node(node_name)
@@ -85,6 +100,10 @@ class ROSScanner(BaseScanner):
         return ret_node
 
     async def set_xmlrpcuri_node(self, ros_master_client):
+        """
+        Once all node data is collected, set the xml
+        :param ros_master_client: xml-rpc object for the ROS Master Client
+        """
         for node in self.nodes:
             uri = await ros_master_client.lookupNode('', node.name)
             if uri[2] != '':
@@ -95,6 +114,11 @@ class ROSScanner(BaseScanner):
 
     @staticmethod
     async def analyze_topic_types(ros_master_client):
+        """
+        Extract topic from ROS Master and disassemble them into topic name and topic type
+        :param ros_master_client:  xml-rpc object for the ROS Master Client
+        :return: A dictionary of topics. Key is the topic name and value the topic type
+        """
         topic_types = await ros_master_client.getTopicTypes('')
         topics = {}
         for topic_type_element in topic_types[2]:
@@ -104,6 +128,10 @@ class ROSScanner(BaseScanner):
         return topics
 
     def extract_services(self, source_array):
+        """
+        Extract the services from the ROS system state
+        :param source_array: A multiple level array containing data from the the ROS system state
+        """
         service_lines = list(map(HelpersROS.process_line, list(filter(lambda x: (list(x)) is not None, source_array))))
         for service_line in service_lines:
             for node_name in service_line[1]:  # source_line[1] == nodes from a topic, is a list
@@ -111,6 +139,9 @@ class ROSScanner(BaseScanner):
                 node.services.append(Service(service_line[0]))
 
     async def scan_network(self):
+        """
+        Scan the provided network (from args) searching for ROS nodes
+        """
         try:
             results = []
             for port in self.ports:
@@ -126,9 +157,15 @@ class ROSScanner(BaseScanner):
             raise e
 
     def scan(self):
+        """
+        Call to :meth:scan_network asynchronously
+        """
         asyncio.get_event_loop().run_until_complete(self.scan_network())
 
     def print_results(self):
+        """
+        Print the information of a ROS system
+        """
         for node in self.nodes:
             print('\nNode: ' + str(node))
             print('\n\t Published topics:')
@@ -154,6 +191,10 @@ class ROSScanner(BaseScanner):
         print('\n\n')
 
     def write_to_file(self, out_file):
+        """
+        Write the information of a ROS system into the provided file
+        :param out_file: The file where to write the results
+        """
         lines = []
         header = 'Node;Address;Port;Published Topics;Subscribed Topics;Services\n'
         lines.append(header)

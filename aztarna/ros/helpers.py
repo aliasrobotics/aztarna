@@ -5,6 +5,9 @@ from aztarna.commons import BaseNode, BaseTopic, BaseService
 
 
 class Node(BaseNode):
+    """
+    Node class, an extension of the BaseNode
+    """
     def __init__(self, name):
         super().__init__()
         self.name = name
@@ -17,6 +20,9 @@ class Node(BaseNode):
 
 
 class Topic(BaseTopic):
+    """
+    Topic class, an extension of BaseTopic
+    """
     def __init__(self, name, topic_type):
         super().__init__()
         self.name = name
@@ -27,6 +33,9 @@ class Topic(BaseTopic):
 
 
 class Service(BaseService):
+    """
+    Service class, an extension of BaseService
+    """
     def __init__(self, name):
         super().__init__()
         self.name = name
