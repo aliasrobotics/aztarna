@@ -12,7 +12,11 @@ from aztarna.ros import ROSScanner
 
 asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 
+
 def main():
+    """
+    Main method
+    """
     logger = logging.getLogger(__name__)
     parser = ArgumentParser(description='Aztarna')
     parser.add_argument('-t', '--type', help='<ROS/ros/SROS/sros> Scan ROS or SROS hosts', required=True)

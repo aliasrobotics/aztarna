@@ -7,8 +7,11 @@ from ipaddress import IPv4Address, ip_network
 
 logger = logging.getLogger(__name__)
 
-class BaseScanner:
 
+class BaseScanner:
+    """
+    BaseScanner class, an abstraction for different ROS type scans (ROS, SROS, ROS 2)
+    """
     def __init__(self, ports=[11311], extended=False):
         self.host_list = []
         self.ports = ports
@@ -26,9 +29,11 @@ class BaseScanner:
         self._rate = rate
         self.semaphore = asyncio.Semaphore(rate)
 
-
-
     def load_from_file(self, filename):
+        """
+        Load a range of ipv4 addresses to scan and add them The :class:BaseScanner host_list attribute
+        :param filename: name of the input file
+        """
         with open(filename, 'r') as file:
             for line in file.readlines():
                 try:
@@ -38,6 +43,10 @@ class BaseScanner:
                     logger.warning('Invalid IP address in input file')
 
     def load_range(self, net_range):
+        """
+        Transform ipv4 address strings to pythons ipaddress library type objects for scanning purposes
+        :param net_range: A range of string type IPv4 addresses
+        """
         network = ip_network(net_range)
         if network.netmask == IPv4Address('255.255.255.255'):
             self.host_list = [IPv4Address(net_range)]
@@ -55,6 +64,9 @@ class BaseScanner:
 
 
 class BaseHost:
+    """
+    A base class for ROS hosts
+    """
     def __init__(self):
         self.address = ''
         self.port = ''
@@ -62,6 +74,9 @@ class BaseHost:
 
 
 class BaseNode:
+    """
+    A base class for ROS nodes
+    """
     def __init__(self):
         self.name = ''
         self.address = ''
@@ -69,17 +84,26 @@ class BaseNode:
 
 
 class BaseTopic:
+    """
+    A base class for ROS topics
+    """
     def __init__(self):
         self.name = ''
         self.type = ''
 
 
 class BaseService:
+    """
+    A base class for ROS services
+    """
     def __init__(self):
         self.name = ''
 
 
 class Parameter:
+    """
+    A class representing a ROS parameter
+    """
     def __init__(self):
         self.name = ''
         self.type = ''
@@ -87,12 +111,10 @@ class Parameter:
 
 
 class Communication:
+    """
+    A class representing a ROS communication, including the publishers, subscribers and the topics involveds
+    """
     def __init__(self, topic):
         self.publishers = []  # Node type
         self.subscribers = []  # Node type
         self.topic = topic # Topic() object
-
-
-
-
-
