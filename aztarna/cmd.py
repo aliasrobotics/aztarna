@@ -32,7 +32,10 @@ def main():
             logger.critical('Invalid type selected')
             return
         if args.input_file:
-            scanner.load_from_file(args.input_file)
+            try:
+                scanner.load_from_file(args.input_file)
+            except FileNotFoundError:
+                print('Input file not found')
         else:
             if args.address:
                 scanner.load_range(args.address)
