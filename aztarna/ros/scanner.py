@@ -86,7 +86,7 @@ class ROSScanner(BaseScanner):
 
     def get_create_node(self, node_name):
         """
-        Generate new :class:`.helpers.Node objects, and if they exist just return them
+        Generate new :class:`aztarna.ros.helpers.Node` objects, and if they exist just return them
         :param node_name: The name of the node to create or return
         :return: The newly created node or an existing that matches :attr:node_name
         """
@@ -158,7 +158,7 @@ class ROSScanner(BaseScanner):
 
     def scan(self):
         """
-        Call to :meth:scan_network asynchronously
+        Call to :meth:`aztarna.ros.scanner.scan_network` asynchronously
         """
         asyncio.get_event_loop().run_until_complete(self.scan_network())
 
