@@ -1,21 +1,32 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+"""
+SROS Scanner helpers classes module.
+:author: Gorka Olalde Mendia(@olaldiko), Xabier Perez Baskaran(@xabierpb)
+"""
+
 import asyncio
-import logging
+import functools
+
+from scapy.all import *
 from scapy.layers.tls.extensions import TLS_Ext_SupportedGroups, TLS_Ext_SupportedPointFormat, \
     TLS_Ext_SignatureAlgorithms, TLS_Ext_Heartbeat, TLS_Ext_Padding
 from scapy.layers.tls.handshake import TLSClientHello
 from scapy.layers.tls.record import TLS
-from scapy.all import *
+
 from aztarna.commons import BaseHost, BaseNode
 
 load_layer('tls')
 
 
+
 logger = logging.getLogger(__name__)
 
 class SROSNode(BaseNode):
+    """
+    Class for keeping all the attributes of a SROS Node. Extends :class:`aztarna.commons.BaseNode`
+    """
     def __init__(self):
         super().__init__()
         self.is_demo = False
@@ -27,6 +38,9 @@ class SROSNode(BaseNode):
 
 
 class SROSHost(BaseHost):
+    """
+    Class for keeping all the attributes of a SROS Node.Extends:class:`aztarna.commons.BaseHost`
+    """
     def __init__(self):
         super().__init__()
 
@@ -35,6 +49,9 @@ class SROSHost(BaseHost):
 
 
 class SROSPolicy:
+    """
+    Class for representing a SROS Policy, containing the possible types for it, the value and its permissions.
+    """
     TYPE_SUBSCRIPTABLE_TOPICS = 'Subscriptable topics'
     TYPE_PUBLISHABLE_TOPICS = 'Publishable topics'
     TYPE_EXECUTABLE_SVCS = 'Executable services'
@@ -53,6 +70,11 @@ class SROSPolicy:
 
 
 def get_node_info(cert):
+    """
+    Extract all the information for a node, based on it's certificate.
+    :param cert: The input certificate in X509 format.
+    :return: :class:`aztarna.sros.helpers.SROSNode` The extracted node info from the certificate.
+    """
     node = SROSNode()
     ros_demo_fields = {'stateOrProvinceName': 'Sate',
                        'organizationName': 'Organization',
@@ -73,6 +95,11 @@ def get_node_info(cert):
 
 
 def get_policies(cert):
+    """
+    Get the related policies from an input SROS Node certificate.
+    :param cert: Certificate in X509 format.
+    :return: List containing all policies as instances of :class:`aztarna.sros.helpers.SROSPolicy`
+    """
     policies = []
     try:
         extensions = cert.tbsCertificate.extensions
@@ -84,14 +111,12 @@ def get_policies(cert):
                 policy.type = SROSPolicy.TYPE_SUBSCRIPTABLE_TOPICS
             elif id[-3] == '2':
                 policy.type = SROSPolicy.TYPE_PUBLISHABLE_TOPICS
-            elif id[-3] == '3':
+            elif id[-3] in ['3', '6']:
                 policy.type = SROSPolicy.TYPE_UNKNOWN
             elif id[-3] == '4':
                 policy.type = SROSPolicy.TYPE_EXECUTABLE_SVCS
             elif id[-3] == '5':
                 policy.type = SROSPolicy.TYPE_READABLE_PARAMS
-            elif id[-3] == '6':
-                policy.type = SROSPolicy.TYPE_UNKNOWN
 
             if id[-1] == '1':
                 policy.permission = SROSPolicy.POLICY_ALLOWED
@@ -108,7 +133,14 @@ def get_policies(cert):
 
 
 async def get_sros_certificate(address, port, timeout=3):
-
+    """
+    Function to connect to a SROS Node, simulate the TLS handshake, and get it's server certificate on the process.
+    :param address: Address of the node.
+    :param port: Port of the node.
+    :param timeout: Timeout for the connection.
+    :return: A tuple containing the address, port and certificate if found, otherwise,
+    a tuple containing address, port and None.
+    """
     client_hello = TLS(version='TLS 1.0', msg=TLSClientHello(
         ciphers=[49200, 49196, 49202, 49198, 49199, 49195, 49201, 49197, 165, 163, 161, 159, 164, 162, 160, 158, 49192,
                  49188, 49172, 49162, 49194, 49190, 49167, 49157, 107, 106, 105, 104, 57, 56, 55, 54, 49191, 49187,
@@ -149,6 +181,12 @@ async def get_sros_certificate(address, port, timeout=3):
 
 
 async def check_port(ip, port):
+    """
+    Check if a port is open.
+    :param ip: Address of the host
+    :param port: Port to check
+    :return: Returns the port if it is open. None otherwise.
+    """
     try:
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -166,11 +204,24 @@ async def check_port(ip, port):
 
 
 async def check_port_sem(sem, ip, port):
+    """
+    Check ports from a host, limiting concurrency with a semaphore.
+    :param sem: Asyncio semaphore.
+    :param ip: Address of the host.
+    :param port: Port to be checked.
+    :return: The result of :meth:`aztarna.sros.helpers.check_port`.
+    """
     async with sem:
         return await check_port(ip, port)
 
 
 async def find_node_ports(address, ports):
+    """
+    Find all the open ports for a host.
+    :param address: IP address of the host.
+    :param ports: Port to check.
+    :return: A list of the found open ports.
+    """
     sem = asyncio.Semaphore(400)  # Change this value for concurrency limitation
     tasks = [asyncio.ensure_future(check_port_sem(sem, address, p)) for p in ports]
     found_ports = []

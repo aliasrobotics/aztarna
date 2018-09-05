@@ -1,25 +1,40 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+"""
+SROS Scanner module.
+:author: Gorka Olalde Mendia(@olaldiko), Xabier Perez Baskaran(@xabierpb)
+"""
 
 import asyncio
+import logging
 import random
 import traceback
-import logging
-from ipaddress import ip_network, IPv4Address, AddressValueError
+from ipaddress import AddressValueError
 
 from aztarna.commons import BaseScanner
 from .helpers import SROSHost, get_node_info, get_policies, get_sros_certificate, find_node_ports
 
 logger = logging.getLogger(__name__)
 
+
 class SROSScanner(BaseScanner):
+    """
+    SROS Scanner class, extending :class:`aztarna.commons.BaseScanner`.
+    """
 
     def __init__(self):
         super().__init__()
         self.hosts = []
         self.addresses = []
 
-    async def scan_host(self, address, master_port, timeout=1):
+    async def scan_host(self, address: str, master_port: int, timeout=1):
+        """
+        Scan a single SROS host and return a :class:`aztarna.sros.helpers.SROSHost` instance with all the data if found.
+        :param address: Host IP address.
+        :param master_port: Master node port.
+        :param timeout: Timeout for the connection.
+        :return: :class:`aztarna.sros.helpers.SROSHost` instance.
+        """
         async with self.semaphore:
             sros_host = None
             logger.warning('Connecting to {}:{}'.format(address, master_port))
@@ -51,14 +66,18 @@ class SROSScanner(BaseScanner):
         return sros_host
 
     async def scan_network(self):
+        """
+        Scan all the hosts specified in the internal hosts list :attr:`self.hosts`
+        :return: A list of :class:`aztarna.sros.helpers.SROSHost` containing all the found hosts.
+        """
         try:
             results = []
             for port in self.ports:
                 for host_address in self.host_list:
                     results.append(self.scan_host(host_address, port))
             for result in await asyncio.gather(*results):
-                    if result:
-                        self.hosts.append(result)
+                if result:
+                    self.hosts.append(result)
 
         except AddressValueError:
             print('Invalid network entered')
@@ -67,9 +86,17 @@ class SROSScanner(BaseScanner):
             print(e)
 
     def scan(self):
+        """
+        Run the scan for SROS hosts. Extended from :class:`aztarna.commons.BaseScanner`.
+        This function is the one to be called externally in order to run the scans. Internally those scans are run
+        with the help of asyncio.
+        """
         asyncio.get_event_loop().run_until_complete(self.scan_network())
 
     def print_results(self):
+        """
+        Print the results of the scan into console. Extended from :class:`aztarna.commons.BaseScanner`
+        """
         for host in self.hosts:
             print(host.address)
             for node in host.nodes:
@@ -86,7 +113,11 @@ class SROSScanner(BaseScanner):
                     print('')
                 print('')
 
-    def write_to_file(self, out_file):
+    def write_to_file(self, out_file: str):
+        """
+        Write the results to the specified output file. Extended from :class:`aztarna.commons.BaseScanner`
+        :param out_file: Output file name in which the results will be writen.
+        """
         lines = []
         header = 'Address;Node;Port;Demo;Policy_Type;Value;Permission\n'
         lines.append(header)
@@ -99,7 +130,3 @@ class SROSScanner(BaseScanner):
                         lines.append(line)
         with open(out_file, 'w') as file:
             file.writelines(lines)
-
-
-
-
