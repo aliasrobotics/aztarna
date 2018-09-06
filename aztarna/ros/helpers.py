@@ -1,7 +1,22 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from aztarna.commons import BaseNode, BaseTopic, BaseService
+from aztarna.commons import BaseNode, BaseTopic, BaseService, BaseHost
+
+
+class ROSHost(BaseHost):
+    """
+    Class for keeping all the attributes of a ROS Node.Extends:class:`aztarna.commons.BaseHost`
+    """
+    def __init__(self, address, port):
+        super().__init__()
+        self.address = address
+        self.port = port
+        self.communications = []
+        self.services = []
+
+    def __repr__(self):
+        return "Address: {}, Nodes: {}".format(self.address, self.nodes)
 
 
 class Node(BaseNode):
