@@ -170,7 +170,7 @@ async def get_sros_certificate(address, port, timeout=3):
                 is_sros = False
                 break
     except Exception as e:
-        logger.error('[-] Error connecting to host ' + str(address) + ': ' + str(e) + '\n\tNot a ROS host')
+        logger.error('[-] Error connecting to host ' + str(address) + ': ' + str(e) + '\n\tNot a SROS host')
         return address, port, None
     else:
         if is_sros:
