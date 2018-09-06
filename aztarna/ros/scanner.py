@@ -59,6 +59,7 @@ class ROSScanner(BaseScanner):
 
                         await self.set_xmlrpcuri_node(ros_master_client)
                         await client.close()
+                        self.logger.warning('[+] ROS Host found at {}!!!'.format(host))
                     else:
                         self.logger.critical('[-] Error getting system state. Probably not a ROS Master')
 
