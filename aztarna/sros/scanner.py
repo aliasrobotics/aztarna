@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 SROS Scanner module.
+
 :author: Gorka Olalde Mendia(@olaldiko), Xabier Perez Baskaran(@xabierpb)
 """
 
@@ -30,6 +31,7 @@ class SROSScanner(BaseScanner):
     async def scan_host(self, address: str, master_port: int, timeout=1):
         """
         Scan a single SROS host and return a :class:`aztarna.sros.helpers.SROSHost` instance with all the data if found.
+
         :param address: Host IP address.
         :param master_port: Master node port.
         :param timeout: Timeout for the connection.
@@ -67,7 +69,8 @@ class SROSScanner(BaseScanner):
 
     async def scan_network(self):
         """
-        Scan all the hosts specified in the internal hosts list :attr:`self.hosts`
+        Scan all the hosts specified in the internal hosts list :attr:`self.hosts`.
+
         :return: A list of :class:`aztarna.sros.helpers.SROSHost` containing all the found hosts.
         """
         try:
@@ -95,7 +98,8 @@ class SROSScanner(BaseScanner):
 
     def print_results(self):
         """
-        Print the results of the scan into console. Extended from :class:`aztarna.commons.BaseScanner`
+        Print the results of the scan into console. Extended from :class:`aztarna.commons.BaseScanner`.
+
         """
         for host in self.hosts:
             print(host.address)
@@ -115,7 +119,8 @@ class SROSScanner(BaseScanner):
 
     def write_to_file(self, out_file: str):
         """
-        Write the results to the specified output file. Extended from :class:`aztarna.commons.BaseScanner`
+        Write the results to the specified output file. Extended from :class:`aztarna.commons.BaseScanner`.
+
         :param out_file: Output file name in which the results will be writen.
         """
         lines = []

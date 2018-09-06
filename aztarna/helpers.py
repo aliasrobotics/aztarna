@@ -8,7 +8,7 @@ from subprocess import call as system_call  # Execute a shell command
 
 class HelpersLINQ:
     """
-    A helper class for emulating .NET useful methods
+    A helper class for emulating .NET useful methods.
     """
     @staticmethod
     def distinct(sequence):
@@ -21,7 +21,7 @@ class HelpersLINQ:
 
 class HelpersROS:
     """
-    A helper class from ROS system state response manipulation
+    A helper class from ROS system state response manipulation.
     Process response is of type array = [ [a, [a1, a2] ] , [b, [b1, b2] ] ]
     """
     @staticmethod
@@ -42,7 +42,8 @@ class HelpersNetWorking:
     @staticmethod
     def ping(host):
         """
-        A method that replicates the command line ping utility
+        A method that replicates the command line ping utility.
+
         :param host: Host to ping to
         :return: A boolean type that means if the ping reaches the destination or not
         """
@@ -59,7 +60,7 @@ class HelpersNetWorking:
 
 class PortScanner:
     """
-    A base class that provides methods to check correct por scans
+    A base class that provides methods to check correct por scans.
     """
     @staticmethod
     async def check_port(ip, port):
@@ -80,7 +81,8 @@ class PortScanner:
     @staticmethod
     async def check_port_sem(sem, ip, port):
         """
-        Calls to :method:check_port with a Semaphore to avoid too many open connections
+        Calls to :method:check_port with a Semaphore to avoid too many open connections.
+
         :param sem:
         :param ip:
         :param port:

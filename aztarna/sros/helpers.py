@@ -206,6 +206,7 @@ async def check_port(ip, port):
 async def check_port_sem(sem, ip, port):
     """
     Check ports from a host, limiting concurrency with a semaphore.
+
     :param sem: Asyncio semaphore.
     :param ip: Address of the host.
     :param port: Port to be checked.
@@ -218,6 +219,7 @@ async def check_port_sem(sem, ip, port):
 async def find_node_ports(address, ports):
     """
     Find all the open ports for a host.
+
     :param address: IP address of the host.
     :param ports: Port to check.
     :return: A list of the found open ports.

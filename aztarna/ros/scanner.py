@@ -13,7 +13,7 @@ from .helpers import Node, Topic, Service
 
 class ROSScanner(BaseScanner):
     """
-    ROSScanner class, an extension of BaseScanner for ROS
+    ROSScanner class, an extension of BaseScanner for ROS.
     """
     def __init__(self):
         super().__init__()
@@ -27,7 +27,8 @@ class ROSScanner(BaseScanner):
 
     async def analyze_nodes(self, host):
         """
-        Scan a node and gather all its data including topics, services and communications
+        Scan a node and gather all its data including topics, services and communications.
+
         :param host: Full hostname of the ROS master
         """
         async with aiohttp.ClientSession(loop=asyncio.get_event_loop(), timeout=self.timeout) as client:
@@ -67,7 +68,8 @@ class ROSScanner(BaseScanner):
 
     def extract_nodes(self, source_array, topics, pub_or_sub):
         """
-        From all the data ROS Master returns, extract just the node info
+        From all the data ROS Master returns, extract just the node info.
+
         :param source_array: A multiple level array containing data from the the ROS system state
         :param topics: A list of all topics found in the ROS system
         :param pub_or_sub: A boolean to separate publisher and subscriber nodes
@@ -86,9 +88,10 @@ class ROSScanner(BaseScanner):
 
     def get_create_node(self, node_name):
         """
-        Generate new :class:`.helpers.Node objects, and if they exist just return them
+        Generate new :class:`.helpers.Node objects`, and if they exist just return them.
+
         :param node_name: The name of the node to create or return
-        :return: The newly created node or an existing that matches :attr:node_name
+        :return: The newly created node or an existing that matches :attr:`node_name`
         """
         node_name_attrs = [o.name for o in self.nodes]
         if node_name not in node_name_attrs:
@@ -101,7 +104,8 @@ class ROSScanner(BaseScanner):
 
     async def set_xmlrpcuri_node(self, ros_master_client):
         """
-        Once all node data is collected, set the xml
+        Once all node data is collected, set the xml.
+
         :param ros_master_client: xml-rpc object for the ROS Master Client
         """
         for node in self.nodes:
@@ -115,7 +119,8 @@ class ROSScanner(BaseScanner):
     @staticmethod
     async def analyze_topic_types(ros_master_client):
         """
-        Extract topic from ROS Master and disassemble them into topic name and topic type
+        Extract topic from ROS Master and disassemble them into topic name and topic type.
+
         :param ros_master_client:  xml-rpc object for the ROS Master Client
         :return: A dictionary of topics. Key is the topic name and value the topic type
         """
@@ -129,7 +134,8 @@ class ROSScanner(BaseScanner):
 
     def extract_services(self, source_array):
         """
-        Extract the services from the ROS system state
+        Extract the services from the ROS system state.
+
         :param source_array: A multiple level array containing data from the the ROS system state
         """
         service_lines = list(map(HelpersROS.process_line, list(filter(lambda x: (list(x)) is not None, source_array))))
@@ -140,7 +146,7 @@ class ROSScanner(BaseScanner):
 
     async def scan_network(self):
         """
-        Scan the provided network (from args) searching for ROS nodes
+        Scan the provided network (from args) searching for ROS nodes.
         """
         try:
             results = []
@@ -158,13 +164,13 @@ class ROSScanner(BaseScanner):
 
     def scan(self):
         """
-        Call to :meth:scan_network asynchronously
+        Call to :meth:scan_network asynchronously.
         """
         asyncio.get_event_loop().run_until_complete(self.scan_network())
 
     def print_results(self):
         """
-        Print the information of a ROS system
+        Print the information of a ROS system.
         """
         for node in self.nodes:
             print('\nNode: ' + str(node))
@@ -192,7 +198,8 @@ class ROSScanner(BaseScanner):
 
     def write_to_file(self, out_file):
         """
-        Write the information of a ROS system into the provided file
+        Write the information of a ROS system into the provided file.
+
         :param out_file: The file where to write the results
         """
         lines = []
