@@ -34,12 +34,11 @@ class ROSScanner(BaseScanner):
         async with aiohttp.ClientSession(loop=asyncio.get_event_loop(), timeout=self.timeout) as client:
             full_host = 'http://' + str(address) + ':' + str(port)
             ros_master_client = ServerProxy(full_host, loop=asyncio.get_event_loop(), client=client)
+            ros_host = ROSHost(address, port)
             async with self.semaphore:
                 try:
                     code, msg, val = await ros_master_client.getSystemState('')
-
                     if code == 1:
-                        ros_host = ROSHost(address, port)
                         self.hosts.append(ros_host)
                         publishers_array = val[0]
                         subscribers_array = val[1]
@@ -62,7 +61,7 @@ class ROSScanner(BaseScanner):
 
                         await self.set_xmlrpcuri_node(ros_master_client, ros_host)
                         await client.close()
-                        self.logger.warning('[+] ROS Host found at {}!!!'.format(ros_host))
+                        self.logger.warning('[+] ROS Host found at {}!!!'.format(ros_host.address))
                     else:
                         self.logger.critical('[-] Error getting system state. Probably not a ROS Master')
 
@@ -211,7 +210,7 @@ class ROSScanner(BaseScanner):
         :param out_file: The file where to write the results
         """
         lines = []
-        header = 'Node;Address;Port;Published Topics;Subscribed Topics;Services\n'
+        header = 'Master Address;Node Name;Node Address;Port;Published Topics;Subscribed Topics;Services\n'
         lines.append(header)
         for host in self.hosts:
             for node in host.nodes:
