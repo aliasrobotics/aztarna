@@ -1,0 +1,176 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Welcome to Aztarna’s documentation! &#8212; Aztarna 1.0 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Installing" href="install.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="welcome-to-aztarna-s-documentation">
+<h1>Welcome to Aztarna’s documentation!<a class="headerlink" href="#welcome-to-aztarna-s-documentation" title="Permalink to this headline">¶</a></h1>
+<p>A footprinting tool for ROS and SROS systems. The collected information includes the following:</p>
+<div class="section" id="for-ros">
+<h2>For ROS<a class="headerlink" href="#for-ros" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>A list of the ROS nodes present in the system (Publishers and Subscribers)</li>
+<li>For each node, the published and subscribed topis including the topic type</li>
+<li>For each node, the ROS services each of the nodes offer</li>
+<li>A list of all ROS parameters present in the Parameter Server</li>
+<li>A list of the active communications running in the system. A single communication includes the involved publiser/subscriber nodes and the topics</li>
+</ul>
+</div>
+<div class="section" id="for-sros">
+<h2>For SROS<a class="headerlink" href="#for-sros" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Determining if the system is a SROS master.</li>
+<li>Detecting if demo configuration is in use.</li>
+<li>A list of the nodes found in the system. (Extended mode)</li>
+<li>A list of allow/deny policies for each node.<ul>
+<li>Publishable topics.</li>
+<li>Subscriptable topics.</li>
+<li>Executable services.</li>
+<li>Readable parameters.</li>
+</ul>
+</li>
+</ul>
+<div class="toctree-wrapper compound">
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="install.html#for-production">For production</a></li>
+<li class="toctree-l2"><a class="reference internal" href="install.html#for-development">For development</a></li>
+<li class="toctree-l2"><a class="reference internal" href="install.html#install-with-docker">Install with docker</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage:</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="usage.html#run-the-code-example-input-file">Run the code (example input file):</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage.html#run-the-code-with-docker-example-input-file">Run the code with Docker (example input file):</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage.html#run-the-code-example-single-ip-address">Run the code (example single ip address):</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage.html#run-the-code-example-subnet">Run the code (example subnet):</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage.html#run-the-code-example-single-ip-address-port-range">Run the code (example single ip address, port range):</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage.html#run-the-code-example-single-ip-address-port-list">Run the code (example single ip address, port list):</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">Aztarna modules</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="aztarna.html">aztarna package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="aztarna.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="aztarna.ros.html">aztarna.ros package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="aztarna.sros.html">aztarna.sros package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="aztarna.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="aztarna.html#module-aztarna.cmd">aztarna.cmd module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="aztarna.html#module-aztarna.commons">aztarna.commons module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="aztarna.html#module-aztarna.helpers">aztarna.helpers module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="aztarna.html#module-aztarna">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<span class="target" id="module-aztarna"></span></div>
+</div>
+<div class="section" id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></li>
+<li><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></li>
+<li><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></li>
+</ul>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="#">
+              <img class="logo" src="_static/logo.png" alt="Logo"/>
+            </a></p>
+<h1 class="logo"><a href="#">Aztarna</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage:</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">Aztarna modules</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="#">Documentation overview</a><ul>
+      <li>Next: <a href="install.html" title="next chapter">Installing</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Alias Robotics.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.9</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.11</a>
+      
+      |
+      <a href="_sources/index.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,354 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>aztarna.sros package &#8212; Aztarna 1.0 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="aztarna.ros package" href="aztarna.ros.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="aztarna-sros-package">
+<h1>aztarna.sros package<a class="headerlink" href="#aztarna-sros-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-aztarna.sros.helpers">
+<span id="aztarna-sros-helpers-module"></span><h2>aztarna.sros.helpers module<a class="headerlink" href="#module-aztarna.sros.helpers" title="Permalink to this headline">¶</a></h2>
+<p>SROS Scanner helpers classes module.
+:author: Gorka Olalde Mendia(&#64;olaldiko), Xabier Perez Baskaran(&#64;xabierpb)</p>
+<dl class="class">
+<dt id="aztarna.sros.helpers.SROSHost">
+<em class="property">class </em><code class="descclassname">aztarna.sros.helpers.</code><code class="descname">SROSHost</code><a class="reference internal" href="_modules/aztarna/sros/helpers.html#SROSHost"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aztarna.sros.helpers.SROSHost" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="aztarna.html#aztarna.commons.BaseHost" title="aztarna.commons.BaseHost"><code class="xref py py-class docutils literal notranslate"><span class="pre">aztarna.commons.BaseHost</span></code></a></p>
+<p>Class for keeping all the attributes of a SROS Node.Extends:class:<cite>aztarna.commons.BaseHost</cite></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="aztarna.sros.helpers.SROSNode">
+<em class="property">class </em><code class="descclassname">aztarna.sros.helpers.</code><code class="descname">SROSNode</code><a class="reference internal" href="_modules/aztarna/sros/helpers.html#SROSNode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aztarna.sros.helpers.SROSNode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="aztarna.html#aztarna.commons.BaseNode" title="aztarna.commons.BaseNode"><code class="xref py py-class docutils literal notranslate"><span class="pre">aztarna.commons.BaseNode</span></code></a></p>
+<p>Class for keeping all the attributes of a SROS Node. Extends <a class="reference internal" href="aztarna.html#aztarna.commons.BaseNode" title="aztarna.commons.BaseNode"><code class="xref py py-class docutils literal notranslate"><span class="pre">aztarna.commons.BaseNode</span></code></a></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="aztarna.sros.helpers.SROSPolicy">
+<em class="property">class </em><code class="descclassname">aztarna.sros.helpers.</code><code class="descname">SROSPolicy</code><a class="reference internal" href="_modules/aztarna/sros/helpers.html#SROSPolicy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aztarna.sros.helpers.SROSPolicy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Class for representing a SROS Policy, containing the possible types for it, the value and its permissions.</p>
+<dl class="attribute">
+<dt id="aztarna.sros.helpers.SROSPolicy.POLICY_ALLOWED">
+<code class="descname">POLICY_ALLOWED</code><em class="property"> = True</em><a class="headerlink" href="#aztarna.sros.helpers.SROSPolicy.POLICY_ALLOWED" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="aztarna.sros.helpers.SROSPolicy.POLICY_DENIED">
+<code class="descname">POLICY_DENIED</code><em class="property"> = False</em><a class="headerlink" href="#aztarna.sros.helpers.SROSPolicy.POLICY_DENIED" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="aztarna.sros.helpers.SROSPolicy.TYPE_EXECUTABLE_SVCS">
+<code class="descname">TYPE_EXECUTABLE_SVCS</code><em class="property"> = 'Executable services'</em><a class="headerlink" href="#aztarna.sros.helpers.SROSPolicy.TYPE_EXECUTABLE_SVCS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="aztarna.sros.helpers.SROSPolicy.TYPE_PUBLISHABLE_TOPICS">
+<code class="descname">TYPE_PUBLISHABLE_TOPICS</code><em class="property"> = 'Publishable topics'</em><a class="headerlink" href="#aztarna.sros.helpers.SROSPolicy.TYPE_PUBLISHABLE_TOPICS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="aztarna.sros.helpers.SROSPolicy.TYPE_READABLE_PARAMS">
+<code class="descname">TYPE_READABLE_PARAMS</code><em class="property"> = 'Readable parameters'</em><a class="headerlink" href="#aztarna.sros.helpers.SROSPolicy.TYPE_READABLE_PARAMS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="aztarna.sros.helpers.SROSPolicy.TYPE_SUBSCRIPTABLE_TOPICS">
+<code class="descname">TYPE_SUBSCRIPTABLE_TOPICS</code><em class="property"> = 'Subscriptable topics'</em><a class="headerlink" href="#aztarna.sros.helpers.SROSPolicy.TYPE_SUBSCRIPTABLE_TOPICS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="aztarna.sros.helpers.SROSPolicy.TYPE_UNKNOWN">
+<code class="descname">TYPE_UNKNOWN</code><em class="property"> = 'Unknown'</em><a class="headerlink" href="#aztarna.sros.helpers.SROSPolicy.TYPE_UNKNOWN" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="aztarna.sros.helpers.check_port">
+<code class="descclassname">aztarna.sros.helpers.</code><code class="descname">check_port</code><span class="sig-paren">(</span><em>ip</em>, <em>port</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aztarna/sros/helpers.html#check_port"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aztarna.sros.helpers.check_port" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if a port is open.
+:param ip: Address of the host
+:param port: Port to check
+:return: Returns the port if it is open. None otherwise.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="aztarna.sros.helpers.check_port_sem">
+<code class="descclassname">aztarna.sros.helpers.</code><code class="descname">check_port_sem</code><span class="sig-paren">(</span><em>sem</em>, <em>ip</em>, <em>port</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aztarna/sros/helpers.html#check_port_sem"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aztarna.sros.helpers.check_port_sem" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check ports from a host, limiting concurrency with a semaphore.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>sem</strong> – Asyncio semaphore.</li>
+<li><strong>ip</strong> – Address of the host.</li>
+<li><strong>port</strong> – Port to be checked.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The result of <a class="reference internal" href="#aztarna.sros.helpers.check_port" title="aztarna.sros.helpers.check_port"><code class="xref py py-meth docutils literal notranslate"><span class="pre">aztarna.sros.helpers.check_port()</span></code></a>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="aztarna.sros.helpers.find_node_ports">
+<code class="descclassname">aztarna.sros.helpers.</code><code class="descname">find_node_ports</code><span class="sig-paren">(</span><em>address</em>, <em>ports</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aztarna/sros/helpers.html#find_node_ports"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aztarna.sros.helpers.find_node_ports" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find all the open ports for a host.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>address</strong> – IP address of the host.</li>
+<li><strong>ports</strong> – Port to check.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A list of the found open ports.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="aztarna.sros.helpers.get_node_info">
+<code class="descclassname">aztarna.sros.helpers.</code><code class="descname">get_node_info</code><span class="sig-paren">(</span><em>cert</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aztarna/sros/helpers.html#get_node_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aztarna.sros.helpers.get_node_info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract all the information for a node, based on it’s certificate.
+:param cert: The input certificate in X509 format.
+:return: <a class="reference internal" href="#aztarna.sros.helpers.SROSNode" title="aztarna.sros.helpers.SROSNode"><code class="xref py py-class docutils literal notranslate"><span class="pre">aztarna.sros.helpers.SROSNode</span></code></a> The extracted node info from the certificate.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="aztarna.sros.helpers.get_policies">
+<code class="descclassname">aztarna.sros.helpers.</code><code class="descname">get_policies</code><span class="sig-paren">(</span><em>cert</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aztarna/sros/helpers.html#get_policies"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aztarna.sros.helpers.get_policies" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the related policies from an input SROS Node certificate.
+:param cert: Certificate in X509 format.
+:return: List containing all policies as instances of <a class="reference internal" href="#aztarna.sros.helpers.SROSPolicy" title="aztarna.sros.helpers.SROSPolicy"><code class="xref py py-class docutils literal notranslate"><span class="pre">aztarna.sros.helpers.SROSPolicy</span></code></a></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="aztarna.sros.helpers.get_sros_certificate">
+<code class="descclassname">aztarna.sros.helpers.</code><code class="descname">get_sros_certificate</code><span class="sig-paren">(</span><em>address</em>, <em>port</em>, <em>timeout=3</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aztarna/sros/helpers.html#get_sros_certificate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aztarna.sros.helpers.get_sros_certificate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to connect to a SROS Node, simulate the TLS handshake, and get it’s server certificate on the process.
+:param address: Address of the node.
+:param port: Port of the node.
+:param timeout: Timeout for the connection.
+:return: A tuple containing the address, port and certificate if found, otherwise,
+a tuple containing address, port and None.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-aztarna.sros.scanner">
+<span id="aztarna-sros-scanner-module"></span><h2>aztarna.sros.scanner module<a class="headerlink" href="#module-aztarna.sros.scanner" title="Permalink to this headline">¶</a></h2>
+<p>SROS Scanner module.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">author:</th><td class="field-body">Gorka Olalde Mendia(&#64;olaldiko), Xabier Perez Baskaran(&#64;xabierpb)</td>
+</tr>
+</tbody>
+</table>
+<dl class="class">
+<dt id="aztarna.sros.scanner.SROSScanner">
+<em class="property">class </em><code class="descclassname">aztarna.sros.scanner.</code><code class="descname">SROSScanner</code><a class="reference internal" href="_modules/aztarna/sros/scanner.html#SROSScanner"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aztarna.sros.scanner.SROSScanner" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="aztarna.html#aztarna.commons.BaseScanner" title="aztarna.commons.BaseScanner"><code class="xref py py-class docutils literal notranslate"><span class="pre">aztarna.commons.BaseScanner</span></code></a></p>
+<p>SROS Scanner class, extending <a class="reference internal" href="aztarna.html#aztarna.commons.BaseScanner" title="aztarna.commons.BaseScanner"><code class="xref py py-class docutils literal notranslate"><span class="pre">aztarna.commons.BaseScanner</span></code></a>.</p>
+<dl class="method">
+<dt id="aztarna.sros.scanner.SROSScanner.print_results">
+<code class="descname">print_results</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/aztarna/sros/scanner.html#SROSScanner.print_results"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aztarna.sros.scanner.SROSScanner.print_results" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print the results of the scan into console. Extended from <a class="reference internal" href="aztarna.html#aztarna.commons.BaseScanner" title="aztarna.commons.BaseScanner"><code class="xref py py-class docutils literal notranslate"><span class="pre">aztarna.commons.BaseScanner</span></code></a>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="aztarna.sros.scanner.SROSScanner.scan">
+<code class="descname">scan</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/aztarna/sros/scanner.html#SROSScanner.scan"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aztarna.sros.scanner.SROSScanner.scan" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run the scan for SROS hosts. Extended from <a class="reference internal" href="aztarna.html#aztarna.commons.BaseScanner" title="aztarna.commons.BaseScanner"><code class="xref py py-class docutils literal notranslate"><span class="pre">aztarna.commons.BaseScanner</span></code></a>.
+This function is the one to be called externally in order to run the scans. Internally those scans are run
+with the help of asyncio.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="aztarna.sros.scanner.SROSScanner.scan_host">
+<code class="descname">scan_host</code><span class="sig-paren">(</span><em>address: str</em>, <em>master_port: int</em>, <em>timeout=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aztarna/sros/scanner.html#SROSScanner.scan_host"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aztarna.sros.scanner.SROSScanner.scan_host" title="Permalink to this definition">¶</a></dt>
+<dd><p>Scan a single SROS host and return a <a class="reference internal" href="#aztarna.sros.helpers.SROSHost" title="aztarna.sros.helpers.SROSHost"><code class="xref py py-class docutils literal notranslate"><span class="pre">aztarna.sros.helpers.SROSHost</span></code></a> instance with all the data if found.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>address</strong> – Host IP address.</li>
+<li><strong>master_port</strong> – Master node port.</li>
+<li><strong>timeout</strong> – Timeout for the connection.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#aztarna.sros.helpers.SROSHost" title="aztarna.sros.helpers.SROSHost"><code class="xref py py-class docutils literal notranslate"><span class="pre">aztarna.sros.helpers.SROSHost</span></code></a> instance.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="aztarna.sros.scanner.SROSScanner.scan_network">
+<code class="descname">scan_network</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/aztarna/sros/scanner.html#SROSScanner.scan_network"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aztarna.sros.scanner.SROSScanner.scan_network" title="Permalink to this definition">¶</a></dt>
+<dd><p>Scan all the hosts specified in the internal hosts list <code class="xref py py-attr docutils literal notranslate"><span class="pre">self.hosts</span></code>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A list of <a class="reference internal" href="#aztarna.sros.helpers.SROSHost" title="aztarna.sros.helpers.SROSHost"><code class="xref py py-class docutils literal notranslate"><span class="pre">aztarna.sros.helpers.SROSHost</span></code></a> containing all the found hosts.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="aztarna.sros.scanner.SROSScanner.write_to_file">
+<code class="descname">write_to_file</code><span class="sig-paren">(</span><em>out_file: str</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aztarna/sros/scanner.html#SROSScanner.write_to_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aztarna.sros.scanner.SROSScanner.write_to_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write the results to the specified output file. Extended from <a class="reference internal" href="aztarna.html#aztarna.commons.BaseScanner" title="aztarna.commons.BaseScanner"><code class="xref py py-class docutils literal notranslate"><span class="pre">aztarna.commons.BaseScanner</span></code></a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>out_file</strong> – Output file name in which the results will be writen.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-aztarna.sros">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-aztarna.sros" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/logo.png" alt="Logo"/>
+            </a></p>
+<h1 class="logo"><a href="index.html">Aztarna</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage:</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">Aztarna modules</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="aztarna.html">aztarna package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="aztarna.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="aztarna.ros.html">aztarna.ros package</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">aztarna.sros package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="aztarna.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="aztarna.html#module-aztarna.cmd">aztarna.cmd module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="aztarna.html#module-aztarna.commons">aztarna.commons module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="aztarna.html#module-aztarna.helpers">aztarna.helpers module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="aztarna.html#module-aztarna">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="modules.html">Aztarna modules</a><ul>
+  <li><a href="aztarna.html">aztarna package</a><ul>
+      <li>Previous: <a href="aztarna.ros.html" title="previous chapter">aztarna.ros package</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Alias Robotics.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.9</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.11</a>
+      
+      |
+      <a href="_sources/aztarna.sros.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,211 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>aztarna.helpers &#8212; Aztarna 1.0 documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for aztarna.helpers</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="kn">import</span> <span class="nn">asyncio</span>
+<span class="kn">from</span> <span class="nn">platform</span> <span class="k">import</span> <span class="n">system</span> <span class="k">as</span> <span class="n">system_name</span>  <span class="c1"># Returns the system/OS name</span>
+<span class="kn">from</span> <span class="nn">subprocess</span> <span class="k">import</span> <span class="n">call</span> <span class="k">as</span> <span class="n">system_call</span>  <span class="c1"># Execute a shell command</span>
+
+
+<div class="viewcode-block" id="HelpersLINQ"><a class="viewcode-back" href="../../aztarna.html#aztarna.helpers.HelpersLINQ">[docs]</a><span class="k">class</span> <span class="nc">HelpersLINQ</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A helper class for emulating .NET useful methods.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="HelpersLINQ.distinct"><a class="viewcode-back" href="../../aztarna.html#aztarna.helpers.HelpersLINQ.distinct">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">distinct</span><span class="p">(</span><span class="n">sequence</span><span class="p">):</span>
+        <span class="n">seen</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">sequence</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">seen</span><span class="p">:</span>
+                <span class="n">seen</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+                <span class="k">yield</span> <span class="n">s</span></div></div>
+
+
+<div class="viewcode-block" id="HelpersROS"><a class="viewcode-back" href="../../aztarna.html#aztarna.helpers.HelpersROS">[docs]</a><span class="k">class</span> <span class="nc">HelpersROS</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A helper class from ROS system state response manipulation.</span>
+<span class="sd">    Process response is of type array = [ [a, [a1, a2] ] , [b, [b1, b2] ] ]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="HelpersROS.process_line"><a class="viewcode-back" href="../../aztarna.html#aztarna.helpers.HelpersROS.process_line">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">process_line</span><span class="p">(</span><span class="n">array_object</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">array_object</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="n">topic_name</span> <span class="o">=</span> <span class="n">array_object</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">node_names</span> <span class="o">=</span> <span class="p">(</span><span class="n">HelpersLINQ</span><span class="o">.</span><span class="n">distinct</span><span class="p">(</span><span class="n">array_object</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+
+        <span class="k">return</span> <span class="p">[</span><span class="n">topic_name</span><span class="p">,</span> <span class="n">node_names</span><span class="p">]</span></div></div>
+
+
+<div class="viewcode-block" id="HelpersNetWorking"><a class="viewcode-back" href="../../aztarna.html#aztarna.helpers.HelpersNetWorking">[docs]</a><span class="k">class</span> <span class="nc">HelpersNetWorking</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A helper class that checks networking related data</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="HelpersNetWorking.ping"><a class="viewcode-back" href="../../aztarna.html#aztarna.helpers.HelpersNetWorking.ping">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">ping</span><span class="p">(</span><span class="n">host</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        A method that replicates the command line ping utility.</span>
+
+<span class="sd">        :param host: Host to ping to</span>
+<span class="sd">        :return: A boolean type that means if the ping reaches the destination or not</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="c1"># Ping command count option as function of OS</span>
+        <span class="n">param</span> <span class="o">=</span> <span class="s1">&#39;-n&#39;</span> <span class="k">if</span> <span class="n">system_name</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">==</span><span class="s1">&#39;windows&#39;</span> <span class="k">else</span> <span class="s1">&#39;-c&#39;</span>
+        <span class="c1"># Building the command. Ex: &quot;ping -c 1 google.com&quot;</span>
+        <span class="n">command</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;ping&#39;</span><span class="p">,</span> <span class="n">param</span><span class="p">,</span> <span class="s1">&#39;1&#39;</span><span class="p">,</span> <span class="n">host</span><span class="p">]</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;/dev/null&quot;</span><span class="p">,</span> <span class="s2">&quot;w+&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">ret</span> <span class="o">=</span> <span class="n">system_call</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">f</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span>
+
+        <span class="k">return</span> <span class="n">ret</span></div></div>
+
+
+<div class="viewcode-block" id="PortScanner"><a class="viewcode-back" href="../../aztarna.html#aztarna.helpers.PortScanner">[docs]</a><span class="k">class</span> <span class="nc">PortScanner</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A base class that provides methods to check correct por scans.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="PortScanner.check_port"><a class="viewcode-back" href="../../aztarna.html#aztarna.helpers.PortScanner.check_port">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">check_port</span><span class="p">(</span><span class="n">ip</span><span class="p">,</span> <span class="n">port</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Checks if a certain port is open</span>
+<span class="sd">        :param ip: The host&#39;s IP address</span>
+<span class="sd">        :param port: The host&#39;s port</span>
+<span class="sd">        :return: The scanned port if open, else None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">conn</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">open_connection</span><span class="p">(</span><span class="n">ip</span><span class="p">,</span> <span class="n">port</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">reader</span><span class="p">,</span> <span class="n">writer</span> <span class="o">=</span> <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">wait_for</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+            <span class="n">writer</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">port</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="PortScanner.check_port_sem"><a class="viewcode-back" href="../../aztarna.html#aztarna.helpers.PortScanner.check_port_sem">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">check_port_sem</span><span class="p">(</span><span class="n">sem</span><span class="p">,</span> <span class="n">ip</span><span class="p">,</span> <span class="n">port</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calls to :method:check_port with a Semaphore to avoid too many open connections.</span>
+
+<span class="sd">        :param sem:</span>
+<span class="sd">        :param ip:</span>
+<span class="sd">        :param port:</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">async</span> <span class="k">with</span> <span class="n">sem</span><span class="p">:</span>
+            <span class="k">return</span> <span class="k">await</span> <span class="n">PortScanner</span><span class="o">.</span><span class="n">check_port</span><span class="p">(</span><span class="n">ip</span><span class="p">,</span> <span class="n">port</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="PortScanner.scan_host"><a class="viewcode-back" href="../../aztarna.html#aztarna.helpers.PortScanner.scan_host">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">scan_host</span><span class="p">(</span><span class="n">address</span><span class="p">,</span> <span class="n">start_port</span><span class="p">,</span> <span class="n">end_port</span><span class="p">,</span> <span class="n">max_conns</span><span class="o">=</span><span class="mi">400</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        :param address: IPv4 address to scan</span>
+<span class="sd">        :param start_port: First port value to scan</span>
+<span class="sd">        :param end_port: Last port value to scan</span>
+<span class="sd">        :param max_conns: Maximum simultaneous number of connections</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sem</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Semaphore</span><span class="p">(</span><span class="n">max_conns</span><span class="p">)</span>
+        <span class="n">ports</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="n">start_port</span><span class="p">,</span> <span class="n">end_port</span><span class="p">)</span>
+        <span class="n">tasks</span> <span class="o">=</span> <span class="p">[</span><span class="n">asyncio</span><span class="o">.</span><span class="n">ensure_future</span><span class="p">(</span><span class="n">PortScanner</span><span class="o">.</span><span class="n">check_port_sem</span><span class="p">(</span><span class="n">sem</span><span class="p">,</span> <span class="n">address</span><span class="p">,</span> <span class="n">port</span><span class="p">))</span> <span class="k">for</span> <span class="n">port</span> <span class="ow">in</span> <span class="n">ports</span><span class="p">]</span>
+        <span class="n">responses</span> <span class="o">=</span> <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="o">*</span><span class="n">tasks</span><span class="p">)</span>
+        <span class="n">open_ports</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="n">responses</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">open_ports</span></div></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../index.html">
+              <img class="logo" src="../../_static/logo.png" alt="Logo"/>
+            </a></p>
+<h1 class="logo"><a href="../../index.html">Aztarna</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../install.html">Installing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage.html">Usage:</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">Aztarna modules</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Alias Robotics.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.9</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.11</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>
