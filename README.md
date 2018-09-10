@@ -78,7 +78,7 @@ aztarna -t ROS -p 11311 -i ros_scan_s20.csv
 
 ### Run the code with Docker (example input file):
 ```bash
-docker run -v /Users/victor/zmap_results/:/root -it aztarna_docker -t ROS -p 11311 -i /root/ros_scan_s47.csv
+docker run -v <host_path>:/root -it aztarna_docker -t ROS -p 11311 -i <input_file>
 ```
 
 ### Run the code (example single ip address):
