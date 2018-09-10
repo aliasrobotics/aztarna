@@ -9,7 +9,15 @@ A footprinting tool for ROS and SROS systems. The collected information includes
 * A list of the active communications running in the system. A single communication includes the involved publiser/subscriber nodes and the topics
 
 ### For SROS
-* TODO
+* Determining if the system is a SROS master.
+* Detecting if demo configuration is in use.
+* A list of the nodes found in the system. (Extended mode)
+* A list of allow/deny policies for each node.
+  * Publishable topics.
+  * Subscriptable topics.
+  * Executable services.
+  * Readable parameters.
+
 
 ## Installing
 ```
