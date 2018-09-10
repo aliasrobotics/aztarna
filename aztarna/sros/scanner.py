@@ -43,28 +43,29 @@ class SROSScanner(BaseScanner):
             try:
                 master_address, port, master_cert = await get_sros_certificate(address, master_port, timeout)
                 if master_cert:
-                    sros_host = SROSHost()
-                    sros_host.address = address
-                    master_node = get_node_info(master_cert)
-                    master_node.policies = get_policies(master_cert)
-                    sros_host.nodes.append(master_node)
-                    results = []
-                    if self.extended:
-                        port_range = list(range(11310, 25000))
-                        random.shuffle(port_range)
-                        node_ports = await find_node_ports(address, port_range)
-                        for port in node_ports:
-                            results.append(get_sros_certificate(address, port))
-                        for result in await asyncio.gather(*results):
-                            try:
-                                if result:
-                                    print(result)
-                                    if result[2]:
-                                        node_info = get_node_info(result[2])
-                                        node_info.policies = get_policies(result[2])
-                                        sros_host.nodes.append(node_info)
-                            except Exception as e:
-                                logger.exception('Exception at host scan', e)
+                    if master_cert.subject['commonName'] == 'master':
+                        sros_host = SROSHost()
+                        sros_host.address = address
+                        master_node = get_node_info(master_cert)
+                        master_node.policies = get_policies(master_cert)
+                        sros_host.nodes.append(master_node)
+                        results = []
+                        if self.extended:
+                            port_range = list(range(11310, 25000))
+                            random.shuffle(port_range)
+                            node_ports = await find_node_ports(address, port_range)
+                            for port in node_ports:
+                                results.append(get_sros_certificate(address, port))
+                            for result in await asyncio.gather(*results):
+                                try:
+                                    if result:
+                                        print(result)
+                                        if result[2]:
+                                            node_info = get_node_info(result[2])
+                                            node_info.policies = get_policies(result[2])
+                                            sros_host.nodes.append(node_info)
+                                except Exception as e:
+                                    logger.exception('Exception at host scan', e)
             except Exception as e:
                 logger.exception('Exception at host scan', e)
                 return None
