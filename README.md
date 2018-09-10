@@ -20,10 +20,29 @@ A footprinting tool for ROS and SROS systems. The collected information includes
 
 
 ## Installing
+### For production
 ```
-sudo python3 setup.py install
+pip3 install .
+```
+or
+```
+python3 setup.py install
+```
+
+### For development
+```
+pip3 install -e .
+```
+or
+```
+python3 setup.py develop
 ```
 The only requirement is [setuptools](https://pypi.org/project/setuptools/) package, which is usually a defacto standard in a python3 installation.
+
+### Install with docker
+```bash
+docker build -t aztarna_docker .
+```
 
 ### Code usage:
 
@@ -47,7 +66,7 @@ optional arguments:
                         Output file for the results
   -e EXTENDED, --extended EXTENDED
                         Extended scan of the hosts
-  -r RATE, --rate RATE 
+  -r RATE, --rate RATE
                         Maximum simultaneous network connections
 ```
 
@@ -55,6 +74,11 @@ optional arguments:
 
 ```bash
 aztarna -t ROS -p 11311 -i ros_scan_s20.csv
+```
+
+### Run the code with Docker (example input file):
+```bash
+docker run -v /Users/victor/zmap_results/:/root -it aztarna_docker -t ROS -p 11311 -i /root/ros_scan_s47.csv
 ```
 
 ### Run the code (example single ip address):
