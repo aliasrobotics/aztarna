@@ -159,6 +159,7 @@ async def get_sros_certificate(address, port, timeout=3):
     server_hello_done = b'\x0e\x00\x00\x00'
     received_data = b''
     is_sros = True
+    writer = None
     try:
         conn = asyncio.open_connection(str(address), port, loop=asyncio.get_event_loop())
         reader, writer = await asyncio.wait_for(conn, timeout=timeout)
@@ -176,9 +177,11 @@ async def get_sros_certificate(address, port, timeout=3):
         if is_sros:
             server_hello = TLS(received_data)
             cert = server_hello.payload.msg[0].certs[0][1]
-            writer.close()
             logger.warning('[+] SROS host found!!!')
             return address, port, cert
+    finally:
+        if writer:
+            writer.close()
     return address, port, None
 
 
