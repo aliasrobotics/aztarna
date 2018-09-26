@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+
+# Usage: in the terminal zmap | python pipe_stdout.py
 import sys
 
 # use stdin if it's full                                                        
