@@ -174,6 +174,10 @@ class ROSScanner(BaseScanner):
         """
         asyncio.get_event_loop().run_until_complete(self.scan_network())
 
+    def scan_pipe(self):
+        for port in self.ports:
+            self.analyze_nodes('', port)
+
     def print_results(self):
         """
         Print the information of a ROS system.

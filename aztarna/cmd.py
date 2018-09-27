@@ -41,12 +41,13 @@ def main():
                 scanner.load_from_file(args.input_file)
             except FileNotFoundError:
                 print('Input file not found')
-        else:
+        elif args.address:
             if args.address:
                 scanner.load_range(args.address)
             else:
                 logger.critical('No file or addresses defined')
                 return
+
 
         # TODO Implement a regex for port argument
         try:

@@ -99,6 +99,14 @@ class SROSScanner(BaseScanner):
         """
         asyncio.get_event_loop().run_until_complete(self.scan_network())
 
+    def scan_pipe(self):
+        """
+        Run the scan for SROS hosts. Extended from :class:`aztarna.commons.BaseScanner`.
+        This function is the one to be called externally in order to run the scans. Internally those scans are run
+        with the help of asyncio.
+        """
+        asyncio.get_event_loop().run_until_complete(self.scan_host())
+
     def print_results(self):
         """
         Print the results of the scan into console. Extended from :class:`aztarna.commons.BaseScanner`.

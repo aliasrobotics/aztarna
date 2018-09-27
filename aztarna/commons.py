@@ -4,6 +4,7 @@ import asyncio
 import ipaddress
 import logging
 from ipaddress import IPv4Address, ip_network
+import sys
 
 logger = logging.getLogger(__name__)
 
@@ -53,7 +54,29 @@ class BaseScanner:
         else:
             self.host_list = list(network.hosts())
 
+    @staticmethod
+    def pipe_stdout(self):
+        # use stdin if it's full
+        if not sys.stdin.isatty():
+            input_stream = sys.stdin
+
+        # otherwise, read the given filename
+        else:
+            try:
+                input_filename = sys.argv[1]
+            except IndexError:
+                message = 'need filename as first argument if stdin is not full'
+                raise IndexError(message)
+            else:
+                input_stream = open(input_filename, 'rU')
+
+        for line in input_stream:
+            self.scan()
+
     def scan(self):
+        raise NotImplementedError
+
+    def scan_pipe(self):
         raise NotImplementedError
 
     def print_results(self):
