@@ -42,11 +42,10 @@ def main():
             except FileNotFoundError:
                 print('Input file not found')
         elif args.address:
-            if args.address:
-                scanner.load_range(args.address)
-            else:
-                logger.critical('No file or addresses defined')
-                return
+            scanner.load_range(args.address)
+        else:
+            scanner.scan_pipe_main()
+            return
 
 
         # TODO Implement a regex for port argument

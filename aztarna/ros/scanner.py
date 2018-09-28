@@ -10,6 +10,8 @@ from aztarna.commons import BaseScanner, Communication
 from aztarna.helpers import HelpersROS
 from aztarna.ros.helpers import Node, Topic, Service
 from aztarna.ros.helpers import ROSHost
+import sys
+from ipaddress import IPv4Address
 
 
 class ROSScanner(BaseScanner):
@@ -174,9 +176,13 @@ class ROSScanner(BaseScanner):
         """
         asyncio.get_event_loop().run_until_complete(self.scan_network())
 
-    def scan_pipe(self):
-        for port in self.ports:
-            self.analyze_nodes('', port)
+    async def scan_pipe(self):
+        async for line in BaseScanner.stream_as_generator(asyncio.get_event_loop(), sys.stdin):
+            str_line = (line.decode()).rstrip('\n')
+            await self.analyze_nodes(str_line, 11311)
+
+    def scan_pipe_main(self):
+        asyncio.get_event_loop().run_until_complete(self.scan_pipe())
 
     def print_results(self):
         """
