@@ -16,7 +16,10 @@ class ROSHost(BaseHost):
         self.services = []
 
     def __repr__(self):
+        if len(self.nodes) == 0:
+            return "Address: {}".format(self.address)
         return "Address: {}, Nodes: {}".format(self.address, self.nodes)
+
 
 
 class Node(BaseNode):

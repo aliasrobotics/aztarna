@@ -179,7 +179,8 @@ class ROSScanner(BaseScanner):
     async def scan_pipe(self):
         async for line in BaseScanner.stream_as_generator(asyncio.get_event_loop(), sys.stdin):
             str_line = (line.decode()).rstrip('\n')
-            await self.analyze_nodes(str_line, 11311)
+            for port in self.ports:
+                await self.analyze_nodes(str_line, port)
 
     def scan_pipe_main(self):
         asyncio.get_event_loop().run_until_complete(self.scan_pipe())
