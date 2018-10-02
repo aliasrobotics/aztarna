@@ -104,3 +104,9 @@ aztarna -t ROS -p 11311-11500 -a 115.129.241.241
 ```bash
 aztarna -t ROS -p 11311,11312,11313 -a 115.129.241.241
 ```
+
+### Run the code (example piping directly from zmap):
+
+```bash
+zmap -p 11311 0.0.0.0/0 -q | aztarna -t SROS -p 11311
+```
