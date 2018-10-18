@@ -180,6 +180,7 @@ async def get_sros_certificate(address, port, timeout=3):
     finally:
         if writer:
             writer.close()
+            await writer.wait_closed()
     return address, port, None
 
 
