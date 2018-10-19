@@ -85,8 +85,8 @@ def get_node_info(cert):
         node.name = cert.subject['commonName']
         if cert.issuer == ros_demo_fields:
             node.is_demo = True
-    except Exception as e:
-        print(e)
+    except Exception:
+        logger.warning('\t\tException when obtaining node info')
         return None
     else:
         return node
@@ -124,9 +124,8 @@ def get_policies(cert):
             for qualifier in cert_policy.policyQualifiers:
                 policy.values.append(qualifier.qualifier.val)
             policies.append(policy)
-    except Exception as e:
-        print(e)
-
+    except Exception:
+        logger.warning('\t\tException when capturing the certificate policies')
     return policies
 
 

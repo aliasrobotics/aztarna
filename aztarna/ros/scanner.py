@@ -42,26 +42,26 @@ class ROSScanner(BaseScanner):
                     code, msg, val = await ros_master_client.getSystemState('')
                     if code == 1:
                         self.hosts.append(ros_host)
-                        publishers_array = val[0]
-                        subscribers_array = val[1]
-                        services_array = val[2]
-                        found_topics = await self.analyze_topic_types(ros_master_client)  # In order to analyze the nodes topics are needed
+                        if self.extended:
+                            publishers_array = val[0]
+                            subscribers_array = val[1]
+                            services_array = val[2]
+                            found_topics = await self.analyze_topic_types(ros_master_client)  # In order to analyze the nodes topics are needed
 
-                        self.extract_nodes(publishers_array, found_topics, 'pub', ros_host)
-                        self.extract_nodes(subscribers_array, found_topics, 'sub', ros_host)
-                        self.extract_services(services_array, ros_host)
+                            self.extract_nodes(publishers_array, found_topics, 'pub', ros_host)
+                            self.extract_nodes(subscribers_array, found_topics, 'sub', ros_host)
+                            self.extract_services(services_array, ros_host)
 
-                        for topic_name, topic_type in found_topics.items():  # key, value
-                            current_topic = Topic(topic_name, topic_type)
-                            comm = Communication(current_topic)
-                            for node in ros_host.nodes:
-                                if next((x for x in node.published_topics if x.name == current_topic.name), None) is not None:
-                                    comm.publishers.append(node)
-                                if next((x for x in node.subscribed_topics if x.name == current_topic.name), None) is not None:
-                                    comm.subscribers.append(node)
-                            ros_host.communications.append(comm)
-
-                        await self.set_xmlrpcuri_node(ros_master_client, ros_host)
+                            for topic_name, topic_type in found_topics.items():  # key, value
+                                current_topic = Topic(topic_name, topic_type)
+                                comm = Communication(current_topic)
+                                for node in ros_host.nodes:
+                                    if next((x for x in node.published_topics if x.name == current_topic.name), None) is not None:
+                                        comm.publishers.append(node)
+                                    if next((x for x in node.subscribed_topics if x.name == current_topic.name), None) is not None:
+                                        comm.subscribers.append(node)
+                                ros_host.communications.append(comm)
+                            await self.set_xmlrpcuri_node(ros_master_client, ros_host)
                         await client.close()
                         self.logger.warning('[+] ROS Host found at {}!!!'.format(ros_host.address))
                     else:
