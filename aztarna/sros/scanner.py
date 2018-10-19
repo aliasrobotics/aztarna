@@ -46,7 +46,9 @@ class SROSScanner(BaseScanner):
                     if master_cert.subject['commonName'] == 'master':
                         sros_host = SROSHost()
                         sros_host.address = address
+                        sros_host.port = master_port
                         master_node = get_node_info(master_cert)
+                        master_node.port = master_port
                         master_node.policies = get_policies(master_cert)
                         sros_host.nodes.append(master_node)
                         results = []
@@ -114,19 +116,20 @@ class SROSScanner(BaseScanner):
 
         """
         for host in self.hosts:
-            print(host.address)
+            print('{}:{}'.format(host.address, host.port))
             for node in host.nodes:
                 print('\tNode name: {}'.format(node.name))
                 print('\tPort: {}'.format(node.port))
                 print('\tDemo CA Used: {}'.format(node.is_demo))
-                print('\tPolicies:')
-                for policy in node.policies:
-                    print('\t\tType: {}'.format(policy.type))
-                    print('\t\tPermission: {}'.format(policy.permissions))
-                    print('\t\tValues: ')
-                    for value in policy.values:
-                        print('\t\t\t{}'.format(value))
-                    print('')
+                if self.extended:
+                    print('\tPolicies:')
+                    for policy in node.policies:
+                        print('\t\tType: {}'.format(policy.type))
+                        print('\t\tPermission: {}'.format(policy.permissions))
+                        print('\t\tValues: ')
+                        for value in policy.values:
+                            print('\t\t\t{}'.format(value))
+                        print('')
                 print('')
 
     def write_to_file(self, out_file: str):
