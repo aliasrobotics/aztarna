@@ -221,16 +221,18 @@ class ROSScanner(BaseScanner):
         :param out_file: The file where to write the results
         """
         lines = []
-        header = 'Master Address;Node Name;Node Address;Port;Published Topics;Subscribed Topics;Services\n'
+        header = 'Master Address;Master port;Node Name;Node Address;Port;Published Topics;Subscribed Topics;Services\n'
         lines.append(header)
         for host in self.hosts:
-            for node in host.nodes:
-                for ptopic in node.published_topics:
-                    for stopic in node.subscribed_topics:
-                        for service in node.services:
-                            line = '{};{};{};{};{};{};{}\n'.format(host.address, node.name, node.address, node.port, ptopic,
-                                                               stopic, service)
-                            lines.append(line)
+            line = '{};{};;;;;;\n'.format(host.address, host.port)
+            if len(host.nodes) > 0:
+                for node in host.nodes:
+                    for ptopic in node.published_topics:
+                        for stopic in node.subscribed_topics:
+                            for service in node.services:
+                                line = '{};{};{};{};{};{};{};{}\n'.format(host.address, host.port, node.name, node.address, node.port, ptopic,
+                                                                   stopic, service)
+            lines.append(line)
 
         with open(out_file, 'w') as file:
             file.writelines(lines)
