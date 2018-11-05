@@ -48,7 +48,7 @@ setup(
                         "Pygments==2.2.0",
                         "pyparsing==2.2.0",
                         "pytz==2018.5",
-                        "requests==2.19.1",
+                        "requests>=2.20.0",
                         "scapy==2.4.0",
                         "six==1.11.0",
                         "snowballstemmer==1.2.1",
