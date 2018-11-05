@@ -1,62 +1,19 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from aztarna.commons import BaseNode, BaseTopic, BaseService, BaseHost
+import asyncio
 
-
-class ROSHost(BaseHost):
+class HelpersROS:
     """
-    Class for keeping all the attributes of a ROS Node.Extends:class:`aztarna.commons.BaseHost`
+    A helper class from ROS system state response manipulation.
+    Process response is of type array = [ [a, [a1, a2] ] , [b, [b1, b2] ] ]
     """
-    def __init__(self, address, port):
-        super().__init__()
-        self.address = address
-        self.port = port
-        self.communications = []
-        self.services = []
+    @staticmethod
+    def process_line(array_object):
+        if len(array_object) == 0:
+            return None
 
-    def __repr__(self):
-        if len(self.nodes) == 0:
-            return "Address: {}".format(self.address)
-        return "Address: {}, Nodes: {}".format(self.address, self.nodes)
+        topic_name = array_object[0]
+        node_names = (HelpersLINQ.distinct(array_object[1]))
 
-
-
-class Node(BaseNode):
-    """
-    Node class, an extension of the BaseNode
-    """
-    def __init__(self, name):
-        super().__init__()
-        self.name = name
-        self.published_topics = []
-        self.subscribed_topics = []
-        self.services = []
-
-    def __str__(self):
-        return '{} XMLRPCUri: http://{}:{}'.format(self.name, self.address, self.port)
-
-
-class Topic(BaseTopic):
-    """
-    Topic class, an extension of BaseTopic
-    """
-    def __init__(self, name, topic_type):
-        super().__init__()
-        self.name = name
-        self.type = topic_type
-
-    def __str__(self):
-        return self.name + '(Type: ' + self.type + ')'
-
-
-class Service(BaseService):
-    """
-    Service class, an extension of BaseService
-    """
-    def __init__(self, name):
-        super().__init__()
-        self.name = name
-
-    def __str__(self):
-        return '{}'.format(self.name)
+        return [topic_name, node_names]

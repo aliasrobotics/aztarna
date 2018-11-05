@@ -7,12 +7,11 @@ from ipaddress import IPv4Address, ip_network
 
 logger = logging.getLogger(__name__)
 
-
 class BaseScanner:
     """
-    BaseScanner class, an abstraction for different ROS type scans (ROS, SROS, ROS 2)
+    BaseScanner class, an abstraction for different type scans
     """
-    def __init__(self, ports=[11311], extended=False):
+    def __init__(self, ports=[80], extended=False):
         self.host_list = []
         self.ports = ports
         self.extended = extended
@@ -77,7 +76,6 @@ class BaseScanner:
     def write_to_file(self, out_file):
         raise NotImplementedError
 
-
 class BaseHost:
     """
     A base class for ROS hosts
@@ -85,51 +83,3 @@ class BaseHost:
     def __init__(self):
         self.address = ''
         self.port = ''
-        self.nodes = []
-
-
-class BaseNode:
-    """
-    A base class for ROS nodes
-    """
-    def __init__(self):
-        self.name = ''
-        self.address = ''
-        self.port = ''
-
-
-class BaseTopic:
-    """
-    A base class for ROS topics
-    """
-    def __init__(self):
-        self.name = ''
-        self.type = ''
-
-
-class BaseService:
-    """
-    A base class for ROS services
-    """
-    def __init__(self):
-        self.name = ''
-
-
-class Parameter:
-    """
-    A class representing a ROS parameter
-    """
-    def __init__(self):
-        self.name = ''
-        self.type = ''
-        self.value = ''
-
-
-class Communication:
-    """
-    A class representing a ROS communication, including the publishers, subscribers and the topics involveds
-    """
-    def __init__(self, topic):
-        self.publishers = []  # Node type
-        self.subscribers = []  # Node type
-        self.topic = topic # Topic() object
