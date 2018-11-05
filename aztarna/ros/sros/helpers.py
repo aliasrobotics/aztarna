@@ -13,17 +13,15 @@ from scapy.layers.tls.extensions import TLS_Ext_SupportedGroups, TLS_Ext_Support
 from scapy.layers.tls.handshake import TLSClientHello
 from scapy.layers.tls.record import TLS
 
-from aztarna.commons import BaseHost, BaseNode
+from aztarna.ros.commons import BaseHostROS, BaseNodeROS
 
 load_layer('tls')
 
-
-
 logger = logging.getLogger(__name__)
 
-class SROSNode(BaseNode):
+class SROSNode(BaseNodeROS):
     """
-    Class for keeping all the attributes of a SROS Node. Extends :class:`aztarna.commons.BaseNode`
+    Class for keeping all the attributes of a SROS Node. Extends :class:`aztarna.commons.BaseNodeROS`
     """
     def __init__(self):
         super().__init__()
@@ -35,16 +33,15 @@ class SROSNode(BaseNode):
                                                                                 self.port, self.is_demo, self.policies)
 
 
-class SROSHost(BaseHost):
+class SROSHost(BaseHostROS):
     """
-    Class for keeping all the attributes of a SROS Node.Extends:class:`aztarna.commons.BaseHost`
+    Class for keeping all the attributes of a SROS Node.Extends:class:`aztarna.commons.BaseHostROS`
     """
     def __init__(self):
         super().__init__()
 
     def __repr__(self):
         return "Address: {}, Nodes: {}".format(self.address, self.nodes)
-
 
 class SROSPolicy:
     """
@@ -65,7 +62,6 @@ class SROSPolicy:
 
     def __repr__(self):
         return 'Type: {}, Values: {}, Permission: {}'.format(self.type, self.values, self.permissions)
-
 
 def get_node_info(cert):
     """
@@ -90,7 +86,6 @@ def get_node_info(cert):
         return None
     else:
         return node
-
 
 def get_policies(cert):
     """
@@ -127,7 +122,6 @@ def get_policies(cert):
     except Exception:
         logger.warning('\t\tException when capturing the certificate policies')
     return policies
-
 
 async def get_sros_certificate(address, port, timeout=3):
     """
@@ -182,7 +176,6 @@ async def get_sros_certificate(address, port, timeout=3):
             await writer.wait_closed()
     return address, port, None
 
-
 async def check_port(ip, port):
     """
     Check if a port is open.
@@ -205,7 +198,6 @@ async def check_port(ip, port):
         except:
             pass
 
-
 async def check_port_sem(sem, ip, port):
     """
     Check ports from a host, limiting concurrency with a semaphore.
@@ -217,7 +209,6 @@ async def check_port_sem(sem, ip, port):
     """
     async with sem:
         return await check_port(ip, port)
-
 
 async def find_node_ports(address, ports):
     """
@@ -235,9 +226,3 @@ async def find_node_ports(address, ports):
             found_ports.append(response)
 
     return found_ports
-
-
-
-
-
-

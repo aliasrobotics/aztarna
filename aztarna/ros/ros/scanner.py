@@ -6,13 +6,13 @@ import aiohttp
 import logging
 import re
 from aiohttp_xmlrpc.client import ServerProxy
-from aztarna.commons import BaseScanner, Communication
-from aztarna.helpers import HelpersROS
-from aztarna.ros.helpers import Node, Topic, Service
-from aztarna.ros.helpers import ROSHost
+from aztarna.ros.commons import CommunicationROS
+from aztarna.commons import BaseScanner
+from aztarna.ros.helpers import HelpersROS
+from aztarna.ros.ros.helpers import Node, Topic, Service
+from aztarna.ros.ros.helpers import ROSHost
 import sys
 from ipaddress import IPv4Address
-
 
 class ROSScanner(BaseScanner):
     """
@@ -28,7 +28,7 @@ class ROSScanner(BaseScanner):
 
     async def analyze_nodes(self, address, port):
         """
-        Scan a node and gather all its data including topics, services and communications.
+        Scan a node and gather all its data including topics, services and CommunicationROSs.
 
         :param address: address of the ROS master
         :param port: port of the ROS master
@@ -54,7 +54,7 @@ class ROSScanner(BaseScanner):
 
                             for topic_name, topic_type in found_topics.items():  # key, value
                                 current_topic = Topic(topic_name, topic_type)
-                                comm = Communication(current_topic)
+                                comm = CommunicationROS(current_topic)
                                 for node in ros_host.nodes:
                                     if next((x for x in node.published_topics if x.name == current_topic.name), None) is not None:
                                         comm.publishers.append(node)
@@ -204,7 +204,7 @@ class ROSScanner(BaseScanner):
 
             for i in range(len(host.communications)):
                 comm = host.communications[i]
-                print('\n\t Communication ' + str(i) + ':')
+                print('\n\t CommunicationROS ' + str(i) + ':')
                 print('\t\t - Publishers:')
                 for node in comm.publishers:
                     print('\t\t\t' + str(node))
@@ -236,5 +236,3 @@ class ROSScanner(BaseScanner):
 
         with open(out_file, 'w') as file:
             file.writelines(lines)
-
-

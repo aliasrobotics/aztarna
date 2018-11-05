@@ -5,7 +5,6 @@ import asyncio
 from platform import system as system_name  # Returns the system/OS name
 from subprocess import call as system_call  # Execute a shell command
 
-
 class HelpersLINQ:
     """
     A helper class for emulating .NET useful methods.
@@ -17,23 +16,6 @@ class HelpersLINQ:
             if not s in seen:
                 seen.add(s)
                 yield s
-
-
-class HelpersROS:
-    """
-    A helper class from ROS system state response manipulation.
-    Process response is of type array = [ [a, [a1, a2] ] , [b, [b1, b2] ] ]
-    """
-    @staticmethod
-    def process_line(array_object):
-        if len(array_object) == 0:
-            return None
-
-        topic_name = array_object[0]
-        node_names = (HelpersLINQ.distinct(array_object[1]))
-
-        return [topic_name, node_names]
-
 
 class HelpersNetWorking:
     """
@@ -56,7 +38,6 @@ class HelpersNetWorking:
             ret = system_call(command, stdout=f) == 0
 
         return ret
-
 
 class PortScanner:
     """
