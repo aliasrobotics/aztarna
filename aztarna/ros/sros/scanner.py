@@ -17,7 +17,6 @@ from .helpers import SROSHost, get_node_info, get_policies, get_sros_certificate
 
 logger = logging.getLogger(__name__)
 
-
 class SROSScanner(BaseScanner):
     """
     SROS Scanner class, extending :class:`aztarna.commons.BaseScanner`.
