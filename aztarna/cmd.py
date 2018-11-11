@@ -7,8 +7,8 @@ from argparse import ArgumentParser
 import argcomplete
 import uvloop
 
-from aztarna.sros import SROSScanner
-from aztarna.ros import ROSScanner
+from aztarna.ros.sros import SROSScanner
+from aztarna.ros.ros import ROSScanner
 from aztarna.industrialrouters import IndustrialRouterScanner
 
 asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
