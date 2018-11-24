@@ -7,8 +7,9 @@ setup(
     name='aztarna',
     version='1.0',
     packages=['aztarna',
-              'aztarna.ros',
-              'aztarna.sros',
+              'aztarna.ros.ros',
+              'aztarna.ros.sros',
+              'aztarna.ros2',
               ],
     url='https://www.aliasrobotics.com',
     project_urls={
