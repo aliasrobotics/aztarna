@@ -16,6 +16,8 @@ class IndustrialRouterScanner(BaseScanner):
         self.timeout = aiohttp.ClientTimeout(total=3)
         self.hosts_eWON = []
         self.hosts_eWON_secure = []
+        self.hosts_moxa = []
+        self.hosts_moxa_secure = []
 
         self.logger = logging.getLogger(__name__)
 
@@ -35,6 +37,26 @@ class IndustrialRouterScanner(BaseScanner):
         :param address: address of the industrial router
         :param port: port of the industrial router
         """
+
+        async with aiohttp.ClientSession(loop=asyncio.get_event_loop(), timeout=self.timeout) as client:
+            full_host = 'http://' + str(address) + ':' + str(port)
+            try:
+                async with client.get(full_host) as response:
+
+                    async def fetch(client, host):
+                        async with client.get(host) as resp:
+                            assert resp.status == 200
+                            return await resp.text()
+                    server = response.headers.get('Server')
+                    html = await fetch(client, full_host)
+                    # print(html)
+                    if "MoxaHttp" in server:
+                            self.hosts_moxa.append(full_host)
+                            return
+            except Exception as e:
+                self.logger.error('[-] Error connecting to Moxa host ' + str(full_host) + " " + str(e) + '\n')
+            await client.close()
+        # EWon
         auth = aiohttp.BasicAuth(login='adm', password='adm')
         async with aiohttp.ClientSession(auth=auth, loop=asyncio.get_event_loop(), timeout=self.timeout) as client:
             full_host = 'http://' + str(address) + ':' + str(port)
@@ -69,7 +91,7 @@ class IndustrialRouterScanner(BaseScanner):
                             self.hosts_eWON_secure.append(full_host)
 
             except Exception as e:
-                self.logger.error('[-] Error connecting to host ' + str(full_host) + " " + str(e) + '\n')
+                self.logger.error('[-] Error connecting to eWON host ' + str(full_host) + " " + str(e) + '\n')
             await client.close()
 
     async def scan_network(self):
@@ -97,6 +119,11 @@ class IndustrialRouterScanner(BaseScanner):
             print("eWON router in " + host + " is secure")
         for host in self.hosts_eWON:
             print("eWON router in " + host + " is not secure")
+        for host in self.hosts_moxa_secure:
+            print("Moxa router in " + host + " is secure")
+        for host in self.hosts_moxa:
+            print("MOXA router in " + host + " is not secure")
+
 
     def scan(self):
         """
