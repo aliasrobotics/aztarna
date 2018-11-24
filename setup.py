@@ -6,10 +6,12 @@ from setuptools import setup, find_packages
 setup(
     name='aztarna',
     version='1.0',
-    packages=['aztarna',
-              'aztarna.ros.ros',
-              'aztarna.ros.sros',
-              'aztarna.ros2',
+    packages=[
+                'aztarna',
+                'aztarna.ros',
+                'aztarna.ros.ros',
+                'aztarna.ros.sros',
+                'aztarna.ros2',
               ],
     url='https://www.aliasrobotics.com',
     project_urls={
