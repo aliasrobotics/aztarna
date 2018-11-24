@@ -18,9 +18,8 @@
 ####
 
 FROM ubuntu:18.04
-
-ARG AZTARNA_COMMIT=master
-ENV AZTARNA_COMMIT ${AZTARNA_COMMIT}
+# ARG AZTARNA_COMMIT=master
+# ENV AZTARNA_COMMIT ${AZTARNA_COMMIT}
 
 RUN apt-get -qq update && apt-get -qqy upgrade
 # install aztarna build dependencies
@@ -33,6 +32,7 @@ RUN apt-get -qqy install libssl-dev
 
 # copy the aztarna files the FS and install it
 COPY . /root/aztarna
-RUN cd /root/aztarna && git checkout ${AZTARNA_COMMIT} && python3 setup.py install
+# RUN cd /root/aztarna && git checkout ${AZTARNA_COMMIT} && python3 setup.py install
+RUN cd /root/aztarna && python3 setup.py install
 
 ENTRYPOINT ["/usr/local/bin/aztarna"]
