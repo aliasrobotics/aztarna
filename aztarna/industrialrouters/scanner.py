@@ -7,6 +7,8 @@ import logging
 
 from aztarna.commons import BaseScanner
 
+import pkg_resources
+
 class IndustrialRouterScanner(BaseScanner):
     def __init__(self):
         super().__init__()
@@ -46,10 +48,23 @@ class IndustrialRouterScanner(BaseScanner):
 
                     server = response.headers.get('Server')
                     html = await fetch(client, full_host)
-                    print(html)
+                    # print(html)
                     if server == 'eWON':
                         if response.status != 401:
-                            self.hosts_eWON.append(full_host)
+                            filename = pkg_resources.resource_filename('aztarna', "industrialrouters/assets/eWON.html")
+                            print(filename)
+                            with open(filename, 'r') as content_file:
+                                content = content_file.read()
+                                content = content.replace("\t", "")
+                                content = content.replace("\n", "")
+                                content = content.replace(" ", "")
+                                html = html.replace("\n", "")
+                                html = html.replace("\t", "")
+                                html = html.replace(" ", "")
+                                if(html.find(content)==-1):
+                                    self.hosts_eWON.append(full_host)
+                                else:
+                                    self.hosts_eWON_secure.append(full_host)
                         else:
                             self.hosts_eWON_secure.append(full_host)
 
@@ -79,7 +94,7 @@ class IndustrialRouterScanner(BaseScanner):
         Print the information of all industrial routers detected.
         """
         for host in self.hosts_eWON_secure:
-            print("eWON router in " + host + " is securo")
+            print("eWON router in " + host + " is secure")
         for host in self.hosts_eWON:
             print("eWON router in " + host + " is not secure")
 
