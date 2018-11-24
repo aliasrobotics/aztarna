@@ -28,7 +28,7 @@ class ROSScanner(BaseScanner):
 
     async def analyze_nodes(self, address, port):
         """
-        Scan a node and gather all its data including topics, services and CommunicationROSs.
+        Scan a node and gather all its data including topics, services and Communications.
 
         :param address: address of the ROS master
         :param port: port of the ROS master
@@ -60,7 +60,7 @@ class ROSScanner(BaseScanner):
                                         comm.publishers.append(node)
                                     if next((x for x in node.subscribed_topics if x.name == current_topic.name), None) is not None:
                                         comm.subscribers.append(node)
-                                ros_host.CommunicationROSs.append(comm)
+                                ros_host.communications.append(comm)
                             await self.set_xmlrpcuri_node(ros_master_client, ros_host)
                         await client.close()
                         self.logger.warning('[+] ROS Host found at {}!!!'.format(ros_host.address))
