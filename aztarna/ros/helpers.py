@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import asyncio
+from aztarna.helpers import HelpersLINQ
 
 class HelpersROS:
     """
