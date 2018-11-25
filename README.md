@@ -18,6 +18,10 @@ A footprinting tool for ROS and SROS systems. The collected information includes
   * Executable services.
   * Readable parameters.
 
+### For indrustial Industrial
+* Detecting eWON webserver.
+  * Check if the webserver has default credentials.
+
 
 ## Installing
 ### For production

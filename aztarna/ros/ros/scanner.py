@@ -28,7 +28,7 @@ class ROSScanner(BaseScanner):
 
     async def analyze_nodes(self, address, port):
         """
-        Scan a node and gather all its data including topics, services and CommunicationROSs.
+        Scan a node and gather all its data including topics, services and Communications.
 
         :param address: address of the ROS master
         :param port: port of the ROS master
