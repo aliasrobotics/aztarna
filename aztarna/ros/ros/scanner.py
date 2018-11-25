@@ -69,7 +69,7 @@ class ROSScanner(BaseScanner):
 
                 except Exception as e:
                     # traceback.print_tb(e.__traceback__)
-                    self.logger.error('[-] Error connecting to host ' + str(ros_host) + ': ' + str(e) + '\n\tNot a ROS host')
+                    self.logger.error('[-] Error connecting to host ' + str(ros_host.address) + ':' + str(ros_host.port) + ' -> '+str(e) + '\n\tNot a ROS host')
 
     def extract_nodes(self, source_array, topics, pub_or_sub, host):
         """
