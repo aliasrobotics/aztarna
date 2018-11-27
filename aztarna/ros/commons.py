@@ -9,6 +9,7 @@ from aztarna.commons import *
 
 logger = logging.getLogger(__name__)
 
+
 class BaseHostROS(BaseHost):
     """
     A base class for ROS hosts
@@ -16,6 +17,7 @@ class BaseHostROS(BaseHost):
     def __init__(self):
         super().__init__()
         self.nodes = []
+
 
 class BaseNodeROS:
     """
@@ -26,6 +28,7 @@ class BaseNodeROS:
         self.address = ''
         self.port = ''
 
+
 class BaseTopicROS:
     """
     A base class for ROS topics
@@ -34,12 +37,14 @@ class BaseTopicROS:
         self.name = ''
         self.type = ''
 
+
 class BaseServiceROS:
     """
     A base class for ROS services
     """
     def __init__(self):
         self.name = ''
+
 
 class ParameterROS:
     """
@@ -49,6 +54,7 @@ class ParameterROS:
         self.name = ''
         self.type = ''
         self.value = ''
+
 
 class CommunicationROS:
     """

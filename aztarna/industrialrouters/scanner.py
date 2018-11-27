@@ -5,11 +5,12 @@ import asyncio
 import aiohttp
 import logging
 
-from aztarna.commons import BaseScanner
+from aztarna.commons import RobotAdapter
 
 import pkg_resources
 
-class IndustrialRouterScanner(BaseScanner):
+
+class IndustrialRouterScanner(RobotAdapter):
     def __init__(self):
         super().__init__()
 
@@ -24,7 +25,7 @@ class IndustrialRouterScanner(BaseScanner):
         self.logger = logging.getLogger(__name__)
 
     async def scan_pipe(self):
-        async for line in BaseScanner.stream_as_generator(asyncio.get_event_loop(), sys.stdin):
+        async for line in RobotAdapter.stream_as_generator(asyncio.get_event_loop(), sys.stdin):
             str_line = (line.decode()).rstrip('\n')
             for port in self.ports:
                 await self.scan_host(str_line, port)
@@ -151,7 +152,6 @@ class IndustrialRouterScanner(BaseScanner):
             print("Westermo router in " + host + " is secure")
         for host in self.hosts_westermo:
             print("Westermo router in " + host + " is not secure")
-
 
     def scan(self):
         """

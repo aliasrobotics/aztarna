@@ -7,14 +7,14 @@ import logging
 import re
 from aiohttp_xmlrpc.client import ServerProxy
 from aztarna.ros.commons import CommunicationROS
-from aztarna.commons import BaseScanner
+from aztarna.commons import RobotAdapter
 from aztarna.ros.helpers import HelpersROS
 from aztarna.ros.ros.helpers import Node, Topic, Service
 from aztarna.ros.ros.helpers import ROSHost
 import sys
 from ipaddress import IPv4Address
 
-class ROSScanner(BaseScanner):
+class ROSScanner(RobotAdapter):
     """
     ROSScanner class, an extension of BaseScanner for ROS.
     """
@@ -177,7 +177,7 @@ class ROSScanner(BaseScanner):
         asyncio.get_event_loop().run_until_complete(self.scan_network())
 
     async def scan_pipe(self):
-        async for line in BaseScanner.stream_as_generator(asyncio.get_event_loop(), sys.stdin):
+        async for line in RobotAdapter.stream_as_generator(asyncio.get_event_loop(), sys.stdin):
             str_line = (line.decode()).rstrip('\n')
             for port in self.ports:
                 await self.analyze_nodes(str_line, port)

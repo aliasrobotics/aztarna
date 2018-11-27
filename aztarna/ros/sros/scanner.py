@@ -12,12 +12,12 @@ import random
 import traceback
 from ipaddress import AddressValueError
 
-from aztarna.commons import BaseScanner
+from aztarna.commons import RobotAdapter
 from .helpers import SROSHost, get_node_info, get_policies, get_sros_certificate, find_node_ports
 
 logger = logging.getLogger(__name__)
 
-class SROSScanner(BaseScanner):
+class SROSScanner(RobotAdapter):
     """
     SROS Scanner class, extending :class:`aztarna.commons.BaseScanner`.
     """
@@ -101,7 +101,7 @@ class SROSScanner(BaseScanner):
         asyncio.get_event_loop().run_until_complete(self.scan_network())
 
     async def scan_pipe(self):
-        async for line in BaseScanner.stream_as_generator(asyncio.get_event_loop(), sys.stdin):
+        async for line in RobotAdapter.stream_as_generator(asyncio.get_event_loop(), sys.stdin):
             str_line = (line.decode()).rstrip('\n')
             for port in self.ports:
                 await self.scan_host(str_line, port)

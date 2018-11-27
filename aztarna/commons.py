@@ -7,7 +7,8 @@ from ipaddress import IPv4Address, ip_network
 
 logger = logging.getLogger(__name__)
 
-class BaseScanner:
+
+class RobotAdapter:
     """
     BaseScanner class, an abstraction for different type scans
     """
@@ -76,9 +77,10 @@ class BaseScanner:
     def write_to_file(self, out_file):
         raise NotImplementedError
 
-class BaseHost:
+
+class BaseRobotHost:
     """
-    A base class for ROS hosts
+    A base class for different type of Robot hosts
     """
     def __init__(self):
         self.address = ''
