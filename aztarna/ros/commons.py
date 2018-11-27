@@ -10,7 +10,7 @@ from aztarna.commons import *
 logger = logging.getLogger(__name__)
 
 
-class BaseHostROS(BaseHost):
+class BaseHostROS(BaseRobotHost):
     """
     A base class for ROS hosts
     """
