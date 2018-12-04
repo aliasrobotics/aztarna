@@ -1,162 +1,175 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
 import asyncio
+from asyncio import ALL_COMPLETED
+from typing import List
+
 import aiohttp
-import logging
+from aiohttp import ClientTimeout
+from colorama import Fore
+from shodan.client import Shodan
 
 from aztarna.commons import RobotAdapter
 
-import pkg_resources
+
+class BaseIndustrialRouter:
+    def __init__(self):
+        self.name = 'BaseRouter'
+        self.address = None
+        self.port = None
+        self.valid_credentials = []
+        self.alive = False
+        self.protocol = None
 
 
-class IndustrialRouterScanner(RobotAdapter):
+class EWonRouter(BaseIndustrialRouter):
+    def __init__(self):
+        super(EWonRouter, self).__init__()
+        self.name = 'EWon Router'
+
+
+class MoxaRouter(BaseIndustrialRouter):
+    def __init__(self):
+        super(MoxaRouter, self).__init__()
+        self.name = 'Moxa Router'
+
+
+class WestermoRouter(BaseIndustrialRouter):
+    def __init__(self):
+        super(WestermoRouter, self).__init__()
+        self.name = 'Westermo Router'
+
+
+class BaseIndustrialRouterScanner:
+    possible_headers = {}
+    default_credentials = []
+    router_cls = None
+
+    def __init__(self):
+        pass
+
+    @classmethod
+    def check_routers_shodan(cls, shodan: Shodan) -> List[BaseIndustrialRouter]:
+        found_routers = []
+        for field, values in cls.possible_headers.items():
+            for value in values:
+                for result in shodan.search_cursor('{}: {}'.format(field, value)):
+                    router = cls.router_cls()
+                    router.address = result['ip_str']
+                    router.port = result['port']
+                    router.protocol = result['_shodan']['module']
+                    found_routers.append(router)
+        return found_routers
+
+    @classmethod
+    async def check_is_router(cls, address: str, port: int) -> bool:
+        async with aiohttp.ClientSession(timeout=ClientTimeout(0.5)) as client:
+            uri = 'http://{}:{}'.format(address, port)
+            async with client.get(uri) as response:
+                for field, values in cls.possible_headers:
+                    if response.headers.get(field) in values:
+                        return True
+                    else:
+                        return False
+
+    @classmethod
+    async def check_default_password(cls, router):
+        uri = '{}://{}:{}'.format(router.protocol, router.address, router.port)
+        for user, password in cls.default_credentials:
+            auth = aiohttp.BasicAuth(login=user, password=password)
+            async with aiohttp.ClientSession(timeout=ClientTimeout(2)) as client:
+                try:
+                    async with client.request('GET', uri, auth=auth, ssl=False) as response:
+                        if response.status == 200:
+                            router.valid_credentials.append((user, password))
+                        elif response.status == 401:
+                            pass
+                        router.alive = True
+                except:
+                    router.alive = False
+
+    def check_router_credentials(self, routers: List[BaseIndustrialRouter]):
+        async def check_router_credentials_aio(routers):
+            futures = []
+            for router in routers:
+                futures.append(asyncio.ensure_future(self.check_default_password(router)))
+            await asyncio.wait(futures, return_when=ALL_COMPLETED)
+        asyncio.get_event_loop().run_until_complete(check_router_credentials_aio(routers))
+
+
+class WestermoScanner(BaseIndustrialRouterScanner):
+
+    possible_headers = {'Server': ['Westermo', 'EDW']}
+    default_credentials = [('admin', 'westermo')]
+    router_cls = WestermoRouter
+
+
+class MoxaScanner(BaseIndustrialRouterScanner):
+    possible_headers = {'Server': ['MoxaHttp', 'MoxaHttp/1.0', 'MoxaHttp/2.2']}
+    default_credentials = [('admin', 'root'), ('', 'root'), ('', ''), ('admin', 'admin'), ('admin', '')]
+    router_cls = MoxaRouter
+    def __init__(self):
+        super(MoxaScanner, self).__init__()
+
+
+class EWonScanner(BaseIndustrialRouterScanner):
+
+    possible_headers = [{'Server': ['eWON']}]
+    default_credentials = [('adm', 'adm',)]
+    router_cls = EWonRouter
+
+
+class IndustrialRouterAdapter(RobotAdapter):
+
+    router_scanner_types = [WestermoScanner, EWonScanner, MoxaScanner]
+
     def __init__(self):
         super().__init__()
+        self.use_shodan = False
+        self.shodan_api_key = None
+        self.shodan_conn = None
+        self.routers = []
+        self.router_scanners = []
+        for cls in IndustrialRouterAdapter.router_scanner_types:
+            self.router_scanners.append(cls())
 
-        self.timeout = aiohttp.ClientTimeout(total=3)
-        self.hosts_eWON = []
-        self.hosts_eWON_secure = []
-        self.hosts_moxa = []
-        self.hosts_moxa_secure = []
-        self.hosts_westermo = []
-        self.hosts_westermo_secure = []
-
-        self.logger = logging.getLogger(__name__)
-
-    async def scan_pipe(self):
-        async for line in RobotAdapter.stream_as_generator(asyncio.get_event_loop(), sys.stdin):
-            str_line = (line.decode()).rstrip('\n')
-            for port in self.ports:
-                await self.scan_host(str_line, port)
+    def initialize_shodan(self):
+        self.shodan_conn = Shodan(self.shodan_api_key)
 
     def scan_pipe_main(self):
-        asyncio.get_event_loop().run_until_complete(self.scan_pipe())
-
-    async def analyze_router(self, address, port):
-        """
-        Scan a router and gather all the information available.
-
-        :param address: address of the industrial router
-        :param port: port of the industrial router
-        """
-        auth = aiohttp.BasicAuth(login='admin', password='westermo')
-        async with aiohttp.ClientSession(auth=auth, loop=asyncio.get_event_loop(), timeout=self.timeout) as client:
-            full_host = 'http://' + str(address) + ':' + str(port)
-            try:
-                async with client.get(full_host) as response:
-                    async def fetch(client, host):
-                        async with client.get(host) as resp:
-                            assert resp.status == 200
-                            return await resp.text()
-                    server = response.headers.get('WWW-Authenticate')
-                    if server==None:
-                        return
-                    if "Westermo" in server:
-                        if response.status != 401:
-                            self.hosts_westermo.append(full_host)
-                            return
-                        else:
-                            self.hosts_westermo_secure.append(full_host)
-                            return
-            except Exception as e:
-                self.logger.error('[-] Error connecting to Westermo host ' + str(full_host) + " " + str(e) + '\n')
-            await client.close()
-
-        async with aiohttp.ClientSession(loop=asyncio.get_event_loop(), timeout=self.timeout) as client:
-            full_host = 'http://' + str(address) + ':' + str(port)
-            try:
-                async with client.get(full_host) as response:
-
-                    async def fetch(client, host):
-                        async with client.get(host) as resp:
-                            assert resp.status == 200
-                            return await resp.text()
-                    server = response.headers.get('Server')
-                    html = await fetch(client, full_host)
-                    # print(html)
-                    if "MoxaHttp" in server:
-                            self.hosts_moxa.append(full_host)
-                            return
-            except Exception as e:
-                self.logger.error('[-] Error connecting to Moxa host ' + str(full_host) + " " + str(e) + '\n')
-            await client.close()
-        # EWon
-        auth = aiohttp.BasicAuth(login='adm', password='adm')
-        async with aiohttp.ClientSession(auth=auth, loop=asyncio.get_event_loop(), timeout=self.timeout) as client:
-            full_host = 'http://' + str(address) + ':' + str(port)
-            try:
-                async with client.get(full_host) as response:
-
-                    async def fetch(client, host):
-                        async with client.get(host) as resp:
-                            assert resp.status == 200
-                            return await resp.text()
-
-                    server = response.headers.get('Server')
-                    html = await fetch(client, full_host)
-                    # print(html)
-                    if server == 'eWON':
-                        if response.status != 401:
-                            filename = pkg_resources.resource_filename('aztarna', "industrialrouters/assets/eWON.html")
-                            print(filename)
-                            with open(filename, 'r') as content_file:
-                                content = content_file.read()
-                                content = content.replace("\t", "")
-                                content = content.replace("\n", "")
-                                content = content.replace(" ", "")
-                                html = html.replace("\n", "")
-                                html = html.replace("\t", "")
-                                html = html.replace(" ", "")
-                                if(html.find(content)==-1):
-                                    self.hosts_eWON.append(full_host)
-                                else:
-                                    self.hosts_eWON_secure.append(full_host)
-                        else:
-                            self.hosts_eWON_secure.append(full_host)
-
-            except Exception as e:
-                self.logger.error('[-] Error connecting to eWON host ' + str(full_host) + " " + str(e) + '\n')
-            await client.close()
-
-    async def scan_network(self):
-        """
-        Scan the provided network (from args) searching for industrial routers.
-        """
-        try:
-            results = []
-            for port in self.ports:
-                for address in self.host_list:
-                    results.append(self.analyze_router(address, port))
-
-            for result in await asyncio.gather(*results):
-                pass
-
-        except ValueError as e:
-            self.logger.error('Invalid address entered')
-            raise e
+        pass
 
     def print_results(self):
-        """
-        Print the information of all industrial routers detected.
-        """
-        for host in self.hosts_eWON_secure:
-            print("eWON router in " + host + " is secure")
-        for host in self.hosts_eWON:
-            print("eWON router in " + host + " is not secure")
-        for host in self.hosts_moxa_secure:
-            print("Moxa router in " + host + " is secure")
-        for host in self.hosts_moxa:
-            print("MOXA router in " + host + " is not secure")
-        for host in self.hosts_westermo_secure:
-            print("Westermo router in " + host + " is secure")
-        for host in self.hosts_westermo:
-            print("Westermo router in " + host + " is not secure")
+        for router in self.routers:
+            print(Fore.Green + 'Name' + router.name + Fore.RESET)
+            print('\tAddress: {}:{}'.format(router.address, router.port))
+            print('\tProtocol: ' + router.protocol)
+            if router.alive:
+                print('\t' + Fore.GREEN + 'Alive' + Fore.RESET)
+                if len(router.valid_credentials):
+                    print('\t' + Fore.RED + 'Found credentials:' + Fore.RESET)
+                    for user, password in router.valid_credentials:
+                        print('\t\tUsername: {} Password: {}'.format(user, password))
+            else:
+                print('\t' + Fore.RED + 'Unreachable' + Fore.RESET)
+
+    def write_to_file(self, out_file):
+        header = 'Type;Address;Port;Protocol;Valid Credentials\n'
+        with open(out_file, 'w') as file:
+            file.write(header)
+            for router in self.routers:
+                line = '{};{};{};{};{}\n'.format(router.name, router.address, router.port,
+                                               router.protocol, router.valid_credentials)
+                file.write(line)
 
     def scan(self):
-        """
-        Run the scan for industrial routers hosts. Extended from :class:`aztarna.commons.BaseScanner`.
-        This function is the one to be called externally in order to run the scans. Internally those scans are run
-        with the help of asyncio.
-        """
-        asyncio.get_event_loop().run_until_complete(self.scan_network())
+        if self.use_shodan:
+            self.initialize_shodan()
+            for scanner in self.router_scanners:
+                self.routers.append(scanner.check_routers_shodan(self.shodan_conn))
+
+
+
+
+
+
+
+
