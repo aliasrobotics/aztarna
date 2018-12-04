@@ -42,6 +42,7 @@ class BaseIndustrialRouterScanner:
     possible_headers = {}
     default_credentials = []
     router_cls = None
+    url_path = ''
 
     def __init__(self):
         pass
@@ -72,7 +73,7 @@ class BaseIndustrialRouterScanner:
 
     @classmethod
     async def check_default_password(cls, router):
-        uri = '{}://{}:{}'.format(router.protocol, router.address, router.port)
+        uri = '{}://{}:{}/{}'.format(router.protocol, router.address, router.port, cls.url_path)
         for user, password in cls.default_credentials:
             auth = aiohttp.BasicAuth(login=user, password=password)
             async with aiohttp.ClientSession(timeout=ClientTimeout(2)) as client:
@@ -92,11 +93,11 @@ class BaseIndustrialRouterScanner:
             for router in routers:
                 futures.append(asyncio.ensure_future(self.check_default_password(router)))
             await asyncio.wait(futures, return_when=ALL_COMPLETED)
+
         asyncio.get_event_loop().run_until_complete(check_router_credentials_aio(routers))
 
 
 class WestermoScanner(BaseIndustrialRouterScanner):
-
     possible_headers = {'Server': ['Westermo', 'EDW']}
     default_credentials = [('admin', 'westermo')]
     router_cls = WestermoRouter
@@ -106,19 +107,16 @@ class MoxaScanner(BaseIndustrialRouterScanner):
     possible_headers = {'Server': ['MoxaHttp', 'MoxaHttp/1.0', 'MoxaHttp/2.2']}
     default_credentials = [('admin', 'root'), ('', 'root'), ('', ''), ('admin', 'admin'), ('admin', '')]
     router_cls = MoxaRouter
-    def __init__(self):
-        super(MoxaScanner, self).__init__()
 
 
 class EWonScanner(BaseIndustrialRouterScanner):
-
     possible_headers = [{'Server': ['eWON']}]
     default_credentials = [('adm', 'adm',)]
     router_cls = EWonRouter
+    url_path = 'Ast/MainAst.shtm'
 
 
 class IndustrialRouterAdapter(RobotAdapter):
-
     router_scanner_types = [WestermoScanner, EWonScanner, MoxaScanner]
 
     def __init__(self):
@@ -157,7 +155,7 @@ class IndustrialRouterAdapter(RobotAdapter):
             file.write(header)
             for router in self.routers:
                 line = '{};{};{};{};{}\n'.format(router.name, router.address, router.port,
-                                               router.protocol, router.valid_credentials)
+                                                 router.protocol, router.valid_credentials)
                 file.write(line)
 
     def scan(self):
@@ -165,11 +163,3 @@ class IndustrialRouterAdapter(RobotAdapter):
             self.initialize_shodan()
             for scanner in self.router_scanners:
                 self.routers.append(scanner.check_routers_shodan(self.shodan_conn))
-
-
-
-
-
-
-
-
