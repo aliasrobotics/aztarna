@@ -237,27 +237,35 @@ class MoxaScanner(BaseIndustrialRouterScanner):
         context.set_ciphers('HIGH:!DH:!aNULL')
         async with semaphore:
             async with aiohttp.ClientSession(timeout=ClientTimeout(20)) as client:
-                async with client.request('GET', uri, ssl=context) as response:
-                    router.alive = True
-                    content = str(await response.content.read())
-                    if cls.valid_login_text_moxahttp_2_2 in content or cls.valid_login_text_moxahttp_1_0 in content:
-                        router.valid_credentials.append(('admin', 'no password'))
-                    else:
-                        if response.headers.get('Server') == 'MoxaHttp/1.0':
-                            await cls.check_password_moxahttp_1_0(client, context, content, router)
-                        elif response.headers.get('Server') == 'MoxaHttp/2.2':
-                            await cls.check_password_moxahttp_2_2(client, context, content, router)
+                try:
+                    logger.info('[+] Connecting to router at {}'.format(router.address))
+                    async with client.request('GET', uri, ssl=context) as response:
+                        router.alive = True
+                        content = str(await response.content.read())
+                        if cls.valid_login_text_moxahttp_2_2 in content or cls.valid_login_text_moxahttp_1_0 in content:
+                            router.valid_credentials.append(('admin', 'no password'))
+                        else:
+                            if response.headers.get('Server') == 'MoxaHttp/1.0':
+                                await cls.check_password_moxahttp_1_0(client, context, content, router)
+                            elif response.headers.get('Server') == 'MoxaHttp/2.2':
+                                await cls.check_password_moxahttp_2_2(client, context, content, router)
+                except:
+                    logger.warning('[-] Connection to {} failed'.format(router.address))
 
     @classmethod
     async def check_password_moxahttp_1_0(cls, client, context, content, router):
         challenge = cls.get_challenge_moxahttp_1_0(content)
+
         for clear_password, password in cls.default_credentials_http1:
             uri = '{}://{}:{}/home.htm?Password={}&Submit=Submit&token_text=&FakeChallenge={}' \
                 .format(router.protocol, router.address, router.port, password, challenge)
-            async with client.request('GET', uri, ssl=context) as response:
-                content = str(await response.content.read())
-                if cls.valid_login_text_moxahttp_2_2 in content:
-                    router.valid_credentials.append(clear_password)
+            try:
+                async with client.request('GET', uri, ssl=context) as response:
+                    content = str(await response.content.read())
+                    if cls.valid_login_text_moxahttp_2_2 in content:
+                        router.valid_credentials.append(clear_password)
+            except:
+                logger.warning('[-] Connection to {} failed'.format(router.address))
 
     @classmethod
     async def check_password_moxahttp_2_2(cls, client, context, content, router):
@@ -272,10 +280,13 @@ class MoxaScanner(BaseIndustrialRouterScanner):
             }
             if challenge:
                 payload['FakeChallenge'] = challenge
-            async with client.post(uri, data=payload, ssl=context) as response:
-                content = str(await response.content.read())
-                if cls.valid_login_text_moxahttp_2_2 in content:
-                    router.valid_credentials.append((user, clear_password))
+            try:
+                async with client.post(uri, data=payload, ssl=context) as response:
+                    content = str(await response.content.read())
+                    if cls.valid_login_text_moxahttp_2_2 in content:
+                        router.valid_credentials.append((user, clear_password))
+            except:
+                logger.warning('[-] Connection to {} failed'.format(router.address))
 
 
 class EWonScanner(BaseIndustrialRouterScanner):
@@ -310,18 +321,22 @@ class SierraWirelessScanner(BaseIndustrialRouterScanner):
         context.options &= ~ssl.OP_NO_SSLv3
         context.set_ciphers('HIGH:!DH:!aNULL')
         async with aiohttp.ClientSession(timeout=ClientTimeout(20), headers=headers) as client:
-            for user, password in cls.default_credentials:
-                payload = '''<request xmlns="urn:acemanager">
+            try:
+                for user, password in cls.default_credentials:
+                    payload = '''<request xmlns="urn:acemanager">
 <connect>
 <login>{}</login>
 <password><![CDATA[{}]]></password>
 </connect>
 </request>
                 '''.format(user, password)
-                async with client.post(url, data=bytes(payload, 'utf-8')) as response:
-                    content = str(await response.content.read())
-                    if not cls.failed_message in content:
-                        router.valid_credentials.append((user, password))
+                    logger.info('[+] Connecting to {}'.format(router.address))
+                    async with client.post(url, data=bytes(payload, 'utf-8')) as response:
+                        content = str(await response.content.read())
+                        if not cls.failed_message in content:
+                            router.valid_credentials.append((user, password))
+            except:
+                logger.warning('[-] Connection to {} failed'.format(router.address))
 
 
 class IndustrialRouterAdapter(RobotAdapter):
