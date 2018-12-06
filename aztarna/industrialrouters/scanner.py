@@ -48,6 +48,12 @@ class WestermoRouter(BaseIndustrialRouter):
         self.name = 'Westermo Router'
 
 
+class SierraRouter(BaseIndustrialRouter):
+    def __init__(self):
+        super(SierraRouter, self).__init__()
+        self.name = 'Sierra Wireless Router'
+
+
 class BaseIndustrialRouterScanner:
     possible_headers = {}
     default_credentials = []
@@ -193,10 +199,12 @@ class MoxaScanner(BaseIndustrialRouterScanner):
                                  ('', 'root', '63a9f0ea7bb98050796b649e85481845'),  # Root
                                  ('admin', 'admin', '21232f297a57a5a743894a0e4a801fc3'),  # Admin
                                  ('admin', '', 'd41d8cd98f00b204e9800998ecf8427e')]  # Empty
-    valid_login_text = 'FRAME name="main" src="main.htm"'
+    valid_login_text_moxahttp_2_2 = 'FRAME name="main" src="main.htm"'
+    valid_login_text_moxahttp_1_0 = 'FRAME name=main src=main.htm'
     router_cls = MoxaRouter
 
-    def get_challenge_moxahttp_1_0(self, text):
+    @classmethod
+    def get_challenge_moxahttp_1_0(cls, text):
         regexp = 'set\(\"FakeChallenge\",\"(?P<challenge>[A-Z0-9]+)\"\)\;'
         match = re.search(regexp, text.rstrip())
         if match:
@@ -207,7 +215,8 @@ class MoxaScanner(BaseIndustrialRouterScanner):
         else:
             return None
 
-    def get_challenge_moxahttp_2_2(self, text):
+    @classmethod
+    def get_challenge_moxahttp_2_2(cls, text):
         regexp = '<INPUT type=hidden name=FakeChallenge value=(?P<challenge>[A-Z0-9]+)>'
         match = re.search(regexp, text)
         if match:
@@ -230,38 +239,42 @@ class MoxaScanner(BaseIndustrialRouterScanner):
             async with aiohttp.ClientSession(timeout=ClientTimeout(20)) as client:
                 async with client.request('GET', uri, ssl=context) as response:
                     router.alive = True
-                    if cls.valid_login_text in response.text:
+                    content = str(await response.content.read())
+                    if cls.valid_login_text_moxahttp_2_2 in content or cls.valid_login_text_moxahttp_1_0 in content:
                         router.valid_credentials.append(('admin', 'no password'))
                     else:
                         if response.headers.get('Server') == 'MoxaHttp/1.0':
-                            await cls.check_password_moxahttp_1_0(client, context, response, router)
+                            await cls.check_password_moxahttp_1_0(client, context, content, router)
                         elif response.headers.get('Server') == 'MoxaHttp/2.2':
-                            await cls.check_password_moxahttp_2_2(client, response, router)
+                            await cls.check_password_moxahttp_2_2(client, context, content, router)
 
     @classmethod
-    async def check_password_moxahttp_1_0(cls, client, context, response, router):
-        challenge = cls.get_challenge_moxahttp_1_0(response.text)
+    async def check_password_moxahttp_1_0(cls, client, context, content, router):
+        challenge = cls.get_challenge_moxahttp_1_0(content)
         for clear_password, password in cls.default_credentials_http1:
             uri = '{}://{}:{}/home.htm?Password={}&Submit=Submit&token_text=&FakeChallenge={}' \
                 .format(router.protocol, router.address, router.port, password, challenge)
             async with client.request('GET', uri, ssl=context) as response:
-                if cls.valid_login_text in response.text:
+                content = str(await response.content.read())
+                if cls.valid_login_text_moxahttp_2_2 in content:
                     router.valid_credentials.append(clear_password)
 
     @classmethod
-    async def check_password_moxahttp_2_2(cls, client, context, response, router):
+    async def check_password_moxahttp_2_2(cls, client, context, content, router):
         uri = '{}://{}:{}/'.format(router.protocol, router.address, router.port)
-        challenge = cls.get_challenge_moxahttp_2_2(response.text)
+        challenge = cls.get_challenge_moxahttp_2_2(content)
         for user, clear_password, password in cls.default_credentials_http2:
             payload = {
                 'Username': user,
                 'MD5Password': password,
-                'FakeChallenge': challenge,
                 'Submit.x': random.randint(0, 50),
                 'Submit.y': random.randint(0, 50)
             }
+            if challenge:
+                payload['FakeChallenge'] = challenge
             async with client.post(uri, data=payload, ssl=context) as response:
-                if cls.valid_login_text in response.text:
+                content = str(await response.content.read())
+                if cls.valid_login_text_moxahttp_2_2 in content:
                     router.valid_credentials.append((user, clear_password))
 
 
@@ -272,8 +285,47 @@ class EWonScanner(BaseIndustrialRouterScanner):
     url_path = 'Ast/MainAst.shtm'
 
 
+class SierraWirelessScanner(BaseIndustrialRouterScanner):
+    possible_headers = {'Server': ['Sierra Wireless Inc, Embedded Server']}
+    default_credentials = [('sconsole', '12345'),
+                           ('', 'admin'),
+                           ('', 'swiadmin'),
+                           ('sconsole', '12345'),
+                           ('user', '12345'),
+                           ('viewer', '12345'),
+                           ('admin', '')]
+    failed_message = 'Invalid UserName / Password'
+    router_cls = SierraRouter
+
+    @classmethod
+    async def check_default_password(cls, router, semaphore=Semaphore()):
+        url = '{}://{}:{}/xml/Connect.xml'.format(router.protocol, router.address, router.port)
+        headers = {'Accept': 'application/xml, text/xml, */*; q=0.01',
+                   'Accept-Encoding': 'gzip, deflate',
+                   'Content-Type': 'text/xml',
+                   'X-Requested-With': 'XMLHttpRequest'}
+        context = ssl.create_default_context()
+        context.check_hostname = False
+        context.verify_mode = ssl.CERT_NONE
+        context.options &= ~ssl.OP_NO_SSLv3
+        context.set_ciphers('HIGH:!DH:!aNULL')
+        async with aiohttp.ClientSession(timeout=ClientTimeout(20), headers=headers) as client:
+            for user, password in cls.default_credentials:
+                payload = '''<request xmlns="urn:acemanager">
+<connect>
+<login>{}</login>
+<password><![CDATA[{}]]></password>
+</connect>
+</request>
+                '''.format(user, password)
+                async with client.post(url, data=bytes(payload, 'utf-8')) as response:
+                    content = str(await response.content.read())
+                    if not cls.failed_message in content:
+                        router.valid_credentials.append((user, password))
+
+
 class IndustrialRouterAdapter(RobotAdapter):
-    router_scanner_types = [WestermoScanner, EWonScanner, MoxaScanner]
+    router_scanner_types = [WestermoScanner, EWonScanner, MoxaScanner, SierraWirelessScanner]
 
     def __init__(self):
         super().__init__()
