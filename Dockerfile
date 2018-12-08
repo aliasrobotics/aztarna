@@ -29,6 +29,7 @@ RUN apt-get -qqy install libxml2-dev libxslt1-dev
 RUN apt-get -qqy install zlib1g-dev
 RUN apt-get -qqy install libffi-dev
 RUN apt-get -qqy install libssl-dev
+RUN rm -rf /var/lib/apt/lists/*
 
 # copy the aztarna files the FS and install it
 COPY . /root/aztarna
