@@ -5,7 +5,7 @@ import re
 import ssl
 from asyncio import ALL_COMPLETED, Semaphore
 from asyncio import TimeoutError
-from typing import List
+from typing import List, Optional
 
 import aiohttp
 from aiohttp import ClientTimeout
@@ -19,6 +19,10 @@ logger = logging.getLogger(__name__)
 
 
 class BaseIndustrialRouter:
+    """
+    Base class for holding industrial routers.
+    """
+
     def __init__(self):
         self.name = 'BaseRouter'
         self.address = None
@@ -31,30 +35,50 @@ class BaseIndustrialRouter:
 
 
 class EWonRouter(BaseIndustrialRouter):
+    """
+    Class for holding EWON Manufacturer routers.
+    """
+
     def __init__(self):
         super(EWonRouter, self).__init__()
         self.name = 'EWon Router'
 
 
 class MoxaRouter(BaseIndustrialRouter):
+    """
+    Class for holding Moxa Manufacturer routers.
+    """
+
     def __init__(self):
         super(MoxaRouter, self).__init__()
         self.name = 'Moxa Router'
 
 
 class WestermoRouter(BaseIndustrialRouter):
+    """
+    Class for holding Westermo Manufacturer routers.
+    """
+
     def __init__(self):
         super(WestermoRouter, self).__init__()
         self.name = 'Westermo Router'
 
 
 class SierraRouter(BaseIndustrialRouter):
+    """
+    Class for holding Sierra Wireless manufactuer routers.
+    """
+
     def __init__(self):
         super(SierraRouter, self).__init__()
         self.name = 'Sierra Wireless Router'
 
 
 class BaseIndustrialRouterScanner:
+    """
+    Base class fo the different manufacturer router scanners. Includes default methods for Basic Authentication password
+    checking and scanning.
+    """
     possible_headers = {}
     default_credentials = []
     router_cls = None
@@ -65,6 +89,12 @@ class BaseIndustrialRouterScanner:
 
     @classmethod
     def check_routers_shodan(cls, shodan: Shodan) -> List[BaseIndustrialRouter]:
+        """
+        Method to search for industrial routers in Shodan, given the headers defined at class level.
+
+        :param shodan: Shodan API object to be used.
+        :return: List of found routers.
+        """
         found_routers = []
         for field, values in cls.possible_headers.items():
             for value in values:
@@ -72,20 +102,29 @@ class BaseIndustrialRouterScanner:
                     router = cls.router_cls()
                     router.address = result['ip_str']
                     router.port = result['port']
-                    if result['_shodan']['module'] == 'http-simple-new':
+                    if result['_shodan']['module'] in ['http-simple-new', 'http-check']:
                         router.protocol = 'http'
                     elif result['_shodan']['module'] == 'https-simple-new':
                         router.protocol = 'https'
                     else:
                         router.protocol = result['_shodan']['module']
-
-                    router.protocol = result['_shodan']['module']
+                    # if len(found_routers) == 2000:
+                    #   break
                     found_routers.append(router)
         logger.info('[+] Shodan found {} routers. Scanner: {}'.format(len(found_routers), cls.__name__))
         return found_routers
 
     @classmethod
     async def check_is_router(cls, address: str, port: int, semaphore=Semaphore()) -> BaseIndustrialRouter:
+        """
+        Check if a certain router is an industrial router, given the headers defined at class level.
+
+        :param address: IP address of the router to check.
+        :param port: Port of the web interface of the device to check.
+        :param semaphore: Asyncio semaphore to be used for concurrency limitation.
+        :return: A :class:`aztarna.industrialrouters.scanner.BaseIndustrialRouter` object if the checked device is a router.
+                None otherwise.
+        """
         context = ssl.create_default_context()
         context.check_hostname = False
         context.verify_mode = ssl.CERT_NONE
@@ -104,9 +143,16 @@ class BaseIndustrialRouterScanner:
                         else:
                             return None
 
-    def check_routers(self, addresses, ports):
+    def check_routers(self, addresses: List[str], ports: List[int]) -> List[BaseIndustrialRouter]:
+        """
+        Check for routers in a range of addressess and ports.
+
+        :param addresses: List of addressess to be checked.
+        :param ports: List of ports to be checked for each address.
+        :return: A list of found routers.
+        """
         async def check_routers_aio(addresses, ports):
-            semaphore = Semaphore(100)
+            semaphore = Semaphore(50)
             futures = []
             routers = []
             for address in addresses:
@@ -122,6 +168,15 @@ class BaseIndustrialRouterScanner:
 
     @classmethod
     async def check_default_password(cls, router, semaphore=Semaphore()):
+        """
+        Base method to check fo default credentials by using basic HTTP authentication schemes.
+
+        This method can be overwritten in order to support different authentication schemes.
+        Valid credentials are appended in the valid credentials attribute of each router object.
+
+        :param router: The router for which to check the credentials.
+        :param semaphore: Asyncio semaphore for limiting the concurrency level.
+        """
         uri = '{}://{}:{}/{}'.format(router.protocol, router.address, router.port, cls.url_path)
         context = ssl.create_default_context()
         context.check_hostname = False
@@ -158,8 +213,13 @@ class BaseIndustrialRouterScanner:
                         router.alive = False
 
     def check_router_credentials(self, routers: List[BaseIndustrialRouter]):
+        """
+        Check default credentials for a list of routers.
+
+        :param routers: List of routers to be checked.
+        """
         async def check_router_credentials_aio(routers):
-            semaphore = Semaphore(10)
+            semaphore = Semaphore(100)
             futures = []
             for router in routers:
                 if isinstance(router, self.__class__.router_cls):
@@ -170,6 +230,11 @@ class BaseIndustrialRouterScanner:
         asyncio.run(check_router_credentials_aio(routers), debug=True)
 
     def get_address_info(self, routers):
+        """
+        Get country code and ASN description based on the routers IP address.
+        :param routers:
+        :return:
+        """
         for router in routers:
             if isinstance(router, self.__class__.router_cls):
                 try:
@@ -184,12 +249,20 @@ class BaseIndustrialRouterScanner:
 
 
 class WestermoScanner(BaseIndustrialRouterScanner):
+    """
+    Scanner class for Westermo routers.
+    """
     possible_headers = {'Server': ['Westermo', 'EDW']}
     default_credentials = [('admin', 'westermo')]
     router_cls = WestermoRouter
 
 
 class MoxaScanner(BaseIndustrialRouterScanner):
+    """
+    Scanner class for Moxa routers.
+
+    Due to the different authentication schema used by Moxa routers, methods for checking passwords have been extended.
+    """
     possible_headers = {'Server': ['MoxaHttp', 'MoxaHttp/1.0', 'MoxaHttp/2.2']}
     default_credentials_http1 = [('root', 'efa59ad49b7bc93a9a7bb1004f24b1cc'),  # Root
                                  ('', 'd41d8cd98f00b204e9800998ecf8427e'),  # Empty
@@ -204,7 +277,13 @@ class MoxaScanner(BaseIndustrialRouterScanner):
     router_cls = MoxaRouter
 
     @classmethod
-    def get_challenge_moxahttp_1_0(cls, text):
+    def get_challenge_moxahttp_1_0(cls, text: str) -> Optional[str]:
+        """
+        Get authentication challenge from MoxaHTTP/1.0 routers.
+
+        :param text: HTML response provided by the router.
+        :return: Authentication challenge if found
+        """
         regexp = 'set\(\"FakeChallenge\",\"(?P<challenge>[A-Z0-9]+)\"\)\;'
         match = re.search(regexp, text.rstrip())
         if match:
@@ -216,7 +295,14 @@ class MoxaScanner(BaseIndustrialRouterScanner):
             return None
 
     @classmethod
-    def get_challenge_moxahttp_2_2(cls, text):
+    def get_challenge_moxahttp_2_2(cls, text: str) -> Optional[str]:
+        """
+        Get authentication challenge from MoxaHTTP/2.2 routers.
+
+        :param text: HTML response provided by the router.
+        :return: Authentication challenge if found
+        """
+
         regexp = '<INPUT type=hidden name=FakeChallenge value=(?P<challenge>[A-Z0-9]+)>'
         match = re.search(regexp, text)
         if match:
@@ -228,7 +314,13 @@ class MoxaScanner(BaseIndustrialRouterScanner):
             return None
 
     @classmethod
-    async def check_default_password(cls, router, semaphore=Semaphore()):
+    async def check_default_password(cls, router: BaseIndustrialRouter, semaphore=Semaphore()):
+        """
+        Method for checking for default passwords on Moxa Routers.
+
+        :param router: Input router object to check the credentials for.
+        :param semaphore: Asyncio semaphore for limiting the concurrency leve.
+        """
         uri = '{}://{}:{}/{}'.format(router.protocol, router.address, router.port, cls.url_path)
         context = ssl.create_default_context()
         context.check_hostname = False
@@ -253,7 +345,16 @@ class MoxaScanner(BaseIndustrialRouterScanner):
                     logger.warning('[-] Connection to {} failed'.format(router.address))
 
     @classmethod
-    async def check_password_moxahttp_1_0(cls, client, context, content, router):
+    async def check_password_moxahttp_1_0(cls, client: aiohttp.ClientSession, context: ssl.SSLContext,
+                                          content: str, router: BaseIndustrialRouter):
+        """
+        Method for checking the passwords in MoxaHttp/1.0 router authentication schemas.
+
+        :param client: ClientSession for the connection to the router.
+        :param context: SSLContext of the connection.
+        :param content: Content of the response of the router.
+        :param router: :class:`aztarna.industrialrouters.scanner.BaseIndustrialRouter` router to check.
+        """
         challenge = cls.get_challenge_moxahttp_1_0(content)
 
         for clear_password, password in cls.default_credentials_http1:
@@ -269,6 +370,14 @@ class MoxaScanner(BaseIndustrialRouterScanner):
 
     @classmethod
     async def check_password_moxahttp_2_2(cls, client, context, content, router):
+        """
+        Method for checking the passwords in MoxaHttp/2.2 router authentication schemas.
+
+        :param client: ClientSession for the connection to the router.
+        :param context: SSLContext of the connection.
+        :param content: Content of the response of the router.
+        :param router: :class:`aztarna.industrialrouters.scanner.BaseIndustrialRouter` router to check.
+        """
         uri = '{}://{}:{}/'.format(router.protocol, router.address, router.port)
         challenge = cls.get_challenge_moxahttp_2_2(content)
         for user, clear_password, password in cls.default_credentials_http2:
@@ -290,6 +399,9 @@ class MoxaScanner(BaseIndustrialRouterScanner):
 
 
 class EWonScanner(BaseIndustrialRouterScanner):
+    """
+    Scanner class for EWon routers.
+    """
     possible_headers = {'Server': ['eWON']}
     default_credentials = [('adm', 'adm',)]
     router_cls = EWonRouter
@@ -297,6 +409,9 @@ class EWonScanner(BaseIndustrialRouterScanner):
 
 
 class SierraWirelessScanner(BaseIndustrialRouterScanner):
+    """
+    Scanner class for Sierra Wireless routers.
+    """
     possible_headers = {'Server': ['Sierra Wireless Inc, Embedded Server']}
     default_credentials = [('sconsole', '12345'),
                            ('', 'admin'),
@@ -309,7 +424,13 @@ class SierraWirelessScanner(BaseIndustrialRouterScanner):
     router_cls = SierraRouter
 
     @classmethod
-    async def check_default_password(cls, router, semaphore=Semaphore()):
+    async def check_default_password(cls, router: BaseIndustrialRouter, semaphore=Semaphore()):
+        """
+        Method for checking credentials on Sierra Wireless Routers.
+
+        :param router: :class:`aztarna.industrialrouters.scanner.BaseIndustrialRouter` router to check.
+        :param semaphore: Asyncio semaphore for limiting concurrency level.
+        """
         url = '{}://{}:{}/xml/Connect.xml'.format(router.protocol, router.address, router.port)
         headers = {'Accept': 'application/xml, text/xml, */*; q=0.01',
                    'Accept-Encoding': 'gzip, deflate',
@@ -320,27 +441,33 @@ class SierraWirelessScanner(BaseIndustrialRouterScanner):
         context.verify_mode = ssl.CERT_NONE
         context.options &= ~ssl.OP_NO_SSLv3
         context.set_ciphers('HIGH:!DH:!aNULL')
-        async with aiohttp.ClientSession(timeout=ClientTimeout(20), headers=headers) as client:
-            try:
-                for user, password in cls.default_credentials:
-                    payload = '''<request xmlns="urn:acemanager">
+        async with semaphore:
+            async with aiohttp.ClientSession(timeout=ClientTimeout(20), headers=headers) as client:
+                try:
+                    for user, password in cls.default_credentials:
+                        payload = '''<request xmlns="urn:acemanager">
 <connect>
 <login>{}</login>
 <password><![CDATA[{}]]></password>
 </connect>
 </request>
-                '''.format(user, password)
-                    logger.info('[+] Connecting to {}'.format(router.address))
-                    async with client.post(url, data=bytes(payload, 'utf-8')) as response:
-                        content = str(await response.content.read())
-                        if not cls.failed_message in content:
-                            router.valid_credentials.append((user, password))
-            except:
-                logger.warning('[-] Connection to {} failed'.format(router.address))
+                    '''.format(user, password)
+                        logger.info('[+] Connecting to {}'.format(router.address))
+                        async with client.post(url, data=bytes(payload, 'utf-8'), ssl=context) as response:
+                            router.alive = True
+                            content = str(await response.content.read())
+                            if cls.failed_message not in content:
+                                router.valid_credentials.append((user, password))
+                except Exception:
+                    router.alive = False
+                    logger.warning('[-] Connection to {} failed'.format(router.address))
 
 
 class IndustrialRouterAdapter(RobotAdapter):
-    router_scanner_types = [WestermoScanner, EWonScanner, MoxaScanner, SierraWirelessScanner]
+    """
+    Adapter for searching, analyzing and footprinting Industrial Routers.
+    """
+    router_scanner_types = [SierraWirelessScanner, WestermoScanner, MoxaScanner, EWonScanner]
 
     def __init__(self):
         super().__init__()
@@ -353,17 +480,26 @@ class IndustrialRouterAdapter(RobotAdapter):
             self.router_scanners.append(cls())
 
     def initialize_shodan(self):
+        """
+        Intialize API connection to Shodan.
+        """
         self.shodan_conn = Shodan(self.shodan_api_key)
 
     def scan_pipe_main(self):
         pass
 
     def scan_network(self):
+        """
+        Scan a network in search for industrial routers.
+        """
         for scanner in self.router_scanners:
             self.routers = scanner.check_routers(self.host_list, self.ports)
             scanner.check_router_credentials(self.routers)
 
     def print_results(self):
+        """
+        Method for printing the scan results in stdout.
+        """
         for router in self.routers:
             print(Fore.Green + 'Name' + router.name + Fore.RESET)
             print('\tAddress: {}:{}'.format(router.address, router.port))
@@ -380,6 +516,10 @@ class IndustrialRouterAdapter(RobotAdapter):
                 print('\t' + Fore.RED + 'Unreachable' + Fore.RESET)
 
     def write_to_file(self, out_file):
+        """
+        Method for writing the scan results to a CSV file.
+        :param out_file: Filename for the output
+        """
         header = 'Type;Address;Port;Protocol;Alive;Country;ASN Description;Valid Credentials\n'
         with open(out_file, 'w') as file:
             file.write(header)
@@ -390,6 +530,9 @@ class IndustrialRouterAdapter(RobotAdapter):
                 file.write(line)
 
     def scan(self):
+        """
+        Method to be called in order to start the full scan procedure, based on Shodan, or locally via network scan.
+        """
         if self.use_shodan:
             self.initialize_shodan()
             for scanner in self.router_scanners:
