@@ -1,5 +1,10 @@
 # aztarna
-A footprinting tool for ROS and SROS systems. The collected information includes the following:
+<a href="http://www.aliasrobotics.com"><img src="https://aliasrobotics.com/media/alias_logo_central.png" align="left" hspace="8" vspace="2" width="200"></a>
+
+This repository contains Alias Robotics' aztarna, a footprinting tool for robots.
+
+**Alias Robotics supports original robot manufacturers assessing their security and improving their quality of software. By no means we encourage or promote the unauthorized tampering with running robotic systems. This can cause serious human harm and material damages.**
+
 
 ### For ROS
 * A list of the ROS nodes present in the system (Publishers and Subscribers)
@@ -18,7 +23,7 @@ A footprinting tool for ROS and SROS systems. The collected information includes
   * Executable services.
   * Readable parameters.
 
-### For indrustial Industrial
+### For Industrial routers
 * Detecting eWON webserver.
   * Check if the webserver has default credentials.
 
