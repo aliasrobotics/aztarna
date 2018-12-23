@@ -29,8 +29,9 @@ or
 
    python3 setup.py develop
 
-The only requirement is setuptools package, which is usually a
-defacto standard in a python3 installation.
+The only requirement is
+`setuptools <https://pypi.org/project/setuptools/>`__ package, which is
+usually a defacto standard in a python3 installation.
 
 Install with docker
 ~~~~~~~~~~~~~~~~~~~

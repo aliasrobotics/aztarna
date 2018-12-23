@@ -1,21 +1,21 @@
-aztarna.ros package
-===================
+aztarna.ros.ros package
+=======================
 
 Submodules
 ----------
 
-aztarna.ros.helpers module
---------------------------
+aztarna.ros.ros.helpers module
+------------------------------
 
-.. automodule:: aztarna.ros.helpers
+.. automodule:: aztarna.ros.ros.helpers
     :members:
     :undoc-members:
     :show-inheritance:
 
-aztarna.ros.scanner module
---------------------------
+aztarna.ros.ros.scanner module
+------------------------------
 
-.. automodule:: aztarna.ros.scanner
+.. automodule:: aztarna.ros.ros.scanner
     :members:
     :undoc-members:
     :show-inheritance:
@@ -24,7 +24,7 @@ aztarna.ros.scanner module
 Module contents
 ---------------
 
-.. automodule:: aztarna.ros
+.. automodule:: aztarna.ros.ros
     :members:
     :undoc-members:
     :show-inheritance:

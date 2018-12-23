@@ -8,6 +8,7 @@ Subpackages
 
     aztarna.ros
     aztarna.sros
+    aztarna.industrialrouters
 
 Submodules
 ----------

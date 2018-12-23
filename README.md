@@ -24,8 +24,8 @@ This repository contains Alias Robotics' aztarna, a footprinting tool for robots
   * Readable parameters.
 
 ### For Industrial routers
-* Detecting eWON webserver.
-  * Check if the webserver has default credentials.
+*  Detecting eWON, Moxa, Sierra Wireless and Westermo industrial routers.
+*  Default credential checking for found routers.
 
 
 ## Installing
@@ -56,14 +56,15 @@ docker build -t aztarna_docker .
 ### Code usage:
 
 ```bash
-usage: aztarna [-h] -t TYPE [-a ADDRESS] -p PORTS [-i INPUT_FILE]
-               [-o OUT_FILE] [-e EXTENDED]
+usage: aztarna [-h] -t TYPE [-a ADDRESS] [-p PORTS] [-i INPUT_FILE]
+               [-o OUT_FILE] [-e] [-r RATE] [--shodan] [--api-key API_KEY]
 
 Aztarna
 
 optional arguments:
   -h, --help            show this help message and exit
-  -t TYPE, --type TYPE  <ROS/SROS> Scan ROS or SROS hosts
+  -t TYPE, --type TYPE  <ROS/ros/SROS/sros/IROUTERS/irouters> Scan ROS, SROS
+                        hosts or Industrial routers
   -a ADDRESS, --address ADDRESS
                         Single address or network range to scan.
   -p PORTS, --ports PORTS
@@ -73,10 +74,11 @@ optional arguments:
                         Input file of addresses to use for scanning
   -o OUT_FILE, --out_file OUT_FILE
                         Output file for the results
-  -e EXTENDED, --extended EXTENDED
-                        Extended scan of the hosts
-  -r RATE, --rate RATE
-                        Maximum simultaneous network connections
+  -e, --extended        Extended scan of the hosts
+  -r RATE, --rate RATE  Maximum simultaneous network connections
+  --shodan              Use shodan for the scan types that support it.
+  --api-key API_KEY     Shodan API Key
+
 ```
 
 ### Run the code (example input file):
@@ -118,4 +120,14 @@ aztarna -t ROS -p 11311,11312,11313 -a 115.129.241.241
 
 ```bash
 zmap -p 11311 0.0.0.0/0 -q | aztarna -t SROS -p 11311
+```
+
+### Run the code (example search for industrial routers in shodan)
+```bash
+aztarna -t IROUTERS --shodan --api-key <yourshodanapikey>
+```
+
+### Run the code (example search for industrial routers in shodan, piping to file)
+```bash
+aztarna -t IROUTERS --shodan --api-key <yourshodanapikey> -o routers.csv
 ```

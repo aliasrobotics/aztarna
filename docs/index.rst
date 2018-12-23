@@ -3,29 +3,46 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to Aztarna's documentation!
-===================================
-A footprinting tool for ROS and SROS systems. The collected information includes the following:
+**Alias Robotics supports original robot manufacturers assessing their
+security and improving their quality of software. By no means we
+encourage or promote the unauthorized tampering with running robotic
+systems. This can cause serious human harm and material damages.**
 
 For ROS
 -------
-- A list of the ROS nodes present in the system (Publishers and Subscribers)
-- For each node, the published and subscribed topis including the topic type
-- For each node, the ROS services each of the nodes offer
-- A list of all ROS parameters present in the Parameter Server
-- A list of the active communications running in the system. A single communication includes the involved publiser/subscriber nodes and the topics
+
+-  A list of the ROS nodes present in the system (Publishers and
+   Subscribers)
+-  For each node, the published and subscribed topis including the topic
+   type
+-  For each node, the ROS services each of the nodes offer
+-  A list of all ROS parameters present in the Parameter Server
+-  A list of the active communications running in the system. A single
+   communication includes the involved publiser/subscriber nodes and the
+   topics
 
 For SROS
 --------
-- Determining if the system is a SROS master.
-- Detecting if demo configuration is in use.
-- A list of the nodes found in the system. (Extended mode)
-- A list of allow/deny policies for each node.
 
-  - Publishable topics.
-  - Subscriptable topics.
-  - Executable services.
-  - Readable parameters.
+-  Determining if the system is a SROS master.
+-  Detecting if demo configuration is in use.
+-  A list of the nodes found in the system. (Extended mode)
+-  A list of allow/deny policies for each node.
+
+   -  Publishable topics.
+   -  Subscriptable topics.
+   -  Executable services.
+   -  Readable parameters.
+
+For Industrial routers
+----------------------
+
+-  Detecting eWON, Moxa, Sierra Wireless and Westermo industrial routers.
+-  Default credential checking for found routers.
+
+
+
+
 
 
 
@@ -41,6 +58,7 @@ For SROS
     :members:
     :undoc-members:
     :show-inheritance:
+
 
 
 Indices and tables
