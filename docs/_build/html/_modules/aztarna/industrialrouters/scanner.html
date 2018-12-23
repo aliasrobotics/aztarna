@@ -1,0 +1,766 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>aztarna.industrialrouters.scanner &mdash; Aztarna 1.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> Aztarna
+          
+
+          
+            
+            <img src="../../../_static/logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../install.html">Installing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Code usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">Aztarna modules</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Aztarna</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>aztarna.industrialrouters.scanner</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for aztarna.industrialrouters.scanner</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Industrial routers scanner module.</span>
+
+<span class="sd">:author: Gorka Olalde Mendia(@olaldiko), Xabier Perez Baskaran(@xabierpb)</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">asyncio</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">ssl</span>
+<span class="kn">from</span> <span class="nn">asyncio</span> <span class="k">import</span> <span class="n">ALL_COMPLETED</span><span class="p">,</span> <span class="n">Semaphore</span>
+<span class="kn">from</span> <span class="nn">asyncio</span> <span class="k">import</span> <span class="ne">TimeoutError</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
+
+<span class="kn">import</span> <span class="nn">aiohttp</span>
+<span class="kn">from</span> <span class="nn">aiohttp</span> <span class="k">import</span> <span class="n">ClientTimeout</span>
+<span class="kn">from</span> <span class="nn">colorama</span> <span class="k">import</span> <span class="n">Fore</span>
+<span class="kn">from</span> <span class="nn">ipwhois</span> <span class="k">import</span> <span class="n">IPWhois</span>
+<span class="kn">from</span> <span class="nn">shodan.client</span> <span class="k">import</span> <span class="n">Shodan</span>
+
+<span class="kn">from</span> <span class="nn">aztarna.commons</span> <span class="k">import</span> <span class="n">RobotAdapter</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="BaseIndustrialRouter"><a class="viewcode-back" href="../../../aztarna.industrialrouters.html#aztarna.industrialrouters.scanner.BaseIndustrialRouter">[docs]</a><span class="k">class</span> <span class="nc">BaseIndustrialRouter</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Base class for holding industrial routers.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;BaseRouter&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">address</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">port</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">valid_credentials</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">alive</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">protocol</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">country</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">asn_description</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span></div>
+
+
+<div class="viewcode-block" id="EWonRouter"><a class="viewcode-back" href="../../../aztarna.industrialrouters.html#aztarna.industrialrouters.scanner.EWonRouter">[docs]</a><span class="k">class</span> <span class="nc">EWonRouter</span><span class="p">(</span><span class="n">BaseIndustrialRouter</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class for holding EWON Manufacturer routers.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">EWonRouter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;EWon Router&#39;</span></div>
+
+
+<div class="viewcode-block" id="MoxaRouter"><a class="viewcode-back" href="../../../aztarna.industrialrouters.html#aztarna.industrialrouters.scanner.MoxaRouter">[docs]</a><span class="k">class</span> <span class="nc">MoxaRouter</span><span class="p">(</span><span class="n">BaseIndustrialRouter</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class for holding Moxa Manufacturer routers.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">MoxaRouter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;Moxa Router&#39;</span></div>
+
+
+<div class="viewcode-block" id="WestermoRouter"><a class="viewcode-back" href="../../../aztarna.industrialrouters.html#aztarna.industrialrouters.scanner.WestermoRouter">[docs]</a><span class="k">class</span> <span class="nc">WestermoRouter</span><span class="p">(</span><span class="n">BaseIndustrialRouter</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class for holding Westermo Manufacturer routers.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">WestermoRouter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;Westermo Router&#39;</span></div>
+
+
+<div class="viewcode-block" id="SierraRouter"><a class="viewcode-back" href="../../../aztarna.industrialrouters.html#aztarna.industrialrouters.scanner.SierraRouter">[docs]</a><span class="k">class</span> <span class="nc">SierraRouter</span><span class="p">(</span><span class="n">BaseIndustrialRouter</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class for holding Sierra Wireless manufactuer routers.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">SierraRouter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;Sierra Wireless Router&#39;</span></div>
+
+
+<div class="viewcode-block" id="BaseIndustrialRouterScanner"><a class="viewcode-back" href="../../../aztarna.industrialrouters.html#aztarna.industrialrouters.scanner.BaseIndustrialRouterScanner">[docs]</a><span class="k">class</span> <span class="nc">BaseIndustrialRouterScanner</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Base class fo the different manufacturer router scanners. Includes default methods for Basic Authentication password</span>
+<span class="sd">    checking and scanning.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">possible_headers</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">default_credentials</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">router_cls</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">url_path</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+<div class="viewcode-block" id="BaseIndustrialRouterScanner.check_routers_shodan"><a class="viewcode-back" href="../../../aztarna.industrialrouters.html#aztarna.industrialrouters.scanner.BaseIndustrialRouterScanner.check_routers_shodan">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">check_routers_shodan</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">shodan</span><span class="p">:</span> <span class="n">Shodan</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">BaseIndustrialRouter</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Method to search for industrial routers in Shodan, given the headers defined at class level.</span>
+
+<span class="sd">        :param shodan: Shodan API object to be used.</span>
+<span class="sd">        :return: List of found routers.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">found_routers</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">field</span><span class="p">,</span> <span class="n">values</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">possible_headers</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">values</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">shodan</span><span class="o">.</span><span class="n">search_cursor</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="n">value</span><span class="p">)):</span>
+                    <span class="n">router</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">router_cls</span><span class="p">()</span>
+                    <span class="n">router</span><span class="o">.</span><span class="n">address</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="s1">&#39;ip_str&#39;</span><span class="p">]</span>
+                    <span class="n">router</span><span class="o">.</span><span class="n">port</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="s1">&#39;port&#39;</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="n">result</span><span class="p">[</span><span class="s1">&#39;_shodan&#39;</span><span class="p">][</span><span class="s1">&#39;module&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;http-simple-new&#39;</span><span class="p">,</span> <span class="s1">&#39;http-check&#39;</span><span class="p">]:</span>
+                        <span class="n">router</span><span class="o">.</span><span class="n">protocol</span> <span class="o">=</span> <span class="s1">&#39;http&#39;</span>
+                    <span class="k">elif</span> <span class="n">result</span><span class="p">[</span><span class="s1">&#39;_shodan&#39;</span><span class="p">][</span><span class="s1">&#39;module&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;https-simple-new&#39;</span><span class="p">:</span>
+                        <span class="n">router</span><span class="o">.</span><span class="n">protocol</span> <span class="o">=</span> <span class="s1">&#39;https&#39;</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">router</span><span class="o">.</span><span class="n">protocol</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="s1">&#39;_shodan&#39;</span><span class="p">][</span><span class="s1">&#39;module&#39;</span><span class="p">]</span>
+                    <span class="c1"># if len(found_routers) == 2000:</span>
+                    <span class="c1">#   break</span>
+                    <span class="n">found_routers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">router</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;[+] Shodan found </span><span class="si">{}</span><span class="s1"> routers. Scanner: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">found_routers</span><span class="p">),</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">found_routers</span></div>
+
+<div class="viewcode-block" id="BaseIndustrialRouterScanner.check_is_router"><a class="viewcode-back" href="../../../aztarna.industrialrouters.html#aztarna.industrialrouters.scanner.BaseIndustrialRouterScanner.check_is_router">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">check_is_router</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">address</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">port</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">semaphore</span><span class="o">=</span><span class="n">Semaphore</span><span class="p">())</span> <span class="o">-&gt;</span> <span class="n">BaseIndustrialRouter</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Check if a certain router is an industrial router, given the headers defined at class level.</span>
+
+<span class="sd">        :param address: IP address of the router to check.</span>
+<span class="sd">        :param port: Port of the web interface of the device to check.</span>
+<span class="sd">        :param semaphore: Asyncio semaphore to be used for concurrency limitation.</span>
+<span class="sd">        :return: A :class:`aztarna.industrialrouters.scanner.BaseIndustrialRouter` object if the checked device is a router.</span>
+<span class="sd">                None otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">context</span> <span class="o">=</span> <span class="n">ssl</span><span class="o">.</span><span class="n">create_default_context</span><span class="p">()</span>
+        <span class="n">context</span><span class="o">.</span><span class="n">check_hostname</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">context</span><span class="o">.</span><span class="n">verify_mode</span> <span class="o">=</span> <span class="n">ssl</span><span class="o">.</span><span class="n">CERT_NONE</span>
+        <span class="n">context</span><span class="o">.</span><span class="n">options</span> <span class="o">&amp;=</span> <span class="o">~</span><span class="n">ssl</span><span class="o">.</span><span class="n">OP_NO_SSLv3</span>
+        <span class="k">async</span> <span class="k">with</span> <span class="n">semaphore</span><span class="p">:</span>
+            <span class="k">async</span> <span class="k">with</span> <span class="n">aiohttp</span><span class="o">.</span><span class="n">ClientSession</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="n">ClientTimeout</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+                <span class="n">uri</span> <span class="o">=</span> <span class="s1">&#39;http://</span><span class="si">{}</span><span class="s1">:</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">address</span><span class="p">,</span> <span class="n">port</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;[+] Connecting to </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">address</span><span class="p">))</span>
+                <span class="k">async</span> <span class="k">with</span> <span class="n">client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">uri</span><span class="p">,</span> <span class="n">ssl</span><span class="o">=</span><span class="n">context</span><span class="p">)</span> <span class="k">as</span> <span class="n">response</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">field</span><span class="p">,</span> <span class="n">values</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">possible_headers</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">field</span><span class="p">)</span> <span class="ow">in</span> <span class="n">values</span><span class="p">:</span>
+                            <span class="n">router</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">router_cls</span><span class="p">()</span>
+                            <span class="n">router</span><span class="o">.</span><span class="n">address</span> <span class="o">=</span> <span class="n">address</span>
+                            <span class="n">router</span><span class="o">.</span><span class="n">port</span> <span class="o">=</span> <span class="n">port</span>
+                            <span class="k">return</span> <span class="n">router</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="k">return</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="BaseIndustrialRouterScanner.check_routers"><a class="viewcode-back" href="../../../aztarna.industrialrouters.html#aztarna.industrialrouters.scanner.BaseIndustrialRouterScanner.check_routers">[docs]</a>    <span class="k">def</span> <span class="nf">check_routers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addresses</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">ports</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">BaseIndustrialRouter</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Check for routers in a range of addressess and ports.</span>
+
+<span class="sd">        :param addresses: List of addressess to be checked.</span>
+<span class="sd">        :param ports: List of ports to be checked for each address.</span>
+<span class="sd">        :return: A list of found routers.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">async</span> <span class="k">def</span> <span class="nf">check_routers_aio</span><span class="p">(</span><span class="n">addresses</span><span class="p">,</span> <span class="n">ports</span><span class="p">):</span>
+            <span class="n">semaphore</span> <span class="o">=</span> <span class="n">Semaphore</span><span class="p">(</span><span class="mi">50</span><span class="p">)</span>
+            <span class="n">futures</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">routers</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">address</span> <span class="ow">in</span> <span class="n">addresses</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">port</span> <span class="ow">in</span> <span class="n">ports</span><span class="p">:</span>
+                    <span class="n">futures</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">asyncio</span><span class="o">.</span><span class="n">ensure_future</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">check_is_router</span><span class="p">(</span><span class="n">address</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">semaphore</span><span class="o">=</span><span class="n">semaphore</span><span class="p">)))</span>
+            <span class="n">done</span><span class="p">,</span> <span class="n">pending</span> <span class="o">=</span> <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">wait</span><span class="p">(</span><span class="n">futures</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">future</span> <span class="ow">in</span> <span class="n">done</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">future</span><span class="p">:</span>
+                    <span class="n">routers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">future</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">routers</span>
+
+        <span class="k">return</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">check_routers_aio</span><span class="p">(</span><span class="n">addresses</span><span class="p">,</span> <span class="n">ports</span><span class="p">),</span> <span class="n">debug</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="BaseIndustrialRouterScanner.check_default_password"><a class="viewcode-back" href="../../../aztarna.industrialrouters.html#aztarna.industrialrouters.scanner.BaseIndustrialRouterScanner.check_default_password">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">check_default_password</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">router</span><span class="p">,</span> <span class="n">semaphore</span><span class="o">=</span><span class="n">Semaphore</span><span class="p">()):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Base method to check fo default credentials by using basic HTTP authentication schemes.</span>
+
+<span class="sd">        This method can be overwritten in order to support different authentication schemes.</span>
+<span class="sd">        Valid credentials are appended in the valid credentials attribute of each router object.</span>
+
+<span class="sd">        :param router: The router for which to check the credentials.</span>
+<span class="sd">        :param semaphore: Asyncio semaphore for limiting the concurrency level.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">uri</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">://</span><span class="si">{}</span><span class="s1">:</span><span class="si">{}</span><span class="s1">/</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">router</span><span class="o">.</span><span class="n">protocol</span><span class="p">,</span> <span class="n">router</span><span class="o">.</span><span class="n">address</span><span class="p">,</span> <span class="n">router</span><span class="o">.</span><span class="n">port</span><span class="p">,</span> <span class="bp">cls</span><span class="o">.</span><span class="n">url_path</span><span class="p">)</span>
+        <span class="n">context</span> <span class="o">=</span> <span class="n">ssl</span><span class="o">.</span><span class="n">create_default_context</span><span class="p">()</span>
+        <span class="n">context</span><span class="o">.</span><span class="n">check_hostname</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">context</span><span class="o">.</span><span class="n">verify_mode</span> <span class="o">=</span> <span class="n">ssl</span><span class="o">.</span><span class="n">CERT_NONE</span>
+        <span class="n">context</span><span class="o">.</span><span class="n">options</span> <span class="o">&amp;=</span> <span class="o">~</span><span class="n">ssl</span><span class="o">.</span><span class="n">OP_NO_SSLv3</span>
+        <span class="k">async</span> <span class="k">with</span> <span class="n">semaphore</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">user</span><span class="p">,</span> <span class="n">password</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">default_credentials</span><span class="p">:</span>
+                <span class="n">auth</span> <span class="o">=</span> <span class="n">aiohttp</span><span class="o">.</span><span class="n">BasicAuth</span><span class="p">(</span><span class="n">login</span><span class="o">=</span><span class="n">user</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="n">password</span><span class="p">)</span>
+                <span class="k">async</span> <span class="k">with</span> <span class="n">aiohttp</span><span class="o">.</span><span class="n">ClientSession</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="n">ClientTimeout</span><span class="p">(</span><span class="mi">20</span><span class="p">),</span> <span class="n">auth</span><span class="o">=</span><span class="n">auth</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;[+] Connecting to </span><span class="si">{}</span><span class="s1">:</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">router</span><span class="o">.</span><span class="n">address</span><span class="p">,</span> <span class="n">router</span><span class="o">.</span><span class="n">port</span><span class="p">))</span>
+                        <span class="k">async</span> <span class="k">with</span> <span class="n">client</span><span class="o">.</span><span class="n">request</span><span class="p">(</span><span class="s1">&#39;GET&#39;</span><span class="p">,</span> <span class="n">uri</span><span class="p">,</span> <span class="n">ssl</span><span class="o">=</span><span class="n">context</span><span class="p">)</span> <span class="k">as</span> <span class="n">response</span><span class="p">:</span>
+                            <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="mi">200</span><span class="p">:</span>
+                                <span class="n">router</span><span class="o">.</span><span class="n">valid_credentials</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">user</span><span class="p">,</span> <span class="n">password</span><span class="p">))</span>
+                                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                                    <span class="s1">&#39;[+] Default credential worked for router </span><span class="si">{}</span><span class="s1">:</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">router</span><span class="o">.</span><span class="n">address</span><span class="p">,</span>
+                                                                                            <span class="n">router</span><span class="o">.</span><span class="n">port</span><span class="p">))</span>
+                            <span class="k">elif</span> <span class="n">response</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="mi">401</span><span class="p">:</span>
+                                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                                    <span class="s1">&#39;[-] Default credential did not work for router </span><span class="si">{}</span><span class="s1">:</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">router</span><span class="o">.</span><span class="n">address</span><span class="p">,</span>
+                                                                                                  <span class="n">router</span><span class="o">.</span><span class="n">port</span><span class="p">))</span>
+                            <span class="n">router</span><span class="o">.</span><span class="n">alive</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="k">except</span> <span class="ne">TimeoutError</span><span class="p">:</span>
+                        <span class="n">router</span><span class="o">.</span><span class="n">alive</span> <span class="o">=</span> <span class="kc">False</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                            <span class="s1">&#39;[-] Unsuccessful connection to router </span><span class="si">{}</span><span class="s1">:</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">router</span><span class="o">.</span><span class="n">address</span><span class="p">,</span> <span class="n">router</span><span class="o">.</span><span class="n">port</span><span class="p">))</span>
+                    <span class="k">except</span> <span class="ne">ConnectionRefusedError</span><span class="p">:</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                            <span class="s1">&#39;[-] Unsuccessful connection to router </span><span class="si">{}</span><span class="s1">:</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">router</span><span class="o">.</span><span class="n">address</span><span class="p">,</span> <span class="n">router</span><span class="o">.</span><span class="n">port</span><span class="p">))</span>
+                        <span class="n">router</span><span class="o">.</span><span class="n">alive</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span>
+                            <span class="s1">&#39;[-] Unsuccessful connection to router </span><span class="si">{}</span><span class="s1">:</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">router</span><span class="o">.</span><span class="n">address</span><span class="p">,</span> <span class="n">router</span><span class="o">.</span><span class="n">port</span><span class="p">))</span>
+                        <span class="n">router</span><span class="o">.</span><span class="n">alive</span> <span class="o">=</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="BaseIndustrialRouterScanner.check_router_credentials"><a class="viewcode-back" href="../../../aztarna.industrialrouters.html#aztarna.industrialrouters.scanner.BaseIndustrialRouterScanner.check_router_credentials">[docs]</a>    <span class="k">def</span> <span class="nf">check_router_credentials</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">routers</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">BaseIndustrialRouter</span><span class="p">]):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Check default credentials for a list of routers.</span>
+
+<span class="sd">        :param routers: List of routers to be checked.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">async</span> <span class="k">def</span> <span class="nf">check_router_credentials_aio</span><span class="p">(</span><span class="n">routers</span><span class="p">):</span>
+            <span class="n">semaphore</span> <span class="o">=</span> <span class="n">Semaphore</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
+            <span class="n">futures</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">router</span> <span class="ow">in</span> <span class="n">routers</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">router</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="n">router_cls</span><span class="p">):</span>
+                    <span class="n">futures</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">asyncio</span><span class="o">.</span><span class="n">ensure_future</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">check_default_password</span><span class="p">(</span><span class="n">router</span><span class="p">,</span> <span class="n">semaphore</span><span class="o">=</span><span class="n">semaphore</span><span class="p">)))</span>
+
+            <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">wait</span><span class="p">(</span><span class="n">futures</span><span class="p">,</span> <span class="n">return_when</span><span class="o">=</span><span class="n">ALL_COMPLETED</span><span class="p">,</span> <span class="p">)</span>
+
+        <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">check_router_credentials_aio</span><span class="p">(</span><span class="n">routers</span><span class="p">),</span> <span class="n">debug</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="BaseIndustrialRouterScanner.get_address_info"><a class="viewcode-back" href="../../../aztarna.industrialrouters.html#aztarna.industrialrouters.scanner.BaseIndustrialRouterScanner.get_address_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_address_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">routers</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get country code and ASN description based on the routers IP address.</span>
+<span class="sd">        :param routers:</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">router</span> <span class="ow">in</span> <span class="n">routers</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">router</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="n">router_cls</span><span class="p">):</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">whois</span> <span class="o">=</span> <span class="n">IPWhois</span><span class="p">(</span><span class="n">router</span><span class="o">.</span><span class="n">address</span><span class="p">)</span>
+                    <span class="n">results</span> <span class="o">=</span> <span class="n">whois</span><span class="o">.</span><span class="n">lookup_rdap</span><span class="p">(</span><span class="n">depth</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">results</span><span class="p">[</span><span class="s1">&#39;asn_country_code&#39;</span><span class="p">]:</span>
+                        <span class="n">router</span><span class="o">.</span><span class="n">country</span> <span class="o">=</span> <span class="n">results</span><span class="p">[</span><span class="s1">&#39;asn_country_code&#39;</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="n">results</span><span class="p">[</span><span class="s1">&#39;asn_description&#39;</span><span class="p">]:</span>
+                        <span class="n">router</span><span class="o">.</span><span class="n">asn_description</span> <span class="o">=</span> <span class="n">results</span><span class="p">[</span><span class="s1">&#39;asn_description&#39;</span><span class="p">]</span>
+                <span class="k">except</span><span class="p">:</span>
+                    <span class="k">pass</span></div></div>
+
+
+<div class="viewcode-block" id="WestermoScanner"><a class="viewcode-back" href="../../../aztarna.industrialrouters.html#aztarna.industrialrouters.scanner.WestermoScanner">[docs]</a><span class="k">class</span> <span class="nc">WestermoScanner</span><span class="p">(</span><span class="n">BaseIndustrialRouterScanner</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Scanner class for Westermo routers.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">possible_headers</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;Server&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;Westermo&#39;</span><span class="p">,</span> <span class="s1">&#39;EDW&#39;</span><span class="p">]}</span>
+    <span class="n">default_credentials</span> <span class="o">=</span> <span class="p">[(</span><span class="s1">&#39;admin&#39;</span><span class="p">,</span> <span class="s1">&#39;westermo&#39;</span><span class="p">)]</span>
+    <span class="n">router_cls</span> <span class="o">=</span> <span class="n">WestermoRouter</span></div>
+
+
+<div class="viewcode-block" id="MoxaScanner"><a class="viewcode-back" href="../../../aztarna.industrialrouters.html#aztarna.industrialrouters.scanner.MoxaScanner">[docs]</a><span class="k">class</span> <span class="nc">MoxaScanner</span><span class="p">(</span><span class="n">BaseIndustrialRouterScanner</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Scanner class for Moxa routers.</span>
+
+<span class="sd">    Due to the different authentication schema used by Moxa routers, methods for checking passwords have been extended.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">possible_headers</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;Server&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;MoxaHttp&#39;</span><span class="p">,</span> <span class="s1">&#39;MoxaHttp/1.0&#39;</span><span class="p">,</span> <span class="s1">&#39;MoxaHttp/2.2&#39;</span><span class="p">]}</span>
+    <span class="n">default_credentials_http1</span> <span class="o">=</span> <span class="p">[(</span><span class="s1">&#39;root&#39;</span><span class="p">,</span> <span class="s1">&#39;efa59ad49b7bc93a9a7bb1004f24b1cc&#39;</span><span class="p">),</span>  <span class="c1"># Root</span>
+                                 <span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;d41d8cd98f00b204e9800998ecf8427e&#39;</span><span class="p">),</span>  <span class="c1"># Empty</span>
+                                 <span class="p">(</span><span class="s1">&#39;admin&#39;</span><span class="p">,</span> <span class="s1">&#39;d8a1dd02029af4e10b495bc3ab03859e&#39;</span><span class="p">)]</span>  <span class="c1"># Admin</span>
+
+    <span class="n">default_credentials_http2</span> <span class="o">=</span> <span class="p">[(</span><span class="s1">&#39;admin&#39;</span><span class="p">,</span> <span class="s1">&#39;root&#39;</span><span class="p">,</span> <span class="s1">&#39;63a9f0ea7bb98050796b649e85481845&#39;</span><span class="p">),</span>  <span class="c1"># Root</span>
+                                 <span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;root&#39;</span><span class="p">,</span> <span class="s1">&#39;63a9f0ea7bb98050796b649e85481845&#39;</span><span class="p">),</span>  <span class="c1"># Root</span>
+                                 <span class="p">(</span><span class="s1">&#39;admin&#39;</span><span class="p">,</span> <span class="s1">&#39;admin&#39;</span><span class="p">,</span> <span class="s1">&#39;21232f297a57a5a743894a0e4a801fc3&#39;</span><span class="p">),</span>  <span class="c1"># Admin</span>
+                                 <span class="p">(</span><span class="s1">&#39;admin&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;d41d8cd98f00b204e9800998ecf8427e&#39;</span><span class="p">)]</span>  <span class="c1"># Empty</span>
+    <span class="n">valid_login_text_moxahttp_2_2</span> <span class="o">=</span> <span class="s1">&#39;FRAME name=&quot;main&quot; src=&quot;main.htm&quot;&#39;</span>
+    <span class="n">valid_login_text_moxahttp_1_0</span> <span class="o">=</span> <span class="s1">&#39;FRAME name=main src=main.htm&#39;</span>
+    <span class="n">router_cls</span> <span class="o">=</span> <span class="n">MoxaRouter</span>
+
+<div class="viewcode-block" id="MoxaScanner.get_challenge_moxahttp_1_0"><a class="viewcode-back" href="../../../aztarna.industrialrouters.html#aztarna.industrialrouters.scanner.MoxaScanner.get_challenge_moxahttp_1_0">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">get_challenge_moxahttp_1_0</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get authentication challenge from MoxaHTTP/1.0 routers.</span>
+
+<span class="sd">        :param text: HTML response provided by the router.</span>
+<span class="sd">        :return: Authentication challenge if found</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">regexp</span> <span class="o">=</span> <span class="s1">&#39;set\(</span><span class="se">\&quot;</span><span class="s1">FakeChallenge</span><span class="se">\&quot;</span><span class="s1">,</span><span class="se">\&quot;</span><span class="s1">(?P&lt;challenge&gt;[A-Z0-9]+)</span><span class="se">\&quot;</span><span class="s1">\)\;&#39;</span>
+        <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">regexp</span><span class="p">,</span> <span class="n">text</span><span class="o">.</span><span class="n">rstrip</span><span class="p">())</span>
+        <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s1">&#39;challenge&#39;</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="MoxaScanner.get_challenge_moxahttp_2_2"><a class="viewcode-back" href="../../../aztarna.industrialrouters.html#aztarna.industrialrouters.scanner.MoxaScanner.get_challenge_moxahttp_2_2">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">get_challenge_moxahttp_2_2</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get authentication challenge from MoxaHTTP/2.2 routers.</span>
+
+<span class="sd">        :param text: HTML response provided by the router.</span>
+<span class="sd">        :return: Authentication challenge if found</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">regexp</span> <span class="o">=</span> <span class="s1">&#39;&lt;INPUT type=hidden name=FakeChallenge value=(?P&lt;challenge&gt;[A-Z0-9]+)&gt;&#39;</span>
+        <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">regexp</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s1">&#39;challenge&#39;</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="MoxaScanner.check_default_password"><a class="viewcode-back" href="../../../aztarna.industrialrouters.html#aztarna.industrialrouters.scanner.MoxaScanner.check_default_password">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">check_default_password</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">router</span><span class="p">:</span> <span class="n">BaseIndustrialRouter</span><span class="p">,</span> <span class="n">semaphore</span><span class="o">=</span><span class="n">Semaphore</span><span class="p">()):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Method for checking for default passwords on Moxa Routers.</span>
+
+<span class="sd">        :param router: Input router object to check the credentials for.</span>
+<span class="sd">        :param semaphore: Asyncio semaphore for limiting the concurrency leve.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">uri</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">://</span><span class="si">{}</span><span class="s1">:</span><span class="si">{}</span><span class="s1">/</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">router</span><span class="o">.</span><span class="n">protocol</span><span class="p">,</span> <span class="n">router</span><span class="o">.</span><span class="n">address</span><span class="p">,</span> <span class="n">router</span><span class="o">.</span><span class="n">port</span><span class="p">,</span> <span class="bp">cls</span><span class="o">.</span><span class="n">url_path</span><span class="p">)</span>
+        <span class="n">context</span> <span class="o">=</span> <span class="n">ssl</span><span class="o">.</span><span class="n">create_default_context</span><span class="p">()</span>
+        <span class="n">context</span><span class="o">.</span><span class="n">check_hostname</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">context</span><span class="o">.</span><span class="n">verify_mode</span> <span class="o">=</span> <span class="n">ssl</span><span class="o">.</span><span class="n">CERT_NONE</span>
+        <span class="n">context</span><span class="o">.</span><span class="n">options</span> <span class="o">&amp;=</span> <span class="o">~</span><span class="n">ssl</span><span class="o">.</span><span class="n">OP_NO_SSLv3</span>
+        <span class="n">context</span><span class="o">.</span><span class="n">set_ciphers</span><span class="p">(</span><span class="s1">&#39;HIGH:!DH:!aNULL&#39;</span><span class="p">)</span>
+        <span class="k">async</span> <span class="k">with</span> <span class="n">semaphore</span><span class="p">:</span>
+            <span class="k">async</span> <span class="k">with</span> <span class="n">aiohttp</span><span class="o">.</span><span class="n">ClientSession</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="n">ClientTimeout</span><span class="p">(</span><span class="mi">20</span><span class="p">))</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;[+] Connecting to router at </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">router</span><span class="o">.</span><span class="n">address</span><span class="p">))</span>
+                    <span class="k">async</span> <span class="k">with</span> <span class="n">client</span><span class="o">.</span><span class="n">request</span><span class="p">(</span><span class="s1">&#39;GET&#39;</span><span class="p">,</span> <span class="n">uri</span><span class="p">,</span> <span class="n">ssl</span><span class="o">=</span><span class="n">context</span><span class="p">)</span> <span class="k">as</span> <span class="n">response</span><span class="p">:</span>
+                        <span class="n">router</span><span class="o">.</span><span class="n">alive</span> <span class="o">=</span> <span class="kc">True</span>
+                        <span class="n">content</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="k">await</span> <span class="n">response</span><span class="o">.</span><span class="n">content</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+                        <span class="k">if</span> <span class="bp">cls</span><span class="o">.</span><span class="n">valid_login_text_moxahttp_2_2</span> <span class="ow">in</span> <span class="n">content</span> <span class="ow">or</span> <span class="bp">cls</span><span class="o">.</span><span class="n">valid_login_text_moxahttp_1_0</span> <span class="ow">in</span> <span class="n">content</span><span class="p">:</span>
+                            <span class="n">router</span><span class="o">.</span><span class="n">valid_credentials</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="s1">&#39;admin&#39;</span><span class="p">,</span> <span class="s1">&#39;no password&#39;</span><span class="p">))</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;Server&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;MoxaHttp/1.0&#39;</span><span class="p">:</span>
+                                <span class="k">await</span> <span class="bp">cls</span><span class="o">.</span><span class="n">check_password_moxahttp_1_0</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">content</span><span class="p">,</span> <span class="n">router</span><span class="p">)</span>
+                            <span class="k">elif</span> <span class="n">response</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;Server&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;MoxaHttp/2.2&#39;</span><span class="p">:</span>
+                                <span class="k">await</span> <span class="bp">cls</span><span class="o">.</span><span class="n">check_password_moxahttp_2_2</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">content</span><span class="p">,</span> <span class="n">router</span><span class="p">)</span>
+                <span class="k">except</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;[-] Connection to </span><span class="si">{}</span><span class="s1"> failed&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">router</span><span class="o">.</span><span class="n">address</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="MoxaScanner.check_password_moxahttp_1_0"><a class="viewcode-back" href="../../../aztarna.industrialrouters.html#aztarna.industrialrouters.scanner.MoxaScanner.check_password_moxahttp_1_0">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">check_password_moxahttp_1_0</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="n">aiohttp</span><span class="o">.</span><span class="n">ClientSession</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">ssl</span><span class="o">.</span><span class="n">SSLContext</span><span class="p">,</span>
+                                          <span class="n">content</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">router</span><span class="p">:</span> <span class="n">BaseIndustrialRouter</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Method for checking the passwords in MoxaHttp/1.0 router authentication schemas.</span>
+
+<span class="sd">        :param client: ClientSession for the connection to the router.</span>
+<span class="sd">        :param context: SSLContext of the connection.</span>
+<span class="sd">        :param content: Content of the response of the router.</span>
+<span class="sd">        :param router: :class:`aztarna.industrialrouters.scanner.BaseIndustrialRouter` router to check.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">challenge</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">get_challenge_moxahttp_1_0</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">clear_password</span><span class="p">,</span> <span class="n">password</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">default_credentials_http1</span><span class="p">:</span>
+            <span class="n">uri</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">://</span><span class="si">{}</span><span class="s1">:</span><span class="si">{}</span><span class="s1">/home.htm?Password=</span><span class="si">{}</span><span class="s1">&amp;Submit=Submit&amp;token_text=&amp;FakeChallenge=</span><span class="si">{}</span><span class="s1">&#39;</span> \
+                <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">router</span><span class="o">.</span><span class="n">protocol</span><span class="p">,</span> <span class="n">router</span><span class="o">.</span><span class="n">address</span><span class="p">,</span> <span class="n">router</span><span class="o">.</span><span class="n">port</span><span class="p">,</span> <span class="n">password</span><span class="p">,</span> <span class="n">challenge</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">async</span> <span class="k">with</span> <span class="n">client</span><span class="o">.</span><span class="n">request</span><span class="p">(</span><span class="s1">&#39;GET&#39;</span><span class="p">,</span> <span class="n">uri</span><span class="p">,</span> <span class="n">ssl</span><span class="o">=</span><span class="n">context</span><span class="p">)</span> <span class="k">as</span> <span class="n">response</span><span class="p">:</span>
+                    <span class="n">content</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="k">await</span> <span class="n">response</span><span class="o">.</span><span class="n">content</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+                    <span class="k">if</span> <span class="bp">cls</span><span class="o">.</span><span class="n">valid_login_text_moxahttp_2_2</span> <span class="ow">in</span> <span class="n">content</span><span class="p">:</span>
+                        <span class="n">router</span><span class="o">.</span><span class="n">valid_credentials</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">clear_password</span><span class="p">)</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;[-] Connection to </span><span class="si">{}</span><span class="s1"> failed&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">router</span><span class="o">.</span><span class="n">address</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="MoxaScanner.check_password_moxahttp_2_2"><a class="viewcode-back" href="../../../aztarna.industrialrouters.html#aztarna.industrialrouters.scanner.MoxaScanner.check_password_moxahttp_2_2">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">check_password_moxahttp_2_2</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">client</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">content</span><span class="p">,</span> <span class="n">router</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Method for checking the passwords in MoxaHttp/2.2 router authentication schemas.</span>
+
+<span class="sd">        :param client: ClientSession for the connection to the router.</span>
+<span class="sd">        :param context: SSLContext of the connection.</span>
+<span class="sd">        :param content: Content of the response of the router.</span>
+<span class="sd">        :param router: :class:`aztarna.industrialrouters.scanner.BaseIndustrialRouter` router to check.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">uri</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">://</span><span class="si">{}</span><span class="s1">:</span><span class="si">{}</span><span class="s1">/&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">router</span><span class="o">.</span><span class="n">protocol</span><span class="p">,</span> <span class="n">router</span><span class="o">.</span><span class="n">address</span><span class="p">,</span> <span class="n">router</span><span class="o">.</span><span class="n">port</span><span class="p">)</span>
+        <span class="n">challenge</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">get_challenge_moxahttp_2_2</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">user</span><span class="p">,</span> <span class="n">clear_password</span><span class="p">,</span> <span class="n">password</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">default_credentials_http2</span><span class="p">:</span>
+            <span class="n">payload</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s1">&#39;Username&#39;</span><span class="p">:</span> <span class="n">user</span><span class="p">,</span>
+                <span class="s1">&#39;MD5Password&#39;</span><span class="p">:</span> <span class="n">password</span><span class="p">,</span>
+                <span class="s1">&#39;Submit.x&#39;</span><span class="p">:</span> <span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">50</span><span class="p">),</span>
+                <span class="s1">&#39;Submit.y&#39;</span><span class="p">:</span> <span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">50</span><span class="p">)</span>
+            <span class="p">}</span>
+            <span class="k">if</span> <span class="n">challenge</span><span class="p">:</span>
+                <span class="n">payload</span><span class="p">[</span><span class="s1">&#39;FakeChallenge&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">challenge</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">async</span> <span class="k">with</span> <span class="n">client</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">uri</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">payload</span><span class="p">,</span> <span class="n">ssl</span><span class="o">=</span><span class="n">context</span><span class="p">)</span> <span class="k">as</span> <span class="n">response</span><span class="p">:</span>
+                    <span class="n">content</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="k">await</span> <span class="n">response</span><span class="o">.</span><span class="n">content</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+                    <span class="k">if</span> <span class="bp">cls</span><span class="o">.</span><span class="n">valid_login_text_moxahttp_2_2</span> <span class="ow">in</span> <span class="n">content</span><span class="p">:</span>
+                        <span class="n">router</span><span class="o">.</span><span class="n">valid_credentials</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">user</span><span class="p">,</span> <span class="n">clear_password</span><span class="p">))</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;[-] Connection to </span><span class="si">{}</span><span class="s1"> failed&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">router</span><span class="o">.</span><span class="n">address</span><span class="p">))</span></div></div>
+
+
+<div class="viewcode-block" id="EWonScanner"><a class="viewcode-back" href="../../../aztarna.industrialrouters.html#aztarna.industrialrouters.scanner.EWonScanner">[docs]</a><span class="k">class</span> <span class="nc">EWonScanner</span><span class="p">(</span><span class="n">BaseIndustrialRouterScanner</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Scanner class for EWon routers.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">possible_headers</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;Server&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;eWON&#39;</span><span class="p">]}</span>
+    <span class="n">default_credentials</span> <span class="o">=</span> <span class="p">[(</span><span class="s1">&#39;adm&#39;</span><span class="p">,</span> <span class="s1">&#39;adm&#39;</span><span class="p">,)]</span>
+    <span class="n">router_cls</span> <span class="o">=</span> <span class="n">EWonRouter</span>
+    <span class="n">url_path</span> <span class="o">=</span> <span class="s1">&#39;Ast/MainAst.shtm&#39;</span></div>
+
+
+<div class="viewcode-block" id="SierraWirelessScanner"><a class="viewcode-back" href="../../../aztarna.industrialrouters.html#aztarna.industrialrouters.scanner.SierraWirelessScanner">[docs]</a><span class="k">class</span> <span class="nc">SierraWirelessScanner</span><span class="p">(</span><span class="n">BaseIndustrialRouterScanner</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Scanner class for Sierra Wireless routers.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">possible_headers</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;Server&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;Sierra Wireless Inc, Embedded Server&#39;</span><span class="p">]}</span>
+    <span class="n">default_credentials</span> <span class="o">=</span> <span class="p">[(</span><span class="s1">&#39;sconsole&#39;</span><span class="p">,</span> <span class="s1">&#39;12345&#39;</span><span class="p">),</span>
+                           <span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;admin&#39;</span><span class="p">),</span>
+                           <span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;swiadmin&#39;</span><span class="p">),</span>
+                           <span class="p">(</span><span class="s1">&#39;sconsole&#39;</span><span class="p">,</span> <span class="s1">&#39;12345&#39;</span><span class="p">),</span>
+                           <span class="p">(</span><span class="s1">&#39;user&#39;</span><span class="p">,</span> <span class="s1">&#39;12345&#39;</span><span class="p">),</span>
+                           <span class="p">(</span><span class="s1">&#39;viewer&#39;</span><span class="p">,</span> <span class="s1">&#39;12345&#39;</span><span class="p">),</span>
+                           <span class="p">(</span><span class="s1">&#39;admin&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)]</span>
+    <span class="n">failed_message</span> <span class="o">=</span> <span class="s1">&#39;Invalid UserName / Password&#39;</span>
+    <span class="n">router_cls</span> <span class="o">=</span> <span class="n">SierraRouter</span>
+
+<div class="viewcode-block" id="SierraWirelessScanner.check_default_password"><a class="viewcode-back" href="../../../aztarna.industrialrouters.html#aztarna.industrialrouters.scanner.SierraWirelessScanner.check_default_password">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">check_default_password</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">router</span><span class="p">:</span> <span class="n">BaseIndustrialRouter</span><span class="p">,</span> <span class="n">semaphore</span><span class="o">=</span><span class="n">Semaphore</span><span class="p">()):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Method for checking credentials on Sierra Wireless Routers.</span>
+
+<span class="sd">        :param router: :class:`aztarna.industrialrouters.scanner.BaseIndustrialRouter` router to check.</span>
+<span class="sd">        :param semaphore: Asyncio semaphore for limiting concurrency level.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">://</span><span class="si">{}</span><span class="s1">:</span><span class="si">{}</span><span class="s1">/xml/Connect.xml&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">router</span><span class="o">.</span><span class="n">protocol</span><span class="p">,</span> <span class="n">router</span><span class="o">.</span><span class="n">address</span><span class="p">,</span> <span class="n">router</span><span class="o">.</span><span class="n">port</span><span class="p">)</span>
+        <span class="n">headers</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;Accept&#39;</span><span class="p">:</span> <span class="s1">&#39;application/xml, text/xml, */*; q=0.01&#39;</span><span class="p">,</span>
+                   <span class="s1">&#39;Accept-Encoding&#39;</span><span class="p">:</span> <span class="s1">&#39;gzip, deflate&#39;</span><span class="p">,</span>
+                   <span class="s1">&#39;Content-Type&#39;</span><span class="p">:</span> <span class="s1">&#39;text/xml&#39;</span><span class="p">,</span>
+                   <span class="s1">&#39;X-Requested-With&#39;</span><span class="p">:</span> <span class="s1">&#39;XMLHttpRequest&#39;</span><span class="p">}</span>
+        <span class="n">context</span> <span class="o">=</span> <span class="n">ssl</span><span class="o">.</span><span class="n">create_default_context</span><span class="p">()</span>
+        <span class="n">context</span><span class="o">.</span><span class="n">check_hostname</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">context</span><span class="o">.</span><span class="n">verify_mode</span> <span class="o">=</span> <span class="n">ssl</span><span class="o">.</span><span class="n">CERT_NONE</span>
+        <span class="n">context</span><span class="o">.</span><span class="n">options</span> <span class="o">&amp;=</span> <span class="o">~</span><span class="n">ssl</span><span class="o">.</span><span class="n">OP_NO_SSLv3</span>
+        <span class="n">context</span><span class="o">.</span><span class="n">set_ciphers</span><span class="p">(</span><span class="s1">&#39;HIGH:!DH:!aNULL&#39;</span><span class="p">)</span>
+        <span class="k">async</span> <span class="k">with</span> <span class="n">semaphore</span><span class="p">:</span>
+            <span class="k">async</span> <span class="k">with</span> <span class="n">aiohttp</span><span class="o">.</span><span class="n">ClientSession</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="n">ClientTimeout</span><span class="p">(</span><span class="mi">20</span><span class="p">),</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">user</span><span class="p">,</span> <span class="n">password</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">default_credentials</span><span class="p">:</span>
+                        <span class="n">payload</span> <span class="o">=</span> <span class="s1">&#39;&#39;&#39;&lt;request xmlns=&quot;urn:acemanager&quot;&gt;</span>
+<span class="s1">&lt;connect&gt;</span>
+<span class="s1">&lt;login&gt;</span><span class="si">{}</span><span class="s1">&lt;/login&gt;</span>
+<span class="s1">&lt;password&gt;&lt;![CDATA[</span><span class="si">{}</span><span class="s1">]]&gt;&lt;/password&gt;</span>
+<span class="s1">&lt;/connect&gt;</span>
+<span class="s1">&lt;/request&gt;</span>
+<span class="s1">                    &#39;&#39;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">password</span><span class="p">)</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;[+] Connecting to </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">router</span><span class="o">.</span><span class="n">address</span><span class="p">))</span>
+                        <span class="k">async</span> <span class="k">with</span> <span class="n">client</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="nb">bytes</span><span class="p">(</span><span class="n">payload</span><span class="p">,</span> <span class="s1">&#39;utf-8&#39;</span><span class="p">),</span> <span class="n">ssl</span><span class="o">=</span><span class="n">context</span><span class="p">)</span> <span class="k">as</span> <span class="n">response</span><span class="p">:</span>
+                            <span class="n">router</span><span class="o">.</span><span class="n">alive</span> <span class="o">=</span> <span class="kc">True</span>
+                            <span class="n">content</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="k">await</span> <span class="n">response</span><span class="o">.</span><span class="n">content</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+                            <span class="k">if</span> <span class="bp">cls</span><span class="o">.</span><span class="n">failed_message</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">content</span><span class="p">:</span>
+                                <span class="n">router</span><span class="o">.</span><span class="n">valid_credentials</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">user</span><span class="p">,</span> <span class="n">password</span><span class="p">))</span>
+                <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                    <span class="n">router</span><span class="o">.</span><span class="n">alive</span> <span class="o">=</span> <span class="kc">False</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;[-] Connection to </span><span class="si">{}</span><span class="s1"> failed&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">router</span><span class="o">.</span><span class="n">address</span><span class="p">))</span></div></div>
+
+
+<div class="viewcode-block" id="IndustrialRouterAdapter"><a class="viewcode-back" href="../../../aztarna.industrialrouters.html#aztarna.industrialrouters.scanner.IndustrialRouterAdapter">[docs]</a><span class="k">class</span> <span class="nc">IndustrialRouterAdapter</span><span class="p">(</span><span class="n">RobotAdapter</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Adapter for searching, analyzing and footprinting Industrial Routers.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">router_scanner_types</span> <span class="o">=</span> <span class="p">[</span><span class="n">SierraWirelessScanner</span><span class="p">,</span> <span class="n">WestermoScanner</span><span class="p">,</span> <span class="n">MoxaScanner</span><span class="p">,</span> <span class="n">EWonScanner</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">use_shodan</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shodan_api_key</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shodan_conn</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">routers</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">router_scanners</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="bp">cls</span> <span class="ow">in</span> <span class="n">IndustrialRouterAdapter</span><span class="o">.</span><span class="n">router_scanner_types</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">router_scanners</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">cls</span><span class="p">())</span>
+
+<div class="viewcode-block" id="IndustrialRouterAdapter.initialize_shodan"><a class="viewcode-back" href="../../../aztarna.industrialrouters.html#aztarna.industrialrouters.scanner.IndustrialRouterAdapter.initialize_shodan">[docs]</a>    <span class="k">def</span> <span class="nf">initialize_shodan</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Intialize API connection to Shodan.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shodan_conn</span> <span class="o">=</span> <span class="n">Shodan</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shodan_api_key</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="IndustrialRouterAdapter.scan_pipe_main"><a class="viewcode-back" href="../../../aztarna.industrialrouters.html#aztarna.industrialrouters.scanner.IndustrialRouterAdapter.scan_pipe_main">[docs]</a>    <span class="k">def</span> <span class="nf">scan_pipe_main</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="IndustrialRouterAdapter.scan_network"><a class="viewcode-back" href="../../../aztarna.industrialrouters.html#aztarna.industrialrouters.scanner.IndustrialRouterAdapter.scan_network">[docs]</a>    <span class="k">def</span> <span class="nf">scan_network</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Scan a network in search for industrial routers.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">scanner</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">router_scanners</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">routers</span> <span class="o">=</span> <span class="n">scanner</span><span class="o">.</span><span class="n">check_routers</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">host_list</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ports</span><span class="p">)</span>
+            <span class="n">scanner</span><span class="o">.</span><span class="n">check_router_credentials</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">routers</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="IndustrialRouterAdapter.print_results"><a class="viewcode-back" href="../../../aztarna.industrialrouters.html#aztarna.industrialrouters.scanner.IndustrialRouterAdapter.print_results">[docs]</a>    <span class="k">def</span> <span class="nf">print_results</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Method for printing the scan results in stdout.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">router</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">routers</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">Fore</span><span class="o">.</span><span class="n">Green</span> <span class="o">+</span> <span class="s1">&#39;Name&#39;</span> <span class="o">+</span> <span class="n">router</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="n">Fore</span><span class="o">.</span><span class="n">RESET</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">Address: </span><span class="si">{}</span><span class="s1">:</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">router</span><span class="o">.</span><span class="n">address</span><span class="p">,</span> <span class="n">router</span><span class="o">.</span><span class="n">port</span><span class="p">))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">Protocol: &#39;</span> <span class="o">+</span> <span class="n">router</span><span class="o">.</span><span class="n">protocol</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">Country: &#39;</span> <span class="o">+</span> <span class="n">router</span><span class="o">.</span><span class="n">country</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">ASN Description: &#39;</span> <span class="o">+</span> <span class="n">router</span><span class="o">.</span><span class="n">asn_description</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">router</span><span class="o">.</span><span class="n">alive</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="n">Fore</span><span class="o">.</span><span class="n">GREEN</span> <span class="o">+</span> <span class="s1">&#39;Alive&#39;</span> <span class="o">+</span> <span class="n">Fore</span><span class="o">.</span><span class="n">RESET</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">router</span><span class="o">.</span><span class="n">valid_credentials</span><span class="p">):</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="n">Fore</span><span class="o">.</span><span class="n">RED</span> <span class="o">+</span> <span class="s1">&#39;Found credentials:&#39;</span> <span class="o">+</span> <span class="n">Fore</span><span class="o">.</span><span class="n">RESET</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">user</span><span class="p">,</span> <span class="n">password</span> <span class="ow">in</span> <span class="n">router</span><span class="o">.</span><span class="n">valid_credentials</span><span class="p">:</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\t\t</span><span class="s1">Username: </span><span class="si">{}</span><span class="s1"> Password: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">password</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="n">Fore</span><span class="o">.</span><span class="n">RED</span> <span class="o">+</span> <span class="s1">&#39;Unreachable&#39;</span> <span class="o">+</span> <span class="n">Fore</span><span class="o">.</span><span class="n">RESET</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="IndustrialRouterAdapter.write_to_file"><a class="viewcode-back" href="../../../aztarna.industrialrouters.html#aztarna.industrialrouters.scanner.IndustrialRouterAdapter.write_to_file">[docs]</a>    <span class="k">def</span> <span class="nf">write_to_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out_file</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Method for writing the scan results to a CSV file.</span>
+<span class="sd">        :param out_file: Filename for the output</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">header</span> <span class="o">=</span> <span class="s1">&#39;Type;Address;Port;Protocol;Alive;Country;ASN Description;Valid Credentials</span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">out_file</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+            <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">header</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">router</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">routers</span><span class="p">:</span>
+                <span class="n">line</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">;</span><span class="si">{}</span><span class="s1">;</span><span class="si">{}</span><span class="s1">;</span><span class="si">{}</span><span class="s1">;</span><span class="si">{}</span><span class="s1">;</span><span class="si">{}</span><span class="s1">;</span><span class="si">{}</span><span class="s1">;</span><span class="si">{}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">router</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">router</span><span class="o">.</span><span class="n">address</span><span class="p">,</span> <span class="n">router</span><span class="o">.</span><span class="n">port</span><span class="p">,</span>
+                                                          <span class="n">router</span><span class="o">.</span><span class="n">protocol</span><span class="p">,</span> <span class="n">router</span><span class="o">.</span><span class="n">alive</span><span class="p">,</span> <span class="n">router</span><span class="o">.</span><span class="n">country</span><span class="p">,</span>
+                                                          <span class="n">router</span><span class="o">.</span><span class="n">asn_description</span><span class="p">,</span> <span class="n">router</span><span class="o">.</span><span class="n">valid_credentials</span><span class="p">)</span>
+                <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">line</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="IndustrialRouterAdapter.scan"><a class="viewcode-back" href="../../../aztarna.industrialrouters.html#aztarna.industrialrouters.scanner.IndustrialRouterAdapter.scan">[docs]</a>    <span class="k">def</span> <span class="nf">scan</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Method to be called in order to start the full scan procedure, based on Shodan, or locally via network scan.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_shodan</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">initialize_shodan</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">scanner</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">router_scanners</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">routers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">routers</span> <span class="o">+</span> <span class="n">scanner</span><span class="o">.</span><span class="n">check_routers_shodan</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shodan_conn</span><span class="p">)</span>
+                <span class="n">scanner</span><span class="o">.</span><span class="n">check_router_credentials</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">routers</span><span class="p">)</span>
+                <span class="c1"># scanner.get_address_info(self.routers)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">scanner</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">router_scanners</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">address</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">host_list</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">port</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ports</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">routers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">scanner</span><span class="o">.</span><span class="n">check_routers</span><span class="p">(</span><span class="n">address</span><span class="p">,</span> <span class="n">port</span><span class="p">))</span>
+                        <span class="n">scanner</span><span class="o">.</span><span class="n">check_router_credentials</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">routers</span><span class="p">)</span></div></div>
+                <span class="c1"># scanner.get_address_info(self.routers)</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Alias Robotics
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript">
+          var DOCUMENTATION_OPTIONS = {
+              URL_ROOT:'../../../',
+              VERSION:'1.0',
+              LANGUAGE:'None',
+              COLLAPSE_INDEX:false,
+              FILE_SUFFIX:'.html',
+              HAS_SOURCE:  true,
+              SOURCELINK_SUFFIX: '.txt'
+          };
+      </script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
