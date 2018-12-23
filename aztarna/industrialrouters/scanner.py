@@ -1,3 +1,11 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+"""
+Industrial routers scanner module.
+
+:author: Gorka Olalde Mendia(@olaldiko), Xabier Perez Baskaran(@xabierpb)
+"""
+
 import asyncio
 import logging
 import random
