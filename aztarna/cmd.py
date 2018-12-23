@@ -9,9 +9,11 @@ import uvloop
 
 from aztarna.ros.sros import SROSScanner
 from aztarna.ros.ros import ROSScanner
-from aztarna.industrialrouters import IndustrialRouterScanner
+from aztarna.industrialrouters.scanner import IndustrialRouterAdapter
 
 asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
+
+logging.getLogger(__name__).setLevel(logging.DEBUG)
 
 def main():
     """
@@ -26,6 +28,8 @@ def main():
     parser.add_argument('-o', '--out_file', help='Output file for the results')
     parser.add_argument('-e', '--extended', help='Extended scan of the hosts', action='store_true')
     parser.add_argument('-r', '--rate', help='Maximum simultaneous network connections', default=100, type=int)
+    parser.add_argument('--shodan', help='Use shodan for the scan types that support it.', action='store_true')
+    parser.add_argument('--api-key', help='Shodan API Key')
     argcomplete.autocomplete(parser)
     args = parser.parse_args()
     try:
@@ -34,7 +38,12 @@ def main():
         elif args.type == 'SROS' or args.type == 'sros':
             scanner = SROSScanner()
         elif args.type == 'IROUTERS' or args.type == 'irouters':
-            scanner = IndustrialRouterScanner()
+            scanner = IndustrialRouterAdapter()
+            if args.shodan is True:
+                scanner.use_shodan = True
+                scanner.shodan_api_key = args.api_key
+                scanner.initialize_shodan()
+
         else:
             logger.critical('Invalid type selected')
             return
@@ -45,6 +54,9 @@ def main():
                 print('Input file not found')
         elif args.address:
             scanner.load_range(args.address)
+
+        elif args.shodan:
+            pass
         else:
             scanner.scan_pipe_main()
             return
@@ -52,7 +64,7 @@ def main():
 
         # TODO Implement a regex for port argument
         try:
-            scanner.ports = range(int(args.ports.split('-')[0]), int(args.ports.split('-')[1]))
+                scanner.ports = range(int(args.ports.split('-')[0]), int(args.ports.split('-')[1]))
         except:
             try:
                 scanner.ports = [int(port) for port in args.ports.split(',')]
