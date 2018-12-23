@@ -52,7 +52,7 @@ class SROSScanner(RobotAdapter):
                         sros_host.nodes.append(master_node)
                         results = []
                         if self.extended:
-                            port_range = list(range(11310, 25000))
+                            port_range = list(range(1024, 49151))
                             random.shuffle(port_range)
                             node_ports = await find_node_ports(address, port_range)
                             for port in node_ports:
@@ -67,8 +67,8 @@ class SROSScanner(RobotAdapter):
                                             sros_host.nodes.append(node_info)
                                 except Exception as e:
                                     logger.exception('Exception at host scan', e)
-            except Exception as e:
-                logger.exception('Exception at host scan', e)
+            except Exception:
+                logger.exception('Exception at host scan')
                 return None
         return sros_host
 
