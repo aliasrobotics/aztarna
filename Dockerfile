@@ -36,5 +36,5 @@ COPY . /root/aztarna
 # RUN cd /root/aztarna && git checkout ${AZTARNA_COMMIT} && python3 setup.py install
 RUN cd /root/aztarna && python3.7 setup.py install
 
-ENTRYPOINT ["bash"]
-#ENTRYPOINT ["/usr/local/bin/aztarna"]
+#ENTRYPOINT ["bash"]
+ENTRYPOINT ["/usr/local/bin/aztarna"]
