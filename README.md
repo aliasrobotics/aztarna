@@ -5,6 +5,7 @@ This repository contains Alias Robotics' aztarna, a footprinting tool for robots
 
 **Alias Robotics supports original robot manufacturers assessing their security and improving their quality of software. By no means we encourage or promote the unauthorized tampering with running robotic systems. This can cause serious human harm and material damages.**
 
+[![PyPI version](https://badge.fury.io/py/aztarna.svg)](https://badge.fury.io/py/aztarna)
 
 ### For ROS
 * A list of the ROS nodes present in the system (Publishers and Subscribers)
@@ -30,12 +31,13 @@ This repository contains Alias Robotics' aztarna, a footprinting tool for robots
 
 ## Installing
 ### For production
+Direcly from PyPi
+```
+pip3 install aztarna
+```
+or from the repository:
 ```
 pip3 install .
-```
-or
-```
-python3 setup.py install
 ```
 
 ### For development
@@ -46,7 +48,7 @@ or
 ```
 python3 setup.py develop
 ```
-The only requirement is [setuptools](https://pypi.org/project/setuptools/) package, which is usually a defacto standard in a python3 installation.
+Python 3.7 and the [setuptools](https://pypi.org/project/setuptools/) package is required for installation.
 
 ### Install with docker
 ```bash

@@ -24,7 +24,7 @@ FROM ubuntu:18.04
 RUN apt-get -qq update && apt-get -qqy upgrade
 # install aztarna build dependencies
 RUN apt-get -qqy install build-essential cmake libgmp3-dev gengetopt libpcap-dev flex byacc libjson-c-dev pkg-config libunistring-dev wget unzip git
-RUN apt-get -qqy install python3 python3-dev python3-pip
+RUN apt-get -qqy install python3.7 python3.7-dev python3-pip
 RUN apt-get -qqy install libxml2-dev libxslt1-dev
 RUN apt-get -qqy install zlib1g-dev
 RUN apt-get -qqy install libffi-dev
@@ -34,6 +34,7 @@ RUN rm -rf /var/lib/apt/lists/*
 # copy the aztarna files the FS and install it
 COPY . /root/aztarna
 # RUN cd /root/aztarna && git checkout ${AZTARNA_COMMIT} && python3 setup.py install
-RUN cd /root/aztarna && python3 setup.py install
+RUN cd /root/aztarna && python3.7 setup.py install
 
+#ENTRYPOINT ["bash"]
 ENTRYPOINT ["/usr/local/bin/aztarna"]
