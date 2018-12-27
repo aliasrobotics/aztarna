@@ -49,7 +49,7 @@ or
 ```
 python3 setup.py develop
 ```
-Python 3.7 and the [setuptools](https://pypi.org/project/setuptools/) package is required for installation.
+**Python 3.7** and the [setuptools](https://pypi.org/project/setuptools/) package is required for installation.
 
 ### Install with docker
 ```bash
