@@ -134,3 +134,25 @@ aztarna -t IROUTERS --shodan --api-key <yourshodanapikey>
 ```bash
 aztarna -t IROUTERS --shodan --api-key <yourshodanapikey> -o routers.csv
 ```
+## Cite our work
+If you're using our work for your research, please cite us as:
+```
+@ARTICLE{2018arXiv181209490V,
+  author = {{Vilches}, V{\'\i}ctor Mayoral and {Mendia}, Gorka Olalde and
+  {Baskaran}, Xabier Perez and {Cordero}, Alejandro Hern{\'a}ndez
+  and {Juan}, Lander Usategui San and {Gil-Uriarte}, Endika and
+  {de Urabain}, Odei Olalde Saez and {Kirschgens}, Laura Alzola},
+  title = "{Aztarna, a footprinting tool for robots}",
+  journal = {arXiv e-prints},
+  keywords = {Computer Science - Cryptography and Security, Computer Science - Robotics},
+  year = 2018,
+  month = Dec,
+  eid = {arXiv:1812.09490},
+  pages = {arXiv:1812.09490},
+  archivePrefix = {arXiv},
+  eprint = {1812.09490},
+  primaryClass = {cs.CR},
+  adsurl = {https://ui.adsabs.harvard.edu/\#abs/2018arXiv181209490V},
+  adsnote = {Provided by the SAO/NASA Astrophysics Data System}
+}
+```
