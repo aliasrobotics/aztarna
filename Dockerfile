@@ -33,8 +33,7 @@ RUN rm -rf /var/lib/apt/lists/*
 
 # copy the aztarna files the FS and install it
 COPY . /root/aztarna
-# RUN cd /root/aztarna && git checkout ${AZTARNA_COMMIT} && python3 setup.py install
+# RUN cd /root/aztarna && git checkout ${AZTARNA_COMMIT} && python3.7 setup.py install
 RUN cd /root/aztarna && python3.7 setup.py install
 
-#ENTRYPOINT ["bash"]
 ENTRYPOINT ["/usr/local/bin/aztarna"]
