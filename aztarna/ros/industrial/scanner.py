@@ -50,7 +50,7 @@ class ROSIndustrialScanner(RobotAdapter):
 
     def print_results(self):
         for host in self.hosts:
-            self.logger.info(f'[+] ROSIN Host Found at {host.address}:{host.port}!!!')
+            self.logger.warning(f'[+] ROSIN Host Found at {host.address}:{host.port}!!!')
 
     def write_to_file(self, out_file):
         with open(out_file, 'w') as f:
@@ -78,11 +78,11 @@ class ROSIndustrialScanner(RobotAdapter):
                     ros_host.nodes = found_nodes
                     self.hosts.append(ros_host)
             except ClientConnectorError:
-                self.logger.warning(f'[-] Unable to connect to host {address}')
+                self.logger.debug(f'[-] Unable to connect to host {address}')
             except Exception as e:
                 ex, msg, tb = sys.exc_info()
                 traceback.print_tb(tb)
-                self.logger.error(f'[-] Connection error on host {address}')
+                self.logger.debug(f'[-] Connection error on host {address}')
 
 
     async def scan_network(self):

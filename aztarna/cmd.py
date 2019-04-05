@@ -20,7 +20,7 @@ def main():
     """
     Main method
     """
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(level=logging.INFO, format="%(name)s - %(message)s")
     logger = logging.getLogger(__name__)
     parser = ArgumentParser(description='Aztarna')
     parser.add_argument('-t', '--type', help='<ROS/ros/SROS/sros/IROUTERS/irouters/ROSIN/rosin> Scan ROS, SROS, ROSIN hosts or Industrial routers', required=True)
@@ -54,7 +54,7 @@ def main():
             try:
                 scanner.load_from_file(args.input_file)
             except FileNotFoundError:
-                print('Input file not found')
+                logger.critical('Input file not found')
         elif args.address:
             scanner.load_range(args.address)
         else:
@@ -72,7 +72,7 @@ def main():
                 try:
                     scanner.ports.append(int(args.ports))
                 except Exception as e:
-                    print('[-] Error: ' + str(e))
+                    logger.error('[-] Error: ' + str(e))
 
         scanner.extended = args.extended
         scanner.rate = args.rate
