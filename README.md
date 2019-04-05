@@ -29,6 +29,13 @@ This repository contains Alias Robotics' aztarna, a footprinting tool for robots
 *  Detecting eWON, Moxa, Sierra Wireless and Westermo industrial routers.
 *  Default credential checking for found routers.
 
+### For ROS Industrial packages
+* Detection of ROS Industrial Hosts. 
+* Manufacturers:
+    * ABB
+    * Fanuc
+    * Kuka
+        
 
 ## Installing
 ### For production
@@ -66,11 +73,11 @@ Aztarna
 
 optional arguments:
   -h, --help            show this help message and exit
-  -t TYPE, --type TYPE  <ROS/ros/SROS/sros/IROUTERS/irouters> Scan ROS, SROS
+  -t TYPE, --type TYPE  <ROS/ros/SROS/sros/IROUTERS/irouters/ROSIN/rosin> Scan ROS, SROS
                         hosts or Industrial routers
   -a ADDRESS, --address ADDRESS
                         Single address or network range to scan.
-  -p PORTS, --ports PORTS
+  -p PORTS, --ports PORTS   
                         Ports to scan (format: 13311 or 11111-11155 or
                         1,2,3,4)
   -i INPUT_FILE, --input_file INPUT_FILE

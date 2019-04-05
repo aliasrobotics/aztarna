@@ -7,6 +7,7 @@ from argparse import ArgumentParser
 import argcomplete
 import uvloop
 
+from aztarna.ros.industrial.scanner import ROSIndustrialScanner
 from aztarna.ros.sros import SROSScanner
 from aztarna.ros.ros import ROSScanner
 from aztarna.industrialrouters.scanner import IndustrialRouterAdapter
@@ -19,9 +20,10 @@ def main():
     """
     Main method
     """
+    logging.basicConfig(level=logging.INFO, format="%(name)s - %(message)s")
     logger = logging.getLogger(__name__)
     parser = ArgumentParser(description='Aztarna')
-    parser.add_argument('-t', '--type', help='<ROS/ros/SROS/sros/IROUTERS/irouters> Scan ROS, SROS hosts or Industrial routers', required=True)
+    parser.add_argument('-t', '--type', help='<ROS/ros/SROS/sros/IROUTERS/irouters/ROSIN/rosin> Scan ROS, SROS, ROSIN hosts or Industrial routers', required=True)
     parser.add_argument('-a', '--address', help='Single address or network range to scan.')
     parser.add_argument('-p', '--ports', help='Ports to scan (format: 13311 or 11111-11155 or 1,2,3,4)', default='11311')
     parser.add_argument('-i', '--input_file', help='Input file of addresses to use for scanning')
@@ -43,7 +45,8 @@ def main():
                 scanner.use_shodan = True
                 scanner.shodan_api_key = args.api_key
                 scanner.initialize_shodan()
-
+        elif args.type.upper() == 'ROSIN':
+            scanner = ROSIndustrialScanner()
         else:
             logger.critical('Invalid type selected')
             return
@@ -51,12 +54,9 @@ def main():
             try:
                 scanner.load_from_file(args.input_file)
             except FileNotFoundError:
-                print('Input file not found')
+                logger.critical('Input file not found')
         elif args.address:
             scanner.load_range(args.address)
-
-        elif args.shodan:
-            pass
         else:
             scanner.scan_pipe_main()
             return
@@ -72,7 +72,7 @@ def main():
                 try:
                     scanner.ports.append(int(args.ports))
                 except Exception as e:
-                    print('[-] Error: ' + str(e))
+                    logger.error('[-] Error: ' + str(e))
 
         scanner.extended = args.extended
         scanner.rate = args.rate
