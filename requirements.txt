@@ -19,7 +19,7 @@ idna==2.7
 idna-ssl==1.1.0
 imagesize==1.1.0
 ipwhois==1.0.0
-Jinja2==2.10
+Jinja2>=2.10.1
 lxml==4.2.4
 MarkupSafe==1.0
 multidict==4.3.1
