@@ -29,8 +29,8 @@ This repository contains Alias Robotics' aztarna, a footprinting tool for robots
 *  Detecting eWON, Moxa, Sierra Wireless and Westermo industrial routers.
 *  Default credential checking for found routers.
 
-### For ROS Industrial packages
-* Detection of ROS Industrial Hosts. 
+### For ROS Industrial packages **(Funded under the [ROSIN project](http://rosin-project.eu/))**
+* Detection of ROS Industrial Hosts.
 * Manufacturers:
     * ABB
     * Fanuc
