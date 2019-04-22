@@ -1,0 +1,23 @@
+notifications:
+  email:
+    recipients:
+      - lander@aliasrobotics.com
+    on_failure: always
+
+matrix:
+  include:
+    - os: linux
+      dist: bionic
+      services:
+        - docker
+      sudo:
+        - required
+
+before_script:
+  - mkdir /tmp/aztarna
+  - mv * /tmp/aztarna
+  - cd .ci/linter
+
+script:
+ - docker build -t linter .
+ - docker run -v /tmp/aztarna:/root/aztarna linter
