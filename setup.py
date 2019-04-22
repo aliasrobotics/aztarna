@@ -83,7 +83,7 @@ setup(
         'sphinxcontrib-qthelp==1.0.2',
         'sphinxcontrib-serializinghtml==1.1.3',
         'sphinxcontrib-websupport==1.1.0',
-        'urllib3==1.24.1',
+        'urllib3>=1.24.2',
         'uvloop==0.12.2',
         'XlsxWriter==1.1.6',
         'yarl==1.3.0',
