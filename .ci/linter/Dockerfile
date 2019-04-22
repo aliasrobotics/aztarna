@@ -11,4 +11,6 @@ RUN \
      && apt-get -qq update && apt install -y \
      python3.7 python3.7-dev python3-pip pylint \
      && rm -rf /var/lib/apt/lists/*
-CMD ["bash"]
+COPY docker-entrypoint.sh /
+ENTRYPOINT ["/docker-entrypoint.sh"]
+
