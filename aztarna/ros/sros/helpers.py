@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+# pylint: disable: missing-docstring, line-too-long
 
 """
 SROS Scanner helpers classes module.
@@ -8,7 +9,8 @@ SROS Scanner helpers classes module.
 
 import asyncio
 from scapy.all import *
-from scapy.layers.tls.extensions import TLS_Ext_SupportedGroups, TLS_Ext_SupportedPointFormat, \
+from scapy.layers.tls.extensions import TLS_Ext_SupportedGroups,
+    TLS_Ext_SupportedPointFormat, \
     TLS_Ext_SignatureAlgorithms, TLS_Ext_Heartbeat, TLS_Ext_Padding
 from scapy.layers.tls.handshake import TLSClientHello
 from scapy.layers.tls.record import TLS
@@ -21,7 +23,8 @@ logger = logging.getLogger(__name__)
 
 class SROSNode(BaseNodeROS):
     """
-    Class for keeping all the attributes of a SROS Node. Extends :class:`aztarna.commons.BaseNodeROS`
+    Class for keeping all the attributes of a SROS Node.
+    Extends :class:`aztarna.commons.BaseNodeROS`
     """
     def __init__(self):
         super().__init__()
@@ -35,7 +38,8 @@ class SROSNode(BaseNodeROS):
 
 class SROSHost(BaseHostROS):
     """
-    Class for keeping all the attributes of a SROS Node.Extends:class:`aztarna.commons.BaseHostROS`
+    Class for keeping all the attributes of a SROS Node.Extends:class:
+    `aztarna.commons.BaseHostROS`
     """
     def __init__(self):
         super().__init__()
@@ -45,7 +49,8 @@ class SROSHost(BaseHostROS):
 
 class SROSPolicy:
     """
-    Class for representing a SROS Policy, containing the possible types for it, the value and its permissions.
+    Class for representing a SROS Policy, containing the possible types for it,
+    the value and its permissions.
     """
     TYPE_SUBSCRIPTABLE_TOPICS = 'Subscriptable topics'
     TYPE_PUBLISHABLE_TOPICS = 'Publishable topics'
@@ -67,7 +72,8 @@ def get_node_info(cert):
     """
     Extract all the information for a node, based on it's certificate.
     :param cert: The input certificate in X509 format.
-    :return: :class:`aztarna.sros.helpers.SROSNode` The extracted node info from the certificate.
+    :return: :class:`aztarna.sros.helpers.SROSNode` The extracted node info
+    from the certificate.
     """
     node = SROSNode()
     ros_demo_fields = {'stateOrProvinceName': 'Sate',
@@ -91,7 +97,8 @@ def get_policies(cert):
     """
     Get the related policies from an input SROS Node certificate.
     :param cert: Certificate in X509 format.
-    :return: List containing all policies as instances of :class:`aztarna.sros.helpers.SROSPolicy`
+    :return: List containing all policies as instances of
+    :class:`aztarna.sros.helpers.SROSPolicy`
     """
     policies = []
     try:
@@ -125,11 +132,13 @@ def get_policies(cert):
 
 async def get_sros_certificate(address, port, timeout=3):
     """
-    Function to connect to a SROS Node, simulate the TLS handshake, and get it's server certificate on the process.
+    Function to connect to a SROS Node, simulate the TLS handshake,
+    and get it's server certificate on the process.
     :param address: Address of the node.
     :param port: Port of the node.
     :param timeout: Timeout for the connection.
-    :return: A tuple containing the address, port and certificate if found, otherwise,
+    :return: A tuple containing the address, port and certificate if found,
+    otherwise,
     a tuple containing address, port and None.
     """
     client_hello = TLS(version='TLS 1.0', msg=TLSClientHello(
