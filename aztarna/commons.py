@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+# pylint: disable: missing-docstring
 import asyncio
 import ipaddress
 import logging
@@ -31,7 +32,8 @@ class RobotAdapter:
 
     def load_from_file(self, filename):
         """
-        Load a range of ipv4 addresses to scan and add them The :class:BaseScanner host_list attribute
+        Load a range of ipv4 addresses to scan and add them
+        The :class:BaseScanner host_list attribute
         :param filename: name of the input file
         """
         with open(filename, 'r') as file:
@@ -44,7 +46,8 @@ class RobotAdapter:
 
     def load_range(self, net_range):
         """
-        Transform ipv4 address strings to pythons ipaddress library type objects for scanning purposes
+        Transform ipv4 address strings to pythons ipaddress library
+        type objects for scanning purposes
         :param net_range: A range of string type IPv4 addresses
         """
         network = ip_network(net_range)
