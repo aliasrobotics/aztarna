@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+# pylint: disable: line-too-long, missing-docstring
 import asyncio
 import logging
 import re
