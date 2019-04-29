@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+# pylint: disable: missing-docstring
 
 import asyncio
 from platform import system as system_name  # Returns the system/OS name
@@ -27,7 +28,8 @@ class HelpersNetWorking:
         A method that replicates the command line ping utility.
 
         :param host: Host to ping to
-        :return: A boolean type that means if the ping reaches the destination or not
+        :return: A boolean type that means if the ping reaches the destination
+        or not
         """
         ret = None
         # Ping command count option as function of OS
@@ -62,7 +64,8 @@ class PortScanner:
     @staticmethod
     async def check_port_sem(sem, ip, port):
         """
-        Calls to :method:check_port with a Semaphore to avoid too many open connections.
+        Calls to :method:check_port with a Semaphore to avoid too many
+        open connections.
 
         :param sem:
         :param ip:
