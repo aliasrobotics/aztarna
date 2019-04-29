@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+# pylint: disable: missing-docstring, line-too-long
+
 """
 ROS Scanner module.
 
@@ -32,7 +34,8 @@ class ROSScanner(RobotAdapter):
 
     async def analyze_nodes(self, address, port):
         """
-        Scan a node and gather all its data including topics, services and Communications.
+        Scan a node and gather all its data including topics, services
+        and Communications.
 
         :param address: address of the ROS master
         :param port: port of the ROS master
