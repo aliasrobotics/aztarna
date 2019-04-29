@@ -58,7 +58,8 @@ class ParameterROS:
 
 class CommunicationROS:
     """
-    A class representing a ROS communication, including the publishers, subscribers and the topics involveds
+    A class representing a ROS communication, including the publishers,
+    subscribers and the topics involveds
     """
     def __init__(self, topic):
         self.publishers = []  # Node type
