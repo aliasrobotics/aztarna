@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+# pylint: disable: missing-docstring
 
 import asyncio
 from aztarna.helpers import HelpersLINQ
