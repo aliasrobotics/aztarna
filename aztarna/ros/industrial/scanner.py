@@ -1,3 +1,5 @@
+# pylint: disable: missing-docstring, line-too-long
+
 import asyncio
 import logging
 import sys
@@ -107,12 +109,3 @@ class ROSIndustrialScanner(RobotAdapter):
             str_line = (line.decode()).rstrip('\n')
             for port in self.ports:
                 await self.analyze_nodes(str_line, port)
-
-
-
-
-
-
-
-
-
