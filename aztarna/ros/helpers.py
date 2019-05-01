@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import asyncio
 from aztarna.helpers import HelpersLINQ
 
 class HelpersROS:
@@ -10,7 +9,7 @@ class HelpersROS:
     """
     @staticmethod
     def process_line(array_object):
-        if len(array_object) == 0:
+        if not array_object:
             return None
 
         topic_name = array_object[0]
