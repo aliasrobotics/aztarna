@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 import asyncio
 import logging
-import re
 from argparse import ArgumentParser
 import argcomplete
 import uvloop
@@ -64,7 +63,7 @@ def main():
 
         # TODO Implement a regex for port argument
         try:
-                scanner.ports = range(int(args.ports.split('-')[0]), int(args.ports.split('-')[1]))
+            scanner.ports = range(int(args.ports.split('-')[0]), int(args.ports.split('-')[1]))
         except:
             try:
                 scanner.ports = [int(port) for port in args.ports.split(',')]
