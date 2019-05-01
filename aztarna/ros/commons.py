@@ -1,11 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import asyncio
-import ipaddress
 import logging
-from ipaddress import IPv4Address, ip_network
-
-from aztarna.commons import *
+from aztarna.commons import BaseRobotHost
 
 logger = logging.getLogger(__name__)
 
