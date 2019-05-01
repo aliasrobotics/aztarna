@@ -7,14 +7,13 @@ Industrial routers scanner module.
 """
 
 import asyncio
+from asyncio import ALL_COMPLETED, Semaphore
+from asyncio import TimeoutError
+from typing import List, Optional
 import logging
 import random
 import re
 import ssl
-from asyncio import ALL_COMPLETED, Semaphore
-from asyncio import TimeoutError
-from typing import List, Optional
-
 import aiohttp
 from aiohttp import ClientTimeout
 from colorama import Fore
@@ -516,7 +515,7 @@ class IndustrialRouterAdapter(RobotAdapter):
             print('\tASN Description: ' + router.asn_description)
             if router.alive:
                 print('\t' + Fore.GREEN + 'Alive' + Fore.RESET)
-                if len(router.valid_credentials):
+                if router.valid_credentials:
                     print('\t' + Fore.RED + 'Found credentials:' + Fore.RESET)
                     for user, password in router.valid_credentials:
                         print('\t\tUsername: {} Password: {}'.format(user, password))
