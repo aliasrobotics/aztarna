@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# pylint: disable: missing-docstring, line-too-long
 
 """
 SROS Scanner helpers classes module.

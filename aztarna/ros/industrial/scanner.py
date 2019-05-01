@@ -1,5 +1,3 @@
-# pylint: disable: missing-docstring, line-too-long
-
 import asyncio
 import logging
 import sys
