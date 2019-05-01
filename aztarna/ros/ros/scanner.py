@@ -6,17 +6,16 @@ ROS Scanner module.
 :author: Gorka Olalde Mendia(@olaldiko), Xabier Perez Baskaran(@xabierpb)
 """
 import asyncio
-import aiohttp
 import logging
 import re
+import sys
+import aiohttp
 from aiohttp_xmlrpc.client import ServerProxy
 from aztarna.ros.commons import CommunicationROS
 from aztarna.commons import RobotAdapter
 from aztarna.ros.helpers import HelpersROS
 from aztarna.ros.ros.helpers import Node, Topic, Service
 from aztarna.ros.ros.helpers import ROSHost
-import sys
-from ipaddress import IPv4Address
 
 class ROSScanner(RobotAdapter):
     """
@@ -44,7 +43,7 @@ class ROSScanner(RobotAdapter):
             ros_host = ROSHost(address, port)
             async with self.semaphore:
                 try:
-                    code, msg, val = await ros_master_client.getSystemState('')
+                    code, val = await ros_master_client.getSystemState('')
                     if code == 1:
                         self.hosts.append(ros_host)
                         if self.extended:
@@ -230,13 +229,12 @@ class ROSScanner(RobotAdapter):
         lines.append(header)
         for host in self.hosts:
             line = '{};{};;;;;;\n'.format(host.address, host.port)
-            if len(host.nodes) > 0:
+            if host.nodes:
                 for node in host.nodes:
                     for ptopic in node.published_topics:
                         for stopic in node.subscribed_topics:
                             for service in node.services:
-                                line = '{};{};{};{};{};{};{};{}\n'.format(host.address, host.port, node.name, node.address, node.port, ptopic,
-                                                                   stopic, service)
+                                line = '{};{};{};{};{};{};{};{}\n'.format(host.address, host.port, node.name, node.address, node.port, ptopic, stopic, service)
             lines.append(line)
 
         with open(out_file, 'w') as file:
