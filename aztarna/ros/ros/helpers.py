@@ -5,7 +5,7 @@ ROS Scanner helper module.
 
 :author: Gorka Olalde Mendia(@olaldiko), Xabier Perez Baskaran(@xabierpb)
 """
-from aztarna.ros.commons import BaseNodeROS, BaseNodeROS, BaseServiceROS, BaseHostROS
+from aztarna.ros.commons import BaseNodeROS, BaseServiceROS, BaseHostROS
 
 class ROSHost(BaseHostROS):
     """
@@ -19,7 +19,7 @@ class ROSHost(BaseHostROS):
         self.services = []
 
     def __repr__(self):
-        if len(self.nodes) == 0:
+        if not self.nodes:
             return "Address: {}".format(self.address)
         return "Address: {}, Nodes: {}".format(self.address, self.nodes)
 
