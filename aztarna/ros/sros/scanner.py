@@ -9,7 +9,6 @@ SROS Scanner module.
 import asyncio
 import logging
 import random
-import traceback
 from ipaddress import AddressValueError
 
 from aztarna.commons import RobotAdapter
@@ -40,7 +39,7 @@ class SROSScanner(RobotAdapter):
             sros_host = None
             logger.warning('Connecting to {}:{}'.format(address, master_port))
             try:
-                master_address, port, master_cert = await get_sros_certificate(address, master_port, timeout)
+                port, master_cert = await get_sros_certificate(address, master_port, timeout)
                 if master_cert:
                     if master_cert.subject['commonName'] == 'master':
                         sros_host = SROSHost()
