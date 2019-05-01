@@ -11,10 +11,10 @@ class HelpersLINQ:
     @staticmethod
     def distinct(sequence):
         seen = set()
-        for s in sequence:
-            if not s in seen:
-                seen.add(s)
-                yield s
+        for seq in sequence:
+            if not seq in seen:
+                seen.add(seq)
+                yield seq
 
 class HelpersNetWorking:
     """
@@ -34,8 +34,8 @@ class HelpersNetWorking:
         param = '-n' if system_name().lower() == 'windows' else '-c'
         # Building the command. Ex: "ping -c 1 google.com"
         command = ['ping', param, '1', host]
-        with open("/dev/null", "w+") as f:
-            ret = system_call(command, stdout=f) == 0
+        with open("/dev/null", "w+") as archive:
+            ret = system_call(command, stdout=archive) == 0
 
         return ret
 
@@ -53,7 +53,7 @@ class PortScanner:
         """
         conn = asyncio.open_connection(ip, port)
         try:
-            reader, writer = await asyncio.wait_for(conn, timeout=3)
+            writer = await asyncio.wait_for(conn, timeout=3)
             writer.close()
             return port
         except:
