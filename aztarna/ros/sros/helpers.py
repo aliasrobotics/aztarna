@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
 """
 SROS Scanner helpers classes module.
 :author: Gorka Olalde Mendia(@olaldiko), Xabier Perez Baskaran(@xabierpb)
@@ -8,7 +7,7 @@ SROS Scanner helpers classes module.
 
 import asyncio
 from scapy.all import *
-from scapy.layers.tls.extensions import TLS_Ext_SupportedGroups,
+from scapy.layers.tls.extensions import TLS_Ext_SupportedGroups, \
     TLS_Ext_SupportedPointFormat, \
     TLS_Ext_SignatureAlgorithms, TLS_Ext_Heartbeat, TLS_Ext_Padding
 from scapy.layers.tls.handshake import TLSClientHello
