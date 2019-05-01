@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 import asyncio
 import ipaddress
-import logging
 from ipaddress import IPv4Address, ip_network
+import logging
 
 logger = logging.getLogger(__name__)
 
