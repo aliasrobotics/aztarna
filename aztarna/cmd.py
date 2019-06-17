@@ -8,6 +8,7 @@ import argcomplete
 import uvloop
 
 from aztarna.ros.industrial.scanner import ROSIndustrialScanner
+from aztarna.ros.ros2.scanner import ROS2Scanner
 from aztarna.ros.sros import SROSScanner
 from aztarna.ros.ros import ROSScanner
 from aztarna.industrialrouters.scanner import IndustrialRouterAdapter
@@ -47,6 +48,8 @@ def main():
                 scanner.initialize_shodan()
         elif args.type.upper() == 'ROSIN':
             scanner = ROSIndustrialScanner()
+        elif args.type == 'ROS2':
+            scanner = ROS2Scanner()
         else:
             logger.critical('Invalid type selected')
             return
@@ -58,8 +61,9 @@ def main():
         elif args.address:
             scanner.load_range(args.address)
         else:
-            scanner.scan_pipe_main()
-            return
+            if args.type not in ['ROS2']:
+                scanner.scan_pipe_main()
+                return
 
 
         # TODO Implement a regex for port argument
