@@ -18,6 +18,7 @@ setup(
                 'aztarna.ros.ros',
                 'aztarna.ros.sros',
                 'aztarna.industrialrouters',
+                'aztarna.ros.ros2',
               ],
     url='https://www.aliasrobotics.com/research/aztarna.htm',
     project_urls={
