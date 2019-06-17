@@ -48,7 +48,7 @@ def main():
                 scanner.initialize_shodan()
         elif args.type.upper() == 'ROSIN':
             scanner = ROSIndustrialScanner()
-        elif args.type == 'ROS2':
+        elif args.type == 'ROS2' or args.type == 'ros2':
             scanner = ROS2Scanner()
         else:
             logger.critical('Invalid type selected')
