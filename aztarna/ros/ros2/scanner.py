@@ -39,7 +39,30 @@ class ROS2Scanner(RobotAdapter):
             print(f'\t\t\tTopic Name: {topic.name} \t|\t Topic Type: {topic.topic_type}')
 
     def write_to_file(self, out_file):
-        pass
+        lines = []
+        header = 'DomainID;NodeName;Namespace;Topic;TopicType;Direction\n'
+        lines.append(header)
+        with open(out_file, 'w') as f:
+            for host in self.found_hosts:
+                if self.extended:
+                    for node in host.nodes:
+                        self.write_node_topics(host, lines, node)
+                else:
+                    for topic in host.topics:
+                        line = f'{host.domain_id};;{topic.name};{topic.topic_type};;\n'
+                        lines.append(line)
+            f.writelines(lines)
+
+    @staticmethod
+    def write_node_topics(host, lines, node):
+        for published_topic in node.published_topics:
+            line = f'{host.domain_id};{node.name};{node.namespace};{published_topic.name};' \
+                f'{published_topic.topic_type};Publish\n'
+            lines.append(line)
+        for subscribed_topic in node.subscribed_topics:
+            line = f'{host.domain_id};{node.name};{node.namespace};{subscribed_topic.name};' \
+                f'{subscribed_topic.topic_type};Subscribe\n'
+            lines.append(line)
 
     def scan(self):
         try:
@@ -47,7 +70,7 @@ class ROS2Scanner(RobotAdapter):
         except ImportError:
             raise Exception('ROS2 needs to be installed and sourced to run ROS2 scans')
 
-        for i in range(0,255):
+        for i in range(0, 255):
             os.environ['ROS_DOMAIN_ID'] = str(i)
             rclpy.init()
             scanner_node = rclpy.create_node(self.scanner_node_name)
@@ -89,18 +112,9 @@ class ROS2Scanner(RobotAdapter):
     def raw_topics_to_pyobj_list(topics, include_default=False):
         topics_list = []
         for topic_name, topic_type in topics:
-            if not include_default and topic_name in default_topics:
-                pass
-            else:
+            if not (not include_default and topic_name in default_topics):
                 topic = ROS2Topic()
                 topic.name = topic_name
                 topic.topic_type = topic_type
                 topics_list.append(topic)
-
         return topics_list
-
-
-
-
-
-
