@@ -29,7 +29,7 @@ pycparser==2.19
 Pygments==2.3.1
 pyparsing==2.4.0
 pytz==2019.1
-requests==2.21.0
+requests==2.22.0
 scapy==2.4.2
 shodan==1.12.1
 six==1.12.0
