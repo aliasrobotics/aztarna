@@ -10,13 +10,33 @@ class ROS2Scanner(RobotAdapter):
 
     def __init__(self):
         super().__init__()
+        self.found_hosts = []
         self.scanner_node_name = 'aztarna'
 
     def scan_pipe_main(self):
         raise NotImplementedError
 
     def print_results(self):
-        pass
+        for host in self.found_hosts:
+            print(f'[+] Host found in Domain ID {host.domain_id}')
+            print('\tTopics:')
+            for topic in host.topics:
+                print(f'\t\tTopic Name: {topic.name} \t|\t Topic Type: {topic.topic_type}')
+            print('\tNodes:')
+            for node in host.nodes:
+                print(f'\t\tNode Name: {node.name} \t|\t Namespace: {node.namespace}')
+                if self.extended:
+                    self.print_node_topics(node)
+            print('-' * 80)
+
+    @staticmethod
+    def print_node_topics(node):
+        print(f'\t\tPublished topics:')
+        for topic in node.published_topics:
+            print(f'\t\t\tTopic Name: {topic.name} \t|\t Topic Type: {topic.topic_type}')
+        print('\t\tSubscribed topics:')
+        for topic in node.subscribed_topics:
+            print(f'\t\t\tTopic Name: {topic.name} \t|\t Topic Type: {topic.topic_type}')
 
     def write_to_file(self, out_file):
         pass
@@ -27,7 +47,6 @@ class ROS2Scanner(RobotAdapter):
         except ImportError:
             raise Exception('ROS2 needs to be installed and sourced to run ROS2 scans')
 
-        found_hosts = []
         for i in range(0,255):
             os.environ['ROS_DOMAIN_ID'] = str(i)
             rclpy.init()
@@ -41,10 +60,9 @@ class ROS2Scanner(RobotAdapter):
                 if self.extended:
                     for node in found_nodes:
                         self.get_node_topics(scanner_node, node)
-                found_hosts.append(host)
+                self.found_hosts.append(host)
             rclpy.shutdown()
-        return found_hosts
-
+        return self.found_hosts
 
     def scan_ros2_nodes(self, scanner_node):
         nodes = scanner_node.get_node_names_and_namespaces()
