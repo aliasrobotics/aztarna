@@ -4,7 +4,7 @@ from aztarna.commons import RobotAdapter
 from aztarna.ros.ros2.helpers import ROS2Node, ROS2Host, ROS2Topic
 
 default_topics = ['/rosout', '/parameter_events']
-max_ros_domain_id = 232
+max_ros_domain_id = 231
 
 class ROS2Scanner(RobotAdapter):
 
