@@ -4,7 +4,7 @@ from aztarna.commons import RobotAdapter
 from aztarna.ros.ros2.helpers import ROS2Node, ROS2Host, ROS2Topic
 
 default_topics = ['/rosout', '/parameter_events']
-
+max_ros_domain_id = 232
 
 class ROS2Scanner(RobotAdapter):
 
@@ -95,7 +95,7 @@ class ROS2Scanner(RobotAdapter):
         except ImportError:
             raise Exception('ROS2 needs to be installed and sourced to run ROS2 scans')
 
-        for i in range(0, 255):
+        for i in range(0, max_ros_domain_id):
             os.environ['ROS_DOMAIN_ID'] = str(i)
             rclpy.init()
             scanner_node = rclpy.create_node(self.scanner_node_name)
