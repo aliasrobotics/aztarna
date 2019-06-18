@@ -17,7 +17,7 @@
 #     docker run  -it --rm --net=host aztarna_docker <aztarna args>
 ####
 
-FROM ubuntu:18.04
+FROM osrf/ros2:nightly
 # ARG AZTARNA_COMMIT=master
 # ENV AZTARNA_COMMIT ${AZTARNA_COMMIT}
 
@@ -34,6 +34,8 @@ RUN rm -rf /var/lib/apt/lists/*
 # copy the aztarna files the FS and install it
 COPY . /root/aztarna
 # RUN cd /root/aztarna && git checkout ${AZTARNA_COMMIT} && python3.7 setup.py install
-RUN cd /root/aztarna && python3.7 setup.py install
+RUN cd /root/aztarna && python3 setup.py install
+RUN echo "source /opt/ros/dashing/setup.bash" >> /root/.bashrc
 
-ENTRYPOINT ["/usr/local/bin/aztarna"]
+
+ENTRYPOINT ["/root/aztarna/ros2_entrypoint.sh"]
