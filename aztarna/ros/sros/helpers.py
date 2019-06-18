@@ -173,7 +173,8 @@ async def get_sros_certificate(address, port, timeout=3):
     finally:
         if writer:
             writer.close()
-            await writer.wait_closed()
+            if sys.version_info >= (3, 7, 0):
+                await writer.wait_closed()
     return address, port, None
 
 async def check_port(ip, port):

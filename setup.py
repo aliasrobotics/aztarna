@@ -5,10 +5,6 @@ import sys
 
 from setuptools import setup
 
-if sys.version_info < (3, 7):
-    sys.exit('Sorry, Python < 3.7 is not supported')
-
-
 setup(
     name='aztarna',
     version='1.0',
