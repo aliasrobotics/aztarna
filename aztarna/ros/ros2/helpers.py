@@ -2,6 +2,7 @@ from typing import List
 
 default_topics = ['/rosout', '/parameter_events']
 
+
 class ROS2Node:
 
     def __init__(self):

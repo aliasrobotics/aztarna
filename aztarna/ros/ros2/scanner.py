@@ -6,7 +6,7 @@ from aztarna.ros.ros2.helpers import ROS2Node, ROS2Host, ROS2Topic, ROS2Service,
     raw_services_to_pyobj_list
 
 max_ros_domain_id = 231
-rmw_implementations = ['rmw_opensplice_cpp', 'rmw_fastrtps_cpp', 'rmw_connext_cpp', 'rmw_dps_cpp', 'rmw_coredds_cpp']
+
 
 class ROS2Scanner(RobotAdapter):
 
@@ -36,19 +36,6 @@ class ROS2Scanner(RobotAdapter):
                 if self.extended:
                     self.print_node_topics(node)
             print('-' * 80)
-
-    @staticmethod
-    def get_available_rmw_implementations():
-        try:
-            from ros2pkg.api import get_package_names
-        except ImportError or ModuleNotFoundError:
-            raise Exception('ROS2 needs to be installed and sourced to run ROS2 scans')
-        packages = get_package_names()
-        available_middlewares = []
-        for pkg in packages:
-            if pkg in rmw_implementations:
-                available_middlewares.append(pkg)
-        return available_middlewares
 
     @staticmethod
     def print_node_topics(node: ROS2Node):
@@ -142,26 +129,23 @@ class ROS2Scanner(RobotAdapter):
             from rclpy.context import Context
         except ImportError:
             raise Exception('ROS2 needs to be installed and sourced to run ROS2 scans')
-        available_middlewares = self.get_available_rmw_implementations()
-        for rmw in available_middlewares:
-            os.environ['RMW_IMPLEMENTATION'] = rmw
-            for i in range(0, max_ros_domain_id):
-                os.environ['ROS_DOMAIN_ID'] = str(i)
-                rclpy.init()
-                scanner_node = rclpy.create_node(self.scanner_node_name)
-                found_nodes = self.scan_ros2_nodes(scanner_node)
-                if found_nodes:
-                    host = ROS2Host()
-                    host.domain_id = i
-                    host.nodes = found_nodes
-                    host.topics = self.scan_ros2_topics(scanner_node)
-                    host.services = self.scan_ros2_services(scanner_node)
-                    if self.extended:
-                        for node in found_nodes:
-                            self.get_node_topics(scanner_node, node)
-                            self.get_node_services(scanner_node, node)
-                    self.found_hosts.append(host)
-                rclpy.shutdown()
+        for i in range(0, max_ros_domain_id):
+            os.environ['ROS_DOMAIN_ID'] = str(i)
+            rclpy.init()
+            scanner_node = rclpy.create_node(self.scanner_node_name)
+            found_nodes = self.scan_ros2_nodes(scanner_node)
+            if found_nodes:
+                host = ROS2Host()
+                host.domain_id = i
+                host.nodes = found_nodes
+                host.topics = self.scan_ros2_topics(scanner_node)
+                host.services = self.scan_ros2_services(scanner_node)
+                if self.extended:
+                    for node in found_nodes:
+                        self.get_node_topics(scanner_node, node)
+                        self.get_node_services(scanner_node, node)
+                self.found_hosts.append(host)
+            rclpy.shutdown()
         return self.found_hosts
 
     def scan_ros2_nodes(self, scanner_node) -> List[ROS2Node]:
@@ -226,4 +210,3 @@ class ROS2Scanner(RobotAdapter):
         """
         services = scanner_node.get_service_names_and_types_by_node(node.name)
         node.services = raw_services_to_pyobj_list(services)
-
