@@ -1,9 +1,10 @@
 import os
+from typing import List
 
 from aztarna.commons import RobotAdapter
-from aztarna.ros.ros2.helpers import ROS2Node, ROS2Host, ROS2Topic
+from aztarna.ros.ros2.helpers import ROS2Node, ROS2Host, ROS2Topic, ROS2Service, raw_topics_to_pyobj_list, \
+    raw_services_to_pyobj_list
 
-default_topics = ['/rosout', '/parameter_events']
 max_ros_domain_id = 231
 rmw_implementations = ['rmw_opensplice_cpp', 'rmw_fastrtps_cpp', 'rmw_connext_cpp', 'rmw_dps_cpp', 'rmw_coredds_cpp']
 
@@ -26,6 +27,9 @@ class ROS2Scanner(RobotAdapter):
             print('\tTopics:')
             for topic in host.topics:
                 print(f'\t\tTopic Name: {topic.name} \t|\t Topic Type: {topic.topic_type}')
+            print('\tServices:')
+            for service in host.services:
+                print(f'\t\tService Name: {service.name} \t|\t Service Type: {service.service_type}')
             print('\tNodes:')
             for node in host.nodes:
                 print(f'\t\tNode Name: {node.name} \t|\t Namespace: {node.namespace}')
@@ -46,13 +50,12 @@ class ROS2Scanner(RobotAdapter):
                 available_middlewares.append(pkg)
         return available_middlewares
 
-
     @staticmethod
-    def print_node_topics(node):
+    def print_node_topics(node: ROS2Node):
         """
         Helper function for printing node related topics only.
 
-        :param node: Node containing the topics.
+        :param node: :class:`aztarna.ros.ros2.helpers.ROS2Node` containing the topics.
         """
         print(f'\t\tPublished topics:')
         for topic in node.published_topics:
@@ -61,28 +64,43 @@ class ROS2Scanner(RobotAdapter):
         for topic in node.subscribed_topics:
             print(f'\t\t\tTopic Name: {topic.name} \t|\t Topic Type: {topic.topic_type}')
 
-    def write_to_file(self, out_file):
+    @staticmethod
+    def print_node_services(node: ROS2Node):
+        """
+        Helper function for printing node related services.
+
+        :param node: :class:`aztarna.ros.ros2.helpers.ROS2Node` containing the serivices.
+        """
+        print(f'\t\tPublished topics:')
+        for service in node.services:
+            print(f'\t\t\tService Name: {service.name} \t|\t Service Type: {service.service_type}')
+
+    def write_to_file(self, out_file: str):
         """
         Write scanner results to the specified output file.
 
         :param out_file: Output file to write the results on.
         """
         lines = []
-        header = 'DomainID;NodeName;Namespace;Topic;TopicType;Direction\n'
+        header = 'DomainID;NodeName;Namespace;Type;ElementName;ElementType;Direction\n'
         lines.append(header)
         with open(out_file, 'w') as f:
             for host in self.found_hosts:
                 if self.extended:
                     for node in host.nodes:
                         self.write_node_topics(host, lines, node)
+                        self.write_node_services(host, lines, node)
                 else:
                     for topic in host.topics:
-                        line = f'{host.domain_id};;{topic.name};{topic.topic_type};;\n'
+                        line = f'{host.domain_id};;;Topic;{topic.name};{topic.topic_type};;\n'
+                        lines.append(line)
+                    for service in host.services:
+                        line = f'{host.domain_id};;;Service;{service.name};{service.service_type};;\n'
                         lines.append(line)
             f.writelines(lines)
 
     @staticmethod
-    def write_node_topics(host, lines, node):
+    def write_node_topics(host: ROS2Host, lines: List[str], node: ROS2Node):
         """
         Helper function to generate the node related topic information lines for writing in file.
 
@@ -99,7 +117,21 @@ class ROS2Scanner(RobotAdapter):
                 f'{subscribed_topic.topic_type};Subscribe\n'
             lines.append(line)
 
-    def scan(self):
+    @staticmethod
+    def write_node_services(host: ROS2Host, lines: List[str], node: ROS2Node):
+        """
+        Helper function to generate the node related service information lines for writing in file.
+
+        :param host: :class:`aztarna.ros.ros2.helpers.ROS2Host` class object.
+        :param lines: list containing the lines to write on the file.
+        :param node: :class:`aztarna,.ros.ros2.helpers.ROS2Node` class object containing the information to write.
+        """
+        for service in node.services:
+            line = f'{host.domain_id};{node.name};{node.namespace};Service;{service.name};' \
+                f'{service.service_type};\n'
+            lines.append(line)
+
+    def scan(self) -> List[ROS2Host]:
         """
         Scan the local network and all available ROS_DOMAIN_IDs against ROS2 nodes.
 
@@ -116,7 +148,6 @@ class ROS2Scanner(RobotAdapter):
             for i in range(0, max_ros_domain_id):
                 os.environ['ROS_DOMAIN_ID'] = str(i)
                 rclpy.init()
-
                 scanner_node = rclpy.create_node(self.scanner_node_name)
                 found_nodes = self.scan_ros2_nodes(scanner_node)
                 if found_nodes:
@@ -124,14 +155,16 @@ class ROS2Scanner(RobotAdapter):
                     host.domain_id = i
                     host.nodes = found_nodes
                     host.topics = self.scan_ros2_topics(scanner_node)
+                    host.services = self.scan_ros2_services(scanner_node)
                     if self.extended:
                         for node in found_nodes:
                             self.get_node_topics(scanner_node, node)
+                            self.get_node_services(scanner_node, node)
                     self.found_hosts.append(host)
                 rclpy.shutdown()
         return self.found_hosts
 
-    def scan_ros2_nodes(self, scanner_node):
+    def scan_ros2_nodes(self, scanner_node) -> List[ROS2Node]:
         """
         Helper function to scan the nodes on a certain domain.
 
@@ -148,7 +181,8 @@ class ROS2Scanner(RobotAdapter):
                 found_nodes.append(found_node)
         return found_nodes
 
-    def scan_ros2_topics(self, scanner_node):
+    @staticmethod
+    def scan_ros2_topics(scanner_node) -> List[ROS2Topic]:
         """
         Helper function for scanning ROS2 topic related information.
 
@@ -156,34 +190,40 @@ class ROS2Scanner(RobotAdapter):
         :return: List containing the found topics.
         """
         topics = scanner_node.get_topic_names_and_types()
-        return self.raw_topics_to_pyobj_list(topics)
+        return raw_topics_to_pyobj_list(topics)
 
-    def get_node_topics(self, scanner_node, node):
+    @staticmethod
+    def scan_ros2_services(scanner_node) -> List[ROS2Service]:
+        """
+        Helper function for scanning ROS2 Service related information.
+
+        :param scanner_node:
+        :return: List of :class:`aztarna.ros.ros2.helpers.ROS2Service`
+        """
+        services = scanner_node.get_service_names_and_types()
+        return raw_services_to_pyobj_list(services)
+
+    @staticmethod
+    def get_node_topics(scanner_node, node: ROS2Node):
         """
         Get available topics for a certain node, detailing if the node is publishing or subscribing to them.
 
         :param scanner_node: Scanner node object to be used for retrieving the node information.
-        :param node: Node to search the information on.
+        :param node: Target :class:`aztarna.ros.ros2.helpers.ROS2Node`
         """
         published_topics = scanner_node.get_publisher_names_and_types_by_node(node.name, node.namespace)
         subscribed_topics = scanner_node.get_subscriber_names_and_types_by_node(node.name, node.namespace)
-        node.published_topics = self.raw_topics_to_pyobj_list(published_topics)
-        node.subscribed_topics = self.raw_topics_to_pyobj_list(subscribed_topics)
+        node.published_topics = raw_topics_to_pyobj_list(published_topics)
+        node.subscribed_topics = raw_topics_to_pyobj_list(subscribed_topics)
 
     @staticmethod
-    def raw_topics_to_pyobj_list(topics, include_default=False):
+    def get_node_services(scanner_node, node: ROS2Node):
         """
-        Utility function for converting the raw data returned by the ROS2 API into a list of python topic objects.
+        Get services provided by a certain node.
 
-        :param topics: Raw topics list.
-        :param include_default: If to include the default topic names on the returned list or not.
-        :return: A list containing all parsed :class:`aztarna.ros.ros2.helpers.ROS2Topic` objects.
+        :param scanner_node: Scanner node object to be used for retrieving the node information.
+        :param node: Target :class:`aztarna.ros.ros2.helpers.ROS2Node`
         """
-        topics_list = []
-        for topic_name, topic_type in topics:
-            if not (not include_default and topic_name in default_topics):
-                topic = ROS2Topic()
-                topic.name = topic_name
-                topic.topic_type = topic_type
-                topics_list.append(topic)
-        return topics_list
+        services = scanner_node.get_service_names_and_types_by_node(node.name)
+        node.services = raw_services_to_pyobj_list(services)
+
