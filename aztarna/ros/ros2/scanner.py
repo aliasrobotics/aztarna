@@ -5,7 +5,7 @@ from aztarna.ros.ros2.helpers import ROS2Node, ROS2Host, ROS2Topic
 
 default_topics = ['/rosout', '/parameter_events']
 max_ros_domain_id = 231
-rmw_implementations = ['rmw_opensplice_cpp', 'rmw_fastrtps_cpp', 'rmw_connext_cpp']
+rmw_implementations = ['rmw_opensplice_cpp', 'rmw_fastrtps_cpp', 'rmw_connext_cpp', 'rmw_dps_cpp', 'rmw_coredds_cpp']
 
 class ROS2Scanner(RobotAdapter):
 
