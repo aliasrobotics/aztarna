@@ -24,6 +24,14 @@ This repository contains Alias Robotics' aztarna, a footprinting tool for robots
   * Subscriptable topics.
   * Executable services.
   * Readable parameters.
+  
+  
+### For ROS2
+* A list of ROS2 nodes present in each communication domains.
+* A list of discovered topics on each communication domain.
+* A list of discovered services on each communication domain.
+* For each node, the relationship of published and subscribed topics.
+* For each node, the services provided by that node.
 
 ### For Industrial routers
 *  Detecting eWON, Moxa, Sierra Wireless and Westermo industrial routers.
@@ -56,7 +64,13 @@ or
 ```
 python3 setup.py develop
 ```
-**Python 3.7** and the [setuptools](https://pypi.org/project/setuptools/) package is required for installation.
+**Python 3.6** and the [setuptools](https://pypi.org/project/setuptools/) package is required for installation. 
+Python 3.7 is recommended.
+
+
+### ROS2 Module
+
+For usage of the ROS2 footprinting module a ROS2 installation is required. Source the setup.bash script prior to launch.
 
 ### Install with docker
 ```bash

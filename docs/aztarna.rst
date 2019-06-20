@@ -7,6 +7,7 @@ Subpackages
 .. toctree::
 
     aztarna.ros
+    aztarna.ros2
     aztarna.sros
     aztarna.industrialrouters
 

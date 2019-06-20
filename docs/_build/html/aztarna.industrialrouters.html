@@ -17,33 +17,35 @@
   
 
   
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="prev" title="aztarna.ros.sros package" href="aztarna.sros.html" /> 
-
-  
-  <script src="_static/js/modernizr.min.js"></script>
-
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
@@ -177,14 +179,11 @@
 <div class="section" id="module-aztarna.industrialrouters.scanner">
 <span id="aztarna-industrialrouters-scanner-module"></span><h2>aztarna.industrialrouters.scanner module<a class="headerlink" href="#module-aztarna.industrialrouters.scanner" title="Permalink to this headline">¶</a></h2>
 <p>Industrial routers scanner module.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">author:</th><td class="field-body">Gorka Olalde Mendia(&#64;olaldiko), Xabier Perez Baskaran(&#64;xabierpb)</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">author</dt>
+<dd class="field-odd"><p>Gorka Olalde Mendia(&#64;olaldiko), Xabier Perez Baskaran(&#64;xabierpb)</p>
+</dd>
+</dl>
 <dl class="class">
 <dt id="aztarna.industrialrouters.scanner.BaseIndustrialRouter">
 <em class="property">class </em><code class="descclassname">aztarna.industrialrouters.scanner.</code><code class="descname">BaseIndustrialRouter</code><a class="reference internal" href="_modules/aztarna/industrialrouters/scanner.html#BaseIndustrialRouter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aztarna.industrialrouters.scanner.BaseIndustrialRouter" title="Permalink to this definition">¶</a></dt>
@@ -200,96 +199,79 @@
 checking and scanning.</p>
 <dl class="classmethod">
 <dt id="aztarna.industrialrouters.scanner.BaseIndustrialRouterScanner.check_default_password">
-<em class="property">classmethod </em><code class="descname">check_default_password</code><span class="sig-paren">(</span><em>router</em>, <em>semaphore=&lt;asyncio.locks.Semaphore object at 0x109129630 [unlocked</em>, <em>value:1]&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aztarna/industrialrouters/scanner.html#BaseIndustrialRouterScanner.check_default_password"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aztarna.industrialrouters.scanner.BaseIndustrialRouterScanner.check_default_password" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="descname">check_default_password</code><span class="sig-paren">(</span><em>router</em>, <em>semaphore=&lt;asyncio.locks.Semaphore object at 0x1142f74a8 [unlocked</em>, <em>value:1]&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aztarna/industrialrouters/scanner.html#BaseIndustrialRouterScanner.check_default_password"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aztarna.industrialrouters.scanner.BaseIndustrialRouterScanner.check_default_password" title="Permalink to this definition">¶</a></dt>
 <dd><p>Base method to check fo default credentials by using basic HTTP authentication schemes.</p>
 <p>This method can be overwritten in order to support different authentication schemes.
 Valid credentials are appended in the valid credentials attribute of each router object.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>router</strong> – The router for which to check the credentials.</li>
-<li><strong>semaphore</strong> – Asyncio semaphore for limiting the concurrency level.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>router</strong> – The router for which to check the credentials.</p></li>
+<li><p><strong>semaphore</strong> – Asyncio semaphore for limiting the concurrency level.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="classmethod">
 <dt id="aztarna.industrialrouters.scanner.BaseIndustrialRouterScanner.check_is_router">
-<em class="property">classmethod </em><code class="descname">check_is_router</code><span class="sig-paren">(</span><em>address: str</em>, <em>port: int</em>, <em>semaphore=&lt;asyncio.locks.Semaphore object at 0x109129208 [unlocked</em>, <em>value:1]&gt;</em><span class="sig-paren">)</span> &#x2192; aztarna.industrialrouters.scanner.BaseIndustrialRouter<a class="reference internal" href="_modules/aztarna/industrialrouters/scanner.html#BaseIndustrialRouterScanner.check_is_router"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aztarna.industrialrouters.scanner.BaseIndustrialRouterScanner.check_is_router" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="descname">check_is_router</code><span class="sig-paren">(</span><em>address: str</em>, <em>port: int</em>, <em>semaphore=&lt;asyncio.locks.Semaphore object at 0x1142f7160 [unlocked</em>, <em>value:1]&gt;</em><span class="sig-paren">)</span> &#x2192; aztarna.industrialrouters.scanner.BaseIndustrialRouter<a class="reference internal" href="_modules/aztarna/industrialrouters/scanner.html#BaseIndustrialRouterScanner.check_is_router"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aztarna.industrialrouters.scanner.BaseIndustrialRouterScanner.check_is_router" title="Permalink to this definition">¶</a></dt>
 <dd><p>Check if a certain router is an industrial router, given the headers defined at class level.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>address</strong> – IP address of the router to check.</li>
-<li><strong>port</strong> – Port of the web interface of the device to check.</li>
-<li><strong>semaphore</strong> – Asyncio semaphore to be used for concurrency limitation.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>address</strong> – IP address of the router to check.</p></li>
+<li><p><strong>port</strong> – Port of the web interface of the device to check.</p></li>
+<li><p><strong>semaphore</strong> – Asyncio semaphore to be used for concurrency limitation.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A <a class="reference internal" href="#aztarna.industrialrouters.scanner.BaseIndustrialRouter" title="aztarna.industrialrouters.scanner.BaseIndustrialRouter"><code class="xref py py-class docutils literal notranslate"><span class="pre">aztarna.industrialrouters.scanner.BaseIndustrialRouter</span></code></a> object if the checked device is a router.
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A <a class="reference internal" href="#aztarna.industrialrouters.scanner.BaseIndustrialRouter" title="aztarna.industrialrouters.scanner.BaseIndustrialRouter"><code class="xref py py-class docutils literal notranslate"><span class="pre">aztarna.industrialrouters.scanner.BaseIndustrialRouter</span></code></a> object if the checked device is a router.
 None otherwise.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="aztarna.industrialrouters.scanner.BaseIndustrialRouterScanner.check_router_credentials">
 <code class="descname">check_router_credentials</code><span class="sig-paren">(</span><em>routers: List[aztarna.industrialrouters.scanner.BaseIndustrialRouter]</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aztarna/industrialrouters/scanner.html#BaseIndustrialRouterScanner.check_router_credentials"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aztarna.industrialrouters.scanner.BaseIndustrialRouterScanner.check_router_credentials" title="Permalink to this definition">¶</a></dt>
 <dd><p>Check default credentials for a list of routers.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>routers</strong> – List of routers to be checked.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>routers</strong> – List of routers to be checked.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="aztarna.industrialrouters.scanner.BaseIndustrialRouterScanner.check_routers">
 <code class="descname">check_routers</code><span class="sig-paren">(</span><em>addresses: List[str], ports: List[int]</em><span class="sig-paren">)</span> &#x2192; List[aztarna.industrialrouters.scanner.BaseIndustrialRouter]<a class="reference internal" href="_modules/aztarna/industrialrouters/scanner.html#BaseIndustrialRouterScanner.check_routers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aztarna.industrialrouters.scanner.BaseIndustrialRouterScanner.check_routers" title="Permalink to this definition">¶</a></dt>
 <dd><p>Check for routers in a range of addressess and ports.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>addresses</strong> – List of addressess to be checked.</li>
-<li><strong>ports</strong> – List of ports to be checked for each address.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>addresses</strong> – List of addressess to be checked.</p></li>
+<li><p><strong>ports</strong> – List of ports to be checked for each address.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A list of found routers.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A list of found routers.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="classmethod">
 <dt id="aztarna.industrialrouters.scanner.BaseIndustrialRouterScanner.check_routers_shodan">
 <em class="property">classmethod </em><code class="descname">check_routers_shodan</code><span class="sig-paren">(</span><em>shodan: shodan.client.Shodan</em><span class="sig-paren">)</span> &#x2192; List[aztarna.industrialrouters.scanner.BaseIndustrialRouter]<a class="reference internal" href="_modules/aztarna/industrialrouters/scanner.html#BaseIndustrialRouterScanner.check_routers_shodan"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aztarna.industrialrouters.scanner.BaseIndustrialRouterScanner.check_routers_shodan" title="Permalink to this definition">¶</a></dt>
 <dd><p>Method to search for industrial routers in Shodan, given the headers defined at class level.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>shodan</strong> – Shodan API object to be used.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">List of found routers.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>shodan</strong> – Shodan API object to be used.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List of found routers.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -420,60 +402,48 @@ None otherwise.</p>
 <p>Due to the different authentication schema used by Moxa routers, methods for checking passwords have been extended.</p>
 <dl class="classmethod">
 <dt id="aztarna.industrialrouters.scanner.MoxaScanner.check_default_password">
-<em class="property">classmethod </em><code class="descname">check_default_password</code><span class="sig-paren">(</span><em>router: aztarna.industrialrouters.scanner.BaseIndustrialRouter</em>, <em>semaphore=&lt;asyncio.locks.Semaphore object at 0x109129710 [unlocked</em>, <em>value:1]&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aztarna/industrialrouters/scanner.html#MoxaScanner.check_default_password"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aztarna.industrialrouters.scanner.MoxaScanner.check_default_password" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="descname">check_default_password</code><span class="sig-paren">(</span><em>router: aztarna.industrialrouters.scanner.BaseIndustrialRouter</em>, <em>semaphore=&lt;asyncio.locks.Semaphore object at 0x1142f75c0 [unlocked</em>, <em>value:1]&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aztarna/industrialrouters/scanner.html#MoxaScanner.check_default_password"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aztarna.industrialrouters.scanner.MoxaScanner.check_default_password" title="Permalink to this definition">¶</a></dt>
 <dd><p>Method for checking for default passwords on Moxa Routers.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>router</strong> – Input router object to check the credentials for.</li>
-<li><strong>semaphore</strong> – Asyncio semaphore for limiting the concurrency leve.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>router</strong> – Input router object to check the credentials for.</p></li>
+<li><p><strong>semaphore</strong> – Asyncio semaphore for limiting the concurrency leve.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="classmethod">
 <dt id="aztarna.industrialrouters.scanner.MoxaScanner.check_password_moxahttp_1_0">
 <em class="property">classmethod </em><code class="descname">check_password_moxahttp_1_0</code><span class="sig-paren">(</span><em>client: aiohttp.client.ClientSession</em>, <em>context: ssl.SSLContext</em>, <em>content: str</em>, <em>router: aztarna.industrialrouters.scanner.BaseIndustrialRouter</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aztarna/industrialrouters/scanner.html#MoxaScanner.check_password_moxahttp_1_0"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aztarna.industrialrouters.scanner.MoxaScanner.check_password_moxahttp_1_0" title="Permalink to this definition">¶</a></dt>
 <dd><p>Method for checking the passwords in MoxaHttp/1.0 router authentication schemas.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>client</strong> – ClientSession for the connection to the router.</li>
-<li><strong>context</strong> – SSLContext of the connection.</li>
-<li><strong>content</strong> – Content of the response of the router.</li>
-<li><strong>router</strong> – <a class="reference internal" href="#aztarna.industrialrouters.scanner.BaseIndustrialRouter" title="aztarna.industrialrouters.scanner.BaseIndustrialRouter"><code class="xref py py-class docutils literal notranslate"><span class="pre">aztarna.industrialrouters.scanner.BaseIndustrialRouter</span></code></a> router to check.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>client</strong> – ClientSession for the connection to the router.</p></li>
+<li><p><strong>context</strong> – SSLContext of the connection.</p></li>
+<li><p><strong>content</strong> – Content of the response of the router.</p></li>
+<li><p><strong>router</strong> – <a class="reference internal" href="#aztarna.industrialrouters.scanner.BaseIndustrialRouter" title="aztarna.industrialrouters.scanner.BaseIndustrialRouter"><code class="xref py py-class docutils literal notranslate"><span class="pre">aztarna.industrialrouters.scanner.BaseIndustrialRouter</span></code></a> router to check.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="classmethod">
 <dt id="aztarna.industrialrouters.scanner.MoxaScanner.check_password_moxahttp_2_2">
 <em class="property">classmethod </em><code class="descname">check_password_moxahttp_2_2</code><span class="sig-paren">(</span><em>client</em>, <em>context</em>, <em>content</em>, <em>router</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aztarna/industrialrouters/scanner.html#MoxaScanner.check_password_moxahttp_2_2"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aztarna.industrialrouters.scanner.MoxaScanner.check_password_moxahttp_2_2" title="Permalink to this definition">¶</a></dt>
 <dd><p>Method for checking the passwords in MoxaHttp/2.2 router authentication schemas.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>client</strong> – ClientSession for the connection to the router.</li>
-<li><strong>context</strong> – SSLContext of the connection.</li>
-<li><strong>content</strong> – Content of the response of the router.</li>
-<li><strong>router</strong> – <a class="reference internal" href="#aztarna.industrialrouters.scanner.BaseIndustrialRouter" title="aztarna.industrialrouters.scanner.BaseIndustrialRouter"><code class="xref py py-class docutils literal notranslate"><span class="pre">aztarna.industrialrouters.scanner.BaseIndustrialRouter</span></code></a> router to check.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>client</strong> – ClientSession for the connection to the router.</p></li>
+<li><p><strong>context</strong> – SSLContext of the connection.</p></li>
+<li><p><strong>content</strong> – Content of the response of the router.</p></li>
+<li><p><strong>router</strong> – <a class="reference internal" href="#aztarna.industrialrouters.scanner.BaseIndustrialRouter" title="aztarna.industrialrouters.scanner.BaseIndustrialRouter"><code class="xref py py-class docutils literal notranslate"><span class="pre">aztarna.industrialrouters.scanner.BaseIndustrialRouter</span></code></a> router to check.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -490,32 +460,28 @@ None otherwise.</p>
 <dt id="aztarna.industrialrouters.scanner.MoxaScanner.get_challenge_moxahttp_1_0">
 <em class="property">classmethod </em><code class="descname">get_challenge_moxahttp_1_0</code><span class="sig-paren">(</span><em>text: str</em><span class="sig-paren">)</span> &#x2192; Optional[str]<a class="reference internal" href="_modules/aztarna/industrialrouters/scanner.html#MoxaScanner.get_challenge_moxahttp_1_0"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aztarna.industrialrouters.scanner.MoxaScanner.get_challenge_moxahttp_1_0" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get authentication challenge from MoxaHTTP/1.0 routers.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>text</strong> – HTML response provided by the router.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Authentication challenge if found</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>text</strong> – HTML response provided by the router.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Authentication challenge if found</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="classmethod">
 <dt id="aztarna.industrialrouters.scanner.MoxaScanner.get_challenge_moxahttp_2_2">
 <em class="property">classmethod </em><code class="descname">get_challenge_moxahttp_2_2</code><span class="sig-paren">(</span><em>text: str</em><span class="sig-paren">)</span> &#x2192; Optional[str]<a class="reference internal" href="_modules/aztarna/industrialrouters/scanner.html#MoxaScanner.get_challenge_moxahttp_2_2"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aztarna.industrialrouters.scanner.MoxaScanner.get_challenge_moxahttp_2_2" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get authentication challenge from MoxaHTTP/2.2 routers.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>text</strong> – HTML response provided by the router.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Authentication challenge if found</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>text</strong> – HTML response provided by the router.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Authentication challenge if found</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -555,20 +521,16 @@ None otherwise.</p>
 <p>Scanner class for Sierra Wireless routers.</p>
 <dl class="classmethod">
 <dt id="aztarna.industrialrouters.scanner.SierraWirelessScanner.check_default_password">
-<em class="property">classmethod </em><code class="descname">check_default_password</code><span class="sig-paren">(</span><em>router: aztarna.industrialrouters.scanner.BaseIndustrialRouter</em>, <em>semaphore=&lt;asyncio.locks.Semaphore object at 0x109129898 [unlocked</em>, <em>value:1]&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aztarna/industrialrouters/scanner.html#SierraWirelessScanner.check_default_password"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aztarna.industrialrouters.scanner.SierraWirelessScanner.check_default_password" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="descname">check_default_password</code><span class="sig-paren">(</span><em>router: aztarna.industrialrouters.scanner.BaseIndustrialRouter</em>, <em>semaphore=&lt;asyncio.locks.Semaphore object at 0x1142f7748 [unlocked</em>, <em>value:1]&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aztarna/industrialrouters/scanner.html#SierraWirelessScanner.check_default_password"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aztarna.industrialrouters.scanner.SierraWirelessScanner.check_default_password" title="Permalink to this definition">¶</a></dt>
 <dd><p>Method for checking credentials on Sierra Wireless Routers.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>router</strong> – <a class="reference internal" href="#aztarna.industrialrouters.scanner.BaseIndustrialRouter" title="aztarna.industrialrouters.scanner.BaseIndustrialRouter"><code class="xref py py-class docutils literal notranslate"><span class="pre">aztarna.industrialrouters.scanner.BaseIndustrialRouter</span></code></a> router to check.</li>
-<li><strong>semaphore</strong> – Asyncio semaphore for limiting concurrency level.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>router</strong> – <a class="reference internal" href="#aztarna.industrialrouters.scanner.BaseIndustrialRouter" title="aztarna.industrialrouters.scanner.BaseIndustrialRouter"><code class="xref py py-class docutils literal notranslate"><span class="pre">aztarna.industrialrouters.scanner.BaseIndustrialRouter</span></code></a> router to check.</p></li>
+<li><p><strong>semaphore</strong> – Asyncio semaphore for limiting concurrency level.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -639,7 +601,7 @@ None otherwise.</p>
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
       
-        <a href="aztarna.sros.html" class="btn btn-neutral" title="aztarna.ros.sros package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="aztarna.sros.html" class="btn btn-neutral float-left" title="aztarna.ros.sros package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -665,35 +627,16 @@ None otherwise.</p>
   
 
 
-  
-
-    
-    
-      <script type="text/javascript">
-          var DOCUMENTATION_OPTIONS = {
-              URL_ROOT:'./',
-              VERSION:'1.0',
-              LANGUAGE:'None',
-              COLLAPSE_INDEX:false,
-              FILE_SUFFIX:'.html',
-              HAS_SOURCE:  true,
-              SOURCELINK_SUFFIX: '.txt'
-          };
-      </script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-    
-
-  
-
-  <script type="text/javascript" src="_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>

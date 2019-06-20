@@ -1,11 +1,11 @@
-aztarna.ros.ros package
-=======================
+aztarna.ros.ros2 package
+========================
 
 Submodules
 ----------
 
 aztarna.ros.ros2.helpers module
-------------------------------
+-------------------------------
 
 .. automodule:: aztarna.ros.ros2.helpers
     :members:
@@ -13,7 +13,7 @@ aztarna.ros.ros2.helpers module
     :show-inheritance:
 
 aztarna.ros.ros2.scanner module
-------------------------------
+-------------------------------
 
 .. automodule:: aztarna.ros.ros2.scanner
     :members:
