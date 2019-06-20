@@ -17,23 +17,24 @@
 #     docker run  -it --rm --net=host aztarna_docker <aztarna args>
 ####
 
-FROM ubuntu:18.04
+FROM ros:dashing
 # ARG AZTARNA_COMMIT=master
 # ENV AZTARNA_COMMIT ${AZTARNA_COMMIT}
 
-RUN apt-get -qq update && apt-get -qqy upgrade
-# install aztarna build dependencies
-RUN apt-get -qqy install build-essential cmake libgmp3-dev gengetopt libpcap-dev flex byacc libjson-c-dev pkg-config libunistring-dev wget unzip git
-RUN apt-get -qqy install python3.7 python3.7-dev python3-pip
-RUN apt-get -qqy install libxml2-dev libxslt1-dev
-RUN apt-get -qqy install zlib1g-dev
-RUN apt-get -qqy install libffi-dev
-RUN apt-get -qqy install libssl-dev
-RUN rm -rf /var/lib/apt/lists/*
+RUN \
+    apt-get -qq update && apt-get -qqy upgrade \
+    && apt-get -qqy install \
+      libgmp3-dev gengetopt \
+      libpcap-dev flex byacc \
+      libjson-c-dev unzip \
+      libunistring-dev wget \
+      libxml2-dev libxslt1-dev \
+      libffi-dev libssl-dev \
+    && rm -rf /var/lib/apt/lists/*
 
 # copy the aztarna files the FS and install it
 COPY . /root/aztarna
-# RUN cd /root/aztarna && git checkout ${AZTARNA_COMMIT} && python3.7 setup.py install
-RUN cd /root/aztarna && python3.7 setup.py install
+RUN cd /root/aztarna && python3 setup.py install
 
-ENTRYPOINT ["/usr/local/bin/aztarna"]
+
+ENTRYPOINT ["/root/aztarna/ros2_entrypoint.sh"]

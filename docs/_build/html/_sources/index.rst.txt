@@ -34,6 +34,13 @@ For SROS
    -  Executable services.
    -  Readable parameters.
 
+For ROS2
+--------
+- Detection of ROS2 nodes in all possible ROS2 domain IDs. Local network.
+- Listing of all available topics and their relationship to nodes.
+- Listing of all available services and their relationship to nodes.
+
+
 For Industrial routers
 ----------------------
 

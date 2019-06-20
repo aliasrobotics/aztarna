@@ -8,6 +8,7 @@ import argcomplete
 import uvloop
 
 from aztarna.ros.industrial.scanner import ROSIndustrialScanner
+from aztarna.ros.ros2.scanner import ROS2Scanner
 from aztarna.ros.sros import SROSScanner
 from aztarna.ros.ros import ROSScanner
 from aztarna.industrialrouters.scanner import IndustrialRouterAdapter
@@ -23,7 +24,7 @@ def main():
     logging.basicConfig(level=logging.INFO, format="%(name)s - %(message)s")
     logger = logging.getLogger(__name__)
     parser = ArgumentParser(description='Aztarna')
-    parser.add_argument('-t', '--type', help='<ROS/ros/SROS/sros/IROUTERS/irouters/ROSIN/rosin> Scan ROS, SROS, ROSIN hosts or Industrial routers', required=True)
+    parser.add_argument('-t', '--type', help='<ROS/ros/SROS/sros/ROS2/ros2/IROUTERS/irouters> Scan ROS, SROS, ROS2 hosts or Industrial routers', required=True)
     parser.add_argument('-a', '--address', help='Single address or network range to scan.')
     parser.add_argument('-p', '--ports', help='Ports to scan (format: 13311 or 11111-11155 or 1,2,3,4)', default='11311')
     parser.add_argument('-i', '--input_file', help='Input file of addresses to use for scanning')
@@ -47,6 +48,8 @@ def main():
                 scanner.initialize_shodan()
         elif args.type.upper() == 'ROSIN':
             scanner = ROSIndustrialScanner()
+        elif args.type.upper() == 'ROS2':
+            scanner = ROS2Scanner()
         else:
             logger.critical('Invalid type selected')
             return
@@ -58,8 +61,9 @@ def main():
         elif args.address:
             scanner.load_range(args.address)
         else:
-            scanner.scan_pipe_main()
-            return
+            if args.type.upper() not in ['ROS2']:
+                scanner.scan_pipe_main()
+                return
 
 
         # TODO Implement a regex for port argument

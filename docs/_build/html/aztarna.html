@@ -17,34 +17,36 @@
   
 
   
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="aztarna.ros.ros package" href="aztarna.ros.html" />
     <link rel="prev" title="Aztarna modules" href="modules.html" /> 
-
-  
-  <script src="_static/js/modernizr.min.js"></script>
-
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
@@ -89,6 +91,7 @@
 <li class="toctree-l2 current"><a class="current reference internal" href="#">aztarna package</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#subpackages">Subpackages</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="aztarna.ros.html">aztarna.ros.ros package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="aztarna.ros2.html">aztarna.ros.ros2 package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="aztarna.sros.html">aztarna.ros.sros package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="aztarna.industrialrouters.html">aztarna.industrialrouters package</a></li>
 </ul>
@@ -179,6 +182,13 @@
 <li class="toctree-l2"><a class="reference internal" href="aztarna.ros.html#module-aztarna.ros.ros.helpers">aztarna.ros.ros.helpers module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="aztarna.ros.html#module-aztarna.ros.ros.scanner">aztarna.ros.ros.scanner module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="aztarna.ros.html#module-aztarna.ros.ros">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="aztarna.ros2.html">aztarna.ros.ros2 package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="aztarna.ros2.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="aztarna.ros2.html#module-aztarna.ros.ros2.helpers">aztarna.ros.ros2.helpers module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="aztarna.ros2.html#module-aztarna.ros.ros2.scanner">aztarna.ros.ros2.scanner module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="aztarna.ros2.html#module-aztarna.ros.ros2">Module contents</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="aztarna.sros.html">aztarna.ros.sros package</a><ul>
@@ -293,16 +303,14 @@
 <dt id="aztarna.helpers.HelpersNetWorking.ping">
 <em class="property">static </em><code class="descname">ping</code><span class="sig-paren">(</span><em>host</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aztarna/helpers.html#HelpersNetWorking.ping"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aztarna.helpers.HelpersNetWorking.ping" title="Permalink to this definition">¶</a></dt>
 <dd><p>A method that replicates the command line ping utility.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>host</strong> – Host to ping to</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A boolean type that means if the ping reaches the destination or not</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>host</strong> – Host to ping to</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A boolean type that means if the ping reaches the destination or not</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -325,44 +333,36 @@
 <dt id="aztarna.helpers.PortScanner.check_port_sem">
 <em class="property">static </em><code class="descname">check_port_sem</code><span class="sig-paren">(</span><em>sem</em>, <em>ip</em>, <em>port</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aztarna/helpers.html#PortScanner.check_port_sem"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aztarna.helpers.PortScanner.check_port_sem" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calls to :method:check_port with a Semaphore to avoid too many open connections.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>sem</strong> – </li>
-<li><strong>ip</strong> – </li>
-<li><strong>port</strong> – </li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sem</strong> – </p></li>
+<li><p><strong>ip</strong> – </p></li>
+<li><p><strong>port</strong> – </p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"></p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="staticmethod">
 <dt id="aztarna.helpers.PortScanner.scan_host">
 <em class="property">static </em><code class="descname">scan_host</code><span class="sig-paren">(</span><em>address</em>, <em>start_port</em>, <em>end_port</em>, <em>max_conns=400</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aztarna/helpers.html#PortScanner.scan_host"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aztarna.helpers.PortScanner.scan_host" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>address</strong> – IPv4 address to scan</li>
-<li><strong>start_port</strong> – First port value to scan</li>
-<li><strong>end_port</strong> – Last port value to scan</li>
-<li><strong>max_conns</strong> – Maximum simultaneous number of connections</li>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>address</strong> – IPv4 address to scan</p></li>
+<li><p><strong>start_port</strong> – First port value to scan</p></li>
+<li><p><strong>end_port</strong> – Last port value to scan</p></li>
+<li><p><strong>max_conns</strong> – Maximum simultaneous number of connections</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"></p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -384,7 +384,7 @@
         <a href="aztarna.ros.html" class="btn btn-neutral float-right" title="aztarna.ros.ros package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="modules.html" class="btn btn-neutral" title="Aztarna modules" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="modules.html" class="btn btn-neutral float-left" title="Aztarna modules" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -410,35 +410,16 @@
   
 
 
-  
-
-    
-    
-      <script type="text/javascript">
-          var DOCUMENTATION_OPTIONS = {
-              URL_ROOT:'./',
-              VERSION:'1.0',
-              LANGUAGE:'None',
-              COLLAPSE_INDEX:false,
-              FILE_SUFFIX:'.html',
-              HAS_SOURCE:  true,
-              SOURCELINK_SUFFIX: '.txt'
-          };
-      </script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-    
-
-  
-
-  <script type="text/javascript" src="_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>

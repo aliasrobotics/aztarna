@@ -17,33 +17,35 @@
   
 
   
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Installing" href="install.html" /> 
-
-  
-  <script src="_static/js/modernizr.min.js"></script>
-
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
@@ -156,37 +158,46 @@ systems. This can cause serious human harm and material damages.</strong></p>
 <div class="section" id="for-ros">
 <h1>For ROS<a class="headerlink" href="#for-ros" title="Permalink to this headline">¶</a></h1>
 <ul class="simple">
-<li>A list of the ROS nodes present in the system (Publishers and
-Subscribers)</li>
-<li>For each node, the published and subscribed topis including the topic
-type</li>
-<li>For each node, the ROS services each of the nodes offer</li>
-<li>A list of all ROS parameters present in the Parameter Server</li>
-<li>A list of the active communications running in the system. A single
+<li><p>A list of the ROS nodes present in the system (Publishers and
+Subscribers)</p></li>
+<li><p>For each node, the published and subscribed topis including the topic
+type</p></li>
+<li><p>For each node, the ROS services each of the nodes offer</p></li>
+<li><p>A list of all ROS parameters present in the Parameter Server</p></li>
+<li><p>A list of the active communications running in the system. A single
 communication includes the involved publiser/subscriber nodes and the
-topics</li>
+topics</p></li>
 </ul>
 </div>
 <div class="section" id="for-sros">
 <h1>For SROS<a class="headerlink" href="#for-sros" title="Permalink to this headline">¶</a></h1>
 <ul class="simple">
-<li>Determining if the system is a SROS master.</li>
-<li>Detecting if demo configuration is in use.</li>
-<li>A list of the nodes found in the system. (Extended mode)</li>
-<li>A list of allow/deny policies for each node.<ul>
-<li>Publishable topics.</li>
-<li>Subscriptable topics.</li>
-<li>Executable services.</li>
-<li>Readable parameters.</li>
+<li><p>Determining if the system is a SROS master.</p></li>
+<li><p>Detecting if demo configuration is in use.</p></li>
+<li><p>A list of the nodes found in the system. (Extended mode)</p></li>
+<li><p>A list of allow/deny policies for each node.</p>
+<ul>
+<li><p>Publishable topics.</p></li>
+<li><p>Subscriptable topics.</p></li>
+<li><p>Executable services.</p></li>
+<li><p>Readable parameters.</p></li>
 </ul>
 </li>
+</ul>
+</div>
+<div class="section" id="for-ros2">
+<h1>For ROS2<a class="headerlink" href="#for-ros2" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><p>Detection of ROS2 nodes in all possible ROS2 domain IDs. Local network.</p></li>
+<li><p>Listing of all available topics and their relationship to nodes.</p></li>
+<li><p>Listing of all available services and their relationship to nodes.</p></li>
 </ul>
 </div>
 <div class="section" id="for-industrial-routers">
 <h1>For Industrial routers<a class="headerlink" href="#for-industrial-routers" title="Permalink to this headline">¶</a></h1>
 <ul class="simple">
-<li>Detecting eWON, Moxa, Sierra Wireless and Westermo industrial routers.</li>
-<li>Default credential checking for found routers.</li>
+<li><p>Detecting eWON, Moxa, Sierra Wireless and Westermo industrial routers.</p></li>
+<li><p>Default credential checking for found routers.</p></li>
 </ul>
 <div class="toctree-wrapper compound">
 <p class="caption"><span class="caption-text">Contents:</span></p>
@@ -202,6 +213,7 @@ topics</li>
 <li class="toctree-l2"><a class="reference internal" href="aztarna.html">aztarna package</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="aztarna.html#subpackages">Subpackages</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="aztarna.ros.html">aztarna.ros.ros package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="aztarna.ros2.html">aztarna.ros.ros2 package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="aztarna.sros.html">aztarna.ros.sros package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="aztarna.industrialrouters.html">aztarna.industrialrouters package</a></li>
 </ul>
@@ -220,9 +232,9 @@ topics</li>
 <span class="target" id="module-aztarna"></span><div class="section" id="indices-and-tables">
 <h2>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></li>
-<li><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></li>
-<li><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></li>
+<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
+<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
+<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
 </ul>
 </div>
 </div>
@@ -262,35 +274,16 @@ topics</li>
   
 
 
-  
-
-    
-    
-      <script type="text/javascript">
-          var DOCUMENTATION_OPTIONS = {
-              URL_ROOT:'./',
-              VERSION:'1.0',
-              LANGUAGE:'None',
-              COLLAPSE_INDEX:false,
-              FILE_SUFFIX:'.html',
-              HAS_SOURCE:  true,
-              SOURCELINK_SUFFIX: '.txt'
-          };
-      </script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-    
-
-  
-
-  <script type="text/javascript" src="_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>

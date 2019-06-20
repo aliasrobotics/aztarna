@@ -12,7 +12,7 @@ Code usage
 
    optional arguments:
      -h, --help            show this help message and exit
-     -t TYPE, --type TYPE  <ROS/ros/SROS/sros/IROUTERS/irouters> Scan ROS, SROS
+     -t TYPE, --type TYPE  <ROS/ros/SROS/sros/ROS2/ros2/IROUTERS/irouters> Scan ROS, SROS, ROS2
                            hosts or Industrial routers
      -a ADDRESS, --address ADDRESS
                            Single address or network range to scan.
@@ -81,3 +81,21 @@ Code usage
 .. code:: bash
 
    aztarna -t IROUTERS --shodan --api-key <yourshodanapikey> -o routers.csv
+
+- Run the code (example search against ROS2 nodes)
+
+.. code:: bash
+
+   aztarna -t ROS2
+
+- Run the code (example search against ROS2 nodes in extended mode)
+
+.. code:: bash
+
+   aztarna -t ROS2 -e
+
+- Run the code (example search against ROS2 nodes in extended mode with file output)
+
+.. code:: bash
+
+   aztarna -t ROS2 -e -o output.csv

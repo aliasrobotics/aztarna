@@ -5,18 +5,16 @@ import sys
 
 from setuptools import setup
 
-if sys.version_info < (3, 7):
-    sys.exit('Sorry, Python < 3.7 is not supported')
-
-
 setup(
     name='aztarna',
-    version='1.0',
+    version='1.2',
     packages=[
                 'aztarna',
                 'aztarna.ros',
                 'aztarna.ros.ros',
                 'aztarna.ros.sros',
+                'aztarna.ros.industrial',
+                'aztarna.ros.ros2',
                 'aztarna.industrialrouters',
               ],
     url='https://www.aliasrobotics.com/research/aztarna.htm',
@@ -70,7 +68,7 @@ setup(
         'Pygments==2.3.1',
         'pyparsing==2.4.0',
         'pytz==2019.1',
-        'requests==2.21.0',
+        'requests==2.22.0',
         'scapy==2.4.2',
         'shodan==1.12.1',
         'six==1.12.0',
