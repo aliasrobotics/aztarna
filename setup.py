@@ -25,16 +25,16 @@ setup(
     author='Alias Robotics',
     author_email='contact@aliasrobotics.com',
     description='A footprinting tool for ROS and SROS systems',
-    long_description='''Aztarna, a footprinting tool for robots. 
+    long_description='''Aztarna, a footprinting tool for robots.
     Provides researchers a way for researching internet connected ROS, SROS robots, as well as industrial routers.
     
-    Alias Robotics supports original robot manufacturers assessing their security and improving 
+    Alias Robotics supports original robot manufacturers assessing their security and improving
     their quality of software.
     By no means we encourage or promote the unauthorized tampering with running robotic systems.
     This can cause serious human harm and material damages.
     ''',
     keywords=['network', 'footprinting', 'ros', 'sros', 'ics', 'industrialrouters'],
-    entry_points = {
+    entry_points={
         'console_scripts': ['aztarna=aztarna.cmd:main'],
     },
     install_requires=[
