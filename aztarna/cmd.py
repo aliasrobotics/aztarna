@@ -2,8 +2,7 @@
 # -*- coding: utf-8 -*-
 import asyncio
 import logging
-import re
-from argparse import ArgumentParser
+import argparse
 import argcomplete
 import uvloop
 
@@ -17,16 +16,19 @@ asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 
 logging.getLogger(__name__).setLevel(logging.DEBUG)
 
+
 def main():
     """
     Main method
     """
     logging.basicConfig(level=logging.INFO, format="%(name)s - %(message)s")
     logger = logging.getLogger(__name__)
-    parser = ArgumentParser(description='Aztarna')
-    parser.add_argument('-t', '--type', help='<ROS/ros/SROS/sros/ROS2/ros2/IROUTERS/irouters> Scan ROS, SROS, ROS2 hosts or Industrial routers', required=True)
+    parser = argparse.ArgumentParser(description='Aztarna')
+    parser.add_argument('-t', '--type', help='<ROS/ros/SROS/sros/ROS2/ros2/IROUTERS/irouters> Scan ROS, SROS, '
+                                             'ROS2 hosts or Industrial routers', required=True)
     parser.add_argument('-a', '--address', help='Single address or network range to scan.')
-    parser.add_argument('-p', '--ports', help='Ports to scan (format: 13311 or 11111-11155 or 1,2,3,4)', default='11311')
+    parser.add_argument('-p', '--ports', help='Ports to scan (format: 13311 or 11111-11155 or 1,2,3,4)',
+                        default='11311')
     parser.add_argument('-i', '--input_file', help='Input file of addresses to use for scanning')
     parser.add_argument('-o', '--out_file', help='Output file for the results')
     parser.add_argument('-e', '--extended', help='Extended scan of the hosts', action='store_true')
@@ -64,15 +66,15 @@ def main():
             if args.type.upper() not in ['ROS2']:
                 scanner.scan_pipe_main()
                 return
-
-
         # TODO Implement a regex for port argument
         try:
-                scanner.ports = range(int(args.ports.split('-')[0]), int(args.ports.split('-')[1]))
-        except:
+            scanner.ports = range(int(args.ports.split('-')[0]), int(args.ports.split('-')[1]))
+        except Exception as e:
+            logging.error('Trying to scanner....', exc_info=e)
             try:
                 scanner.ports = [int(port) for port in args.ports.split(',')]
-            except:
+            except Exception as e:
+                logging.error('Trying again', exc_info=e)
                 try:
                     scanner.ports.append(int(args.ports))
                 except Exception as e:

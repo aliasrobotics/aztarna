@@ -14,18 +14,20 @@ from aztarna.ros.ros.helpers import ROSHost
 
 class ROSIndustrialScanner(RobotAdapter):
 
-    def __init__(self, ports=[80], extended=False):
+    def __init__(self, ports=None, extended=False):
+        if ports is None:
+            ports = [80]
         RobotAdapter.__init__(self, ports, extended)
-        self.rosin_nodes = ['/streaming_client',            # ABB
-                            '/motion_download_interface',   # ABB
-                            '/robot_state',                 # ABB
-                            '/joint_trajectory_action',     # ABB
-                            '/kuka_eki_hw_interface',       # KUKA
-                            '/controller_spawner',          # KUKA
+        self.rosin_nodes = ['/streaming_client',  # ABB
+                            '/motion_download_interface',  # ABB
+                            '/robot_state',  # ABB
+                            '/joint_trajectory_action',  # ABB
+                            '/kuka_eki_hw_interface',  # KUKA
+                            '/controller_spawner',  # KUKA
                             '/motion_streaming_interface',  # FANUC
-                            '/industrial_robot_client',     # FANUC
-                            '/joint_state',                 # FANUC
-                            '/kuka_rsi_simulator'           # KUKA
+                            '/industrial_robot_client',  # FANUC
+                            '/joint_state',  # FANUC
+                            '/kuka_rsi_simulator'  # KUKA
                             ]
         self.timeout = aiohttp.ClientTimeout(total=3)
         self.logger = logging.getLogger(__name__)
@@ -80,10 +82,10 @@ class ROSIndustrialScanner(RobotAdapter):
             except ClientConnectorError:
                 self.logger.debug(f'[-] Unable to connect to host {address}')
             except Exception as e:
+                logging.error('Connection error on host', exc_info=e)
                 ex, msg, tb = sys.exc_info()
                 traceback.print_tb(tb)
                 self.logger.debug(f'[-] Connection error on host {address}')
-
 
     async def scan_network(self):
         """
@@ -95,7 +97,7 @@ class ROSIndustrialScanner(RobotAdapter):
                 for address in self.host_list:
                     results.append(self.analyze_nodes(address, port))
 
-            for result in await asyncio.gather(*results):
+            for _ in await asyncio.gather(*results):
                 pass
 
         except ValueError as e:
@@ -107,12 +109,3 @@ class ROSIndustrialScanner(RobotAdapter):
             str_line = (line.decode()).rstrip('\n')
             for port in self.ports:
                 await self.analyze_nodes(str_line, port)
-
-
-
-
-
-
-
-
-

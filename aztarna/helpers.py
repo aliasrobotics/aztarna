@@ -2,25 +2,30 @@
 # -*- coding: utf-8 -*-
 
 import asyncio
+import logging
 from platform import system as system_name  # Returns the system/OS name
 from subprocess import call as system_call  # Execute a shell command
+
 
 class HelpersLINQ:
     """
     A helper class for emulating .NET useful methods.
     """
+
     @staticmethod
     def distinct(sequence):
         seen = set()
         for s in sequence:
-            if not s in seen:
+            if s not in seen:
                 seen.add(s)
                 yield s
+
 
 class HelpersNetWorking:
     """
     A helper class that checks networking related data
     """
+
     @staticmethod
     def ping(host):
         """
@@ -29,9 +34,8 @@ class HelpersNetWorking:
         :param host: Host to ping to
         :return: A boolean type that means if the ping reaches the destination or not
         """
-        ret = None
         # Ping command count option as function of OS
-        param = '-n' if system_name().lower()=='windows' else '-c'
+        param = '-n' if 'windows' == system_name().lower() else '-c'
         # Building the command. Ex: "ping -c 1 google.com"
         command = ['ping', param, '1', host]
         with open("/dev/null", "w+") as f:
@@ -39,10 +43,12 @@ class HelpersNetWorking:
 
         return ret
 
+
 class PortScanner:
     """
     A base class that provides methods to check correct por scans.
     """
+
     @staticmethod
     async def check_port(ip, port):
         """
@@ -56,7 +62,8 @@ class PortScanner:
             reader, writer = await asyncio.wait_for(conn, timeout=3)
             writer.close()
             return port
-        except:
+        except Exception as e:
+            logging.error('Returning None', exc_info=e)
             return None
 
     @staticmethod

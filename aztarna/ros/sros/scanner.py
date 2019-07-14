@@ -9,13 +9,14 @@ SROS Scanner module.
 import asyncio
 import logging
 import random
-import traceback
+import sys
 from ipaddress import AddressValueError
 
 from aztarna.commons import RobotAdapter
 from .helpers import SROSHost, get_node_info, get_policies, get_sros_certificate, find_node_ports
 
 logger = logging.getLogger(__name__)
+
 
 class SROSScanner(RobotAdapter):
     """
@@ -67,7 +68,8 @@ class SROSScanner(RobotAdapter):
                                             sros_host.nodes.append(node_info)
                                 except Exception as e:
                                     logger.exception('Exception at host scan', e)
-            except Exception:
+            except Exception as e:
+                logging.error('Exception at host scan', exc_info=e)
                 logger.exception('Exception at host scan')
                 return None
         return sros_host

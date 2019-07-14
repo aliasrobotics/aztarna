@@ -123,14 +123,15 @@ class BaseIndustrialRouterScanner:
         return found_routers
 
     @classmethod
-    async def check_is_router(cls, address: str, port: int, semaphore=Semaphore()) -> BaseIndustrialRouter:
+    async def check_is_router(cls, address: str, port: int, semaphore=Semaphore()) -> None:
         """
         Check if a certain router is an industrial router, given the headers defined at class level.
 
         :param address: IP address of the router to check.
         :param port: Port of the web interface of the device to check.
         :param semaphore: Asyncio semaphore to be used for concurrency limitation.
-        :return: A :class:`aztarna.industrialrouters.scanner.BaseIndustrialRouter` object if the checked device is a router.
+        :return: A :class:`aztarna.industrialrouters.scanner.BaseIndustrialRouter` object if the checked device is a
+        router.
                 None otherwise.
         """
         context = ssl.create_default_context()
@@ -159,6 +160,8 @@ class BaseIndustrialRouterScanner:
         :param ports: List of ports to be checked for each address.
         :return: A list of found routers.
         """
+
+        # noinspection PyShadowingNames
         async def check_routers_aio(addresses, ports):
             semaphore = Semaphore(50)
             futures = []
@@ -215,7 +218,8 @@ class BaseIndustrialRouterScanner:
                         logger.warning(
                             '[-] Unsuccessful connection to router {}:{}'.format(router.address, router.port))
                         router.alive = True
-                    except Exception:
+                    except Exception as e:
+                        logging.error('Unsuccessful connection to router ', exc_info=e)
                         logger.exception(
                             '[-] Unsuccessful connection to router {}:{}'.format(router.address, router.port))
                         router.alive = False
@@ -226,6 +230,8 @@ class BaseIndustrialRouterScanner:
 
         :param routers: List of routers to be checked.
         """
+
+        # noinspection PyShadowingNames
         async def check_router_credentials_aio(routers):
             semaphore = Semaphore(100)
             futures = []
@@ -252,7 +258,8 @@ class BaseIndustrialRouterScanner:
                         router.country = results['asn_country_code']
                     if results['asn_description']:
                         router.asn_description = results['asn_description']
-                except:
+                except Exception as e:
+                    logging.error('Continuing', exc_info=e)
                     pass
 
 
@@ -349,7 +356,8 @@ class MoxaScanner(BaseIndustrialRouterScanner):
                                 await cls.check_password_moxahttp_1_0(client, context, content, router)
                             elif response.headers.get('Server') == 'MoxaHttp/2.2':
                                 await cls.check_password_moxahttp_2_2(client, context, content, router)
-                except:
+                except Exception as e:
+                    logging.error('Connection failed', exc_info=e)
                     logger.warning('[-] Connection to {} failed'.format(router.address))
 
     @classmethod
@@ -373,7 +381,8 @@ class MoxaScanner(BaseIndustrialRouterScanner):
                     content = str(await response.content.read())
                     if cls.valid_login_text_moxahttp_2_2 in content:
                         router.valid_credentials.append(clear_password)
-            except:
+            except Exception as e:
+                logging.error('Connection failed', exc_info=e)
                 logger.warning('[-] Connection to {} failed'.format(router.address))
 
     @classmethod
@@ -402,7 +411,8 @@ class MoxaScanner(BaseIndustrialRouterScanner):
                     content = str(await response.content.read())
                     if cls.valid_login_text_moxahttp_2_2 in content:
                         router.valid_credentials.append((user, clear_password))
-            except:
+            except Exception as e:
+                logging.error('Connection failed', exc_info=e)
                 logger.warning('[-] Connection to {} failed'.format(router.address))
 
 
@@ -466,9 +476,10 @@ class SierraWirelessScanner(BaseIndustrialRouterScanner):
                             content = str(await response.content.read())
                             if cls.failed_message not in content:
                                 router.valid_credentials.append((user, password))
-                except Exception:
+                except Exception as e:
                     router.alive = False
                     logger.warning('[-] Connection to {} failed'.format(router.address))
+                    logging.error('Connection failed', exc_info=e)
 
 
 class IndustrialRouterAdapter(RobotAdapter):

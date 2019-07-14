@@ -19,10 +19,12 @@ load_layer('tls')
 
 logger = logging.getLogger(__name__)
 
+
 class SROSNode(BaseNodeROS):
     """
     Class for keeping all the attributes of a SROS Node. Extends :class:`aztarna.commons.BaseNodeROS`
     """
+
     def __init__(self):
         super().__init__()
         self.is_demo = False
@@ -37,11 +39,13 @@ class SROSHost(BaseHostROS):
     """
     Class for keeping all the attributes of a SROS Node.Extends:class:`aztarna.commons.BaseHostROS`
     """
+
     def __init__(self):
         super().__init__()
 
     def __repr__(self):
         return "Address: {}, Nodes: {}".format(self.address, self.nodes)
+
 
 class SROSPolicy:
     """
@@ -63,6 +67,7 @@ class SROSPolicy:
     def __repr__(self):
         return 'Type: {}, Values: {}, Permission: {}'.format(self.type, self.values, self.permissions)
 
+
 def get_node_info(cert):
     """
     Extract all the information for a node, based on it's certificate.
@@ -81,11 +86,13 @@ def get_node_info(cert):
         node.name = cert.subject['commonName']
         if cert.issuer == ros_demo_fields:
             node.is_demo = True
-    except Exception:
+    except Exception as e:
+        logging.error('Failed to obraining node info.', exc_info=e)
         logger.warning('\t\tException when obtaining node info')
         return None
     else:
         return node
+
 
 def get_policies(cert):
     """
@@ -98,20 +105,20 @@ def get_policies(cert):
         extensions = cert.tbsCertificate.extensions
         policies_extension = list(filter(lambda ext: ext.extnID.val == '2.5.29.32', extensions))[0]
         for cert_policy in policies_extension.extnValue.certificatePolicies:
-            id = cert_policy.policyIdentifier.val
+            identifier = cert_policy.policyIdentifier.val
             policy = SROSPolicy()
-            if id[-3] == '1':
+            if identifier[-3] == '1':
                 policy.type = SROSPolicy.TYPE_SUBSCRIPTABLE_TOPICS
-            elif id[-3] == '2':
+            elif identifier[-3] == '2':
                 policy.type = SROSPolicy.TYPE_PUBLISHABLE_TOPICS
-            elif id[-3] in ['3', '6']:
+            elif identifier[-3] in ['3', '6']:
                 policy.type = SROSPolicy.TYPE_UNKNOWN
-            elif id[-3] == '4':
+            elif identifier[-3] == '4':
                 policy.type = SROSPolicy.TYPE_EXECUTABLE_SVCS
-            elif id[-3] == '5':
+            elif identifier[-3] == '5':
                 policy.type = SROSPolicy.TYPE_READABLE_PARAMS
 
-            if id[-1] == '1':
+            if identifier[-1] == '1':
                 policy.permission = SROSPolicy.POLICY_ALLOWED
             else:
                 policy.permission = SROSPolicy.POLICY_DENIED
@@ -119,9 +126,11 @@ def get_policies(cert):
             for qualifier in cert_policy.policyQualifiers:
                 policy.values.append(qualifier.qualifier.val)
             policies.append(policy)
-    except Exception:
+    except Exception as e:
+        logging.error('Exception when capturing the certificate policies', exc_info=e)
         logger.warning('\t\tException when capturing the certificate policies')
     return policies
+
 
 async def get_sros_certificate(address, port, timeout=3):
     """
@@ -177,6 +186,8 @@ async def get_sros_certificate(address, port, timeout=3):
                 await writer.wait_closed()
     return address, port, None
 
+
+# noinspection PyTypeChecker
 async def check_port(ip, port):
     """
     Check if a port is open.
@@ -184,6 +195,7 @@ async def check_port(ip, port):
     :param port: Port to check
     :return: Returns the port if it is open. None otherwise.
     """
+    global sock
     try:
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -192,12 +204,15 @@ async def check_port(ip, port):
         logger.warning('Scanning host {}:{}'.format(ip, port))
         return port
     except Exception as e:
+        logging.error('Continuing', exc_info=e)
         pass
     finally:
         try:
             sock.close()
-        except:
+        except Exception as e:
+            logging.error('Continuing', exc_info=e)
             pass
+
 
 async def check_port_sem(sem, ip, port):
     """
@@ -210,6 +225,7 @@ async def check_port_sem(sem, ip, port):
     """
     async with sem:
         return await check_port(ip, port)
+
 
 async def find_node_ports(address, ports):
     """

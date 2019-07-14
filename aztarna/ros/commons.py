@@ -1,9 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import asyncio
-import ipaddress
-import logging
-from ipaddress import IPv4Address, ip_network
 
 from aztarna.commons import *
 
@@ -58,9 +54,9 @@ class ParameterROS:
 
 class CommunicationROS:
     """
-    A class representing a ROS communication, including the publishers, subscribers and the topics involveds
+    A class representing a ROS communication, including the publishers, subscribers and the topics involved
     """
     def __init__(self, topic):
         self.publishers = []  # Node type
         self.subscribers = []  # Node type
-        self.topic = topic # Topic() object
+        self.topic = topic  # Topic() object

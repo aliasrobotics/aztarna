@@ -16,12 +16,13 @@ from aztarna.ros.helpers import HelpersROS
 from aztarna.ros.ros.helpers import Node, Topic, Service
 from aztarna.ros.ros.helpers import ROSHost
 import sys
-from ipaddress import IPv4Address
+
 
 class ROSScanner(RobotAdapter):
     """
     ROSScanner class, an extension of BaseScanner for ROS.
     """
+
     def __init__(self):
         super().__init__()
 
@@ -50,7 +51,8 @@ class ROSScanner(RobotAdapter):
                             publishers_array = val[0]
                             subscribers_array = val[1]
                             services_array = val[2]
-                            found_topics = await self.analyze_topic_types(ros_master_client)  # In order to analyze the nodes topics are needed
+                            found_topics = await self.analyze_topic_types(
+                                ros_master_client)  # In order to analyze the nodes topics are needed
 
                             self.extract_nodes(publishers_array, found_topics, 'pub', ros_host)
                             self.extract_nodes(subscribers_array, found_topics, 'sub', ros_host)
@@ -60,9 +62,11 @@ class ROSScanner(RobotAdapter):
                                 current_topic = Topic(topic_name, topic_type)
                                 comm = CommunicationROS(current_topic)
                                 for node in ros_host.nodes:
-                                    if next((x for x in node.published_topics if x.name == current_topic.name), None) is not None:
+                                    if next((x for x in node.published_topics if x.name == current_topic.name),
+                                            None) is not None:
                                         comm.publishers.append(node)
-                                    if next((x for x in node.subscribed_topics if x.name == current_topic.name), None) is not None:
+                                    if next((x for x in node.subscribed_topics if x.name == current_topic.name),
+                                            None) is not None:
                                         comm.subscribers.append(node)
                                 ros_host.communications.append(comm)
                             await self.set_xmlrpcuri_node(ros_master_client, ros_host)
@@ -73,7 +77,8 @@ class ROSScanner(RobotAdapter):
 
                 except Exception as e:
                     # traceback.print_tb(e.__traceback__)
-                    self.logger.error('[-] Error connecting to host ' + str(ros_host.address) + ':' + str(ros_host.port) + ' -> '+str(e) + '\n\tNot a ROS host')
+                    self.logger.error('[-] Error connecting to host ' + str(ros_host.address) + ':' + str(
+                        ros_host.port) + ' -> ' + str(e) + '\n\tNot a ROS host')
 
     def extract_nodes(self, source_array, topics, pub_or_sub, host):
         """
@@ -114,10 +119,12 @@ class ROSScanner(RobotAdapter):
 
         return ret_node
 
-    async def set_xmlrpcuri_node(self, ros_master_client, host):
+    @staticmethod
+    async def set_xmlrpcuri_node(ros_master_client, host):
         """
         Once all node data is collected, set the xml.
 
+        :param host:
         :param ros_master_client: xml-rpc object for the ROS Master Client
         """
         for node in host.nodes:
@@ -167,7 +174,7 @@ class ROSScanner(RobotAdapter):
                 for address in self.host_list:
                     results.append(self.analyze_nodes(address, port))
 
-            for result in await asyncio.gather(*results):
+            for _ in await asyncio.gather(*results):
                 pass
 
         except ValueError as e:
@@ -234,8 +241,9 @@ class ROSScanner(RobotAdapter):
                     for ptopic in node.published_topics:
                         for stopic in node.subscribed_topics:
                             for service in node.services:
-                                line = '{};{};{};{};{};{};{};{}\n'.format(host.address, host.port, node.name, node.address, node.port, ptopic,
-                                                                   stopic, service)
+                                line = '{};{};{};{};{};{};{};{}\n'.format(host.address, host.port, node.name,
+                                                                          node.address, node.port, ptopic,
+                                                                          stopic, service)
             lines.append(line)
 
         with open(out_file, 'w') as file:
