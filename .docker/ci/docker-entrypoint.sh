@@ -12,7 +12,7 @@ WS_PATH="/home/root/aztarna"
 function qaCode()
 {
   echo -e "${CYAN}Linter checks for python code, using: pep8 ${BOLD}$(pep8 --version)${RESET}"
-  pep8 ${WS_PATH}
+  pep8 --max-line-length=120 ${WS_PATH}
   result=$?
   if [ $result -ne 0 ]; then
     echo -e "${RED}pep8 error/s found, please review it!${RESET}"
