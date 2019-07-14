@@ -6,7 +6,7 @@ WORKDIR /home/root/aztarna
 COPY ./docker-entrypoint.sh /
 
 RUN \
-    apt update -qq && apt install pep8 \
+    apt update -qq && apt install -y pep8 \
     && rm -rf /var/lib/apt/lists/*
 
 ENTRYPOINT /docker-entrypoint.sh
