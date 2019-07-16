@@ -8,6 +8,12 @@ This repository contains Alias Robotics' aztarna, a footprinting tool for robots
 [![PyPI version](https://badge.fury.io/py/aztarna.svg)](https://badge.fury.io/py/aztarna)   [![Documentation Status](https://readthedocs.org/projects/aztarna/badge/?version=latest)](https://aztarna.readthedocs.io/en/latest/?badge=latest)    [![Article](https://img.shields.io/badge/article-arxiv%3A1812.09490-red.svg)](https://arxiv.org/pdf/1812.09490.pdf)
 
 
+Aztarna's ROS2 and ROS-Industrial modules are an effort part of the RedROS-I and RedROS2-I FTPs funded by [ROSIN](http://rosin-project.eu/) (European Union’s Horizon 2020 research and innovation programme) with the grant agreement No 732287.
+
+<img src="http://rosin-project.eu/wp-content/uploads/2017/03/Logo_ROSIN_CMYK-Website.png"/>
+
+
+
 ### For ROS
 * A list of the ROS nodes present in the system (Publishers and Subscribers)
 * For each node, the published and subscribed topis including the topic type
