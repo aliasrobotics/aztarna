@@ -32,7 +32,7 @@ Aztarna's ROS2 and ROS-Industrial modules are an effort part of the RedROS-I and
   * Readable parameters.
   
   
-### For ROS2
+### For ROS2 **(Funded under the [ROSIN project](http://rosin-project.eu/))**
 * A list of ROS2 nodes present in each communication domains.
 * A list of discovered topics on each communication domain.
 * A list of discovered services on each communication domain.
