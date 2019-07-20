@@ -423,9 +423,6 @@ div.figure p.caption span.caption-number {
     font-style: italic;
 }
 
-div.figure p.caption span.caption-text {
-}
-
 /* -- field list styles ----------------------------------------------------- */
 
 table.field-list td, table.field-list th {
@@ -656,9 +653,6 @@ div.code-block-caption + div > div.highlight > pre {
 div.code-block-caption span.caption-number {
     padding: 0.1em 0.3em;
     font-style: italic;
-}
-
-div.code-block-caption span.caption-text {
 }
 
 div.literal-block-wrapper {
