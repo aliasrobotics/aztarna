@@ -347,7 +347,7 @@ div.admonition dl {
 }
 
 p.admonition-title {
-    margin: 10px 5px 0px;
+    margin: 0 10px 5px 0;
     font-weight: bold;
 }
 
