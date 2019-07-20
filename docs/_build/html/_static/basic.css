@@ -174,7 +174,7 @@ table.indextable ul {
 }
 
 table.indextable > tbody > tr > td > ul {
-    padding-left: 0em;
+    padding-left: 0;
 }
 
 table.indextable tr.pcap {
@@ -347,7 +347,7 @@ div.admonition dl {
 }
 
 p.admonition-title {
-    margin: 0px 10px 5px 0px;
+    margin: 0 10px 5px 0px;
     font-weight: bold;
 }
 
@@ -400,12 +400,12 @@ table.citation td {
 
 th > p:first-child,
 td > p:first-child {
-    margin-top: 0px;
+    margin-top: 0;
 }
 
 th > p:last-child,
 td > p:last-child {
-    margin-bottom: 0px;
+    margin-bottom: 0;
 }
 
 /* -- figures --------------------------------------------------------------- */
@@ -475,11 +475,11 @@ ol.upperroman {
 }
 
 li > p:first-child {
-    margin-top: 0px;
+    margin-top: 0;
 }
 
 li > p:last-child {
-    margin-bottom: 0px;
+    margin-bottom: 0;
 }
 
 dl.footnote > dt,
@@ -489,7 +489,7 @@ dl.citation > dt {
 
 dl.footnote > dd,
 dl.citation > dd {
-    margin-bottom: 0em;
+    margin-bottom: 0;
 }
 
 dl.footnote > dd:after,
@@ -516,8 +516,8 @@ dl.field-list > dt:after {
 dl.field-list > dd {
     flex-basis: 70%;
     padding-left: 1em;
-    margin-left: 0em;
-    margin-bottom: 0em;
+    margin-left: 0;
+    margin-bottom: 0;
 }
 
 dl {
@@ -525,7 +525,7 @@ dl {
 }
 
 dd > p:first-child {
-    margin-top: 0px;
+    margin-top: 0;
 }
 
 dd ul, dd table {
@@ -623,7 +623,7 @@ span.pre {
 }
 
 td.linenos pre {
-    padding: 5px 0px;
+    padding: 5px 0;
     border: 0;
     background-color: transparent;
     color: #aaa;
