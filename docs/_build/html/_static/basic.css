@@ -372,8 +372,7 @@ table caption span.caption-number {
     font-style: italic;
 }
 
-table caption span.caption-text {
-}
+table caption span.caption-text { /*empty for now*/}
 
 table.docutils td, table.docutils th {
     padding: 1px 8px 1px 5px;
