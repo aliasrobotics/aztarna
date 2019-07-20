@@ -224,6 +224,8 @@ div.body p, div.body dd, div.body li, div.body blockquote {
     -moz-hyphens: auto;
     -ms-hyphens: auto;
     -webkit-hyphens: auto;
+    hyphens: auto;
+    -epub-hyphens: auto;
 }
 
 a.headerlink {
@@ -442,6 +444,7 @@ table.field-list td, table.field-list th {
     -ms-hyphens: manual;
     -webkit-hyphens: manual;
     hyphens: manual;
+    -epub-hyphens: manual;
 }
 
 /* -- hlist styles ---------------------------------------------------------- */
@@ -619,6 +622,7 @@ span.pre {
     -ms-hyphens: none;
     -webkit-hyphens: none;
     hyphens: none;
+    -epub-hyphens: none;
 }
 
 td.linenos pre {
