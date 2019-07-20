@@ -347,7 +347,7 @@ div.admonition dl {
 }
 
 p.admonition-title {
-    margin: 0 10px 5px 0px;
+    margin: 10px 5px 0px;
     font-weight: bold;
 }
 
@@ -712,7 +712,7 @@ span.eqno {
 
 span.eqno a.headerlink {
     position: relative;
-    left: 0px;
+    left: 0;
     z-index: 1;
 }
 
