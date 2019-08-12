@@ -1,4 +1,5 @@
 import os
+import time
 from typing import List
 
 from aztarna.commons import RobotAdapter
@@ -133,6 +134,7 @@ class ROS2Scanner(RobotAdapter):
             os.environ['ROS_DOMAIN_ID'] = str(i)
             rclpy.init()
             scanner_node = rclpy.create_node(self.scanner_node_name)
+            time.sleep(1)
             found_nodes = self.scan_ros2_nodes(scanner_node)
             if found_nodes:
                 host = ROS2Host()
@@ -208,5 +210,5 @@ class ROS2Scanner(RobotAdapter):
         :param scanner_node: Scanner node object to be used for retrieving the node information.
         :param node: Target :class:`aztarna.ros.ros2.helpers.ROS2Node`
         """
-        services = scanner_node.get_service_names_and_types_by_node(node.name)
+        services = scanner_node.get_service_names_and_types_by_node(node.name, node.namespace)
         node.services = raw_services_to_pyobj_list(services)
