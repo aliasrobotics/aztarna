@@ -7,7 +7,7 @@ from setuptools import setup
 
 setup(
     name='aztarna',
-    version='1.2',
+    version='1.2.1',
     packages=[
                 'aztarna',
                 'aztarna.ros',
