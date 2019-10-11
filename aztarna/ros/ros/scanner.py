@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 """
 ROS Scanner module.
+
+:author Alias Robotics SL (https://aliasrobotics.com)
 """
 import asyncio
 import aiohttp
