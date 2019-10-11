@@ -6,8 +6,10 @@ from aztarna.commons import RobotAdapter
 from aztarna.ros.ros2.helpers import ROS2Node, ROS2Host, ROS2Topic, ROS2Service, raw_topics_to_pyobj_list, \
     raw_services_to_pyobj_list
 
-max_ros_domain_id = 231
-
+# Max value of ROS_DOMAIN_ID
+#   See https://github.com/eProsima/Fast-RTPS/issues/223
+#   See https://answers.ros.org/question/318386/ros2-max-domain-id/
+max_ros_domain_id = 232
 
 class ROS2Scanner(RobotAdapter):
 
@@ -130,7 +132,20 @@ class ROS2Scanner(RobotAdapter):
             from rclpy.context import Context
         except ImportError:
             raise Exception('ROS2 needs to be installed and sourced to run ROS2 scans')
-        for i in range(0, max_ros_domain_id):
+        
+        # Explore the specified domain or all depending on the arguments provided (-d option)
+        # TODO: consider ranges (e.g. 1-5) if provided
+        domain_id_range_init = 0
+        domain_id_range_end = 5
+        domain_id_range = range(domain_id_range_init, domain_id_range_end+1)
+
+        if self.domain is not None:
+            domain_id_range = [self.domain]            
+        else:
+            print("Exploring ROS_DOMAIN_ID from: "+str(domain_id_range_init)+str(" to ")+str(domain_id_range_end))
+
+        for i in domain_id_range:
+            print("Exploring ROS_DOMAIN_ID: "+str(i))
             os.environ['ROS_DOMAIN_ID'] = str(i)
             rclpy.init()
             scanner_node = rclpy.create_node(self.scanner_node_name)

@@ -2,8 +2,6 @@
 # -*- coding: utf-8 -*-
 """
 ROS Scanner module.
-
-
 """
 import asyncio
 import aiohttp
