@@ -3,7 +3,7 @@
 
 """
 SROS Scanner helpers classes module.
-:author: Gorka Olalde Mendia(@olaldiko), Xabier Perez Baskaran(@xabierpb)
+
 """
 
 import asyncio
