@@ -29,8 +29,7 @@ Aztarna's ROS2 and ROS-Industrial modules are an effort part of the RedROS-I and
   * Publishable topics.
   * Subscriptable topics.
   * Executable services.
-  * Readable parameters.
-  
+  * Readable parameters.  
   
 ### For ROS2 **(Funded under the [ROSIN project](http://rosin-project.eu/))**
 * A list of ROS2 nodes present in each communication domains.
@@ -144,6 +143,18 @@ aztarna -t ROS -p 11311-11500 -a 115.129.241.241
 
 ```bash
 aztarna -t ROS -p 11311,11312,11313 -a 115.129.241.241
+```
+
+### Run the code with ROS 2 (example exploring all ranges, 0-232)
+
+```bash
+aztarna -t ROS2
+```
+
+### Run the code with ROS 2 with `ROS_DOMAIN_ID=15`
+
+```bash
+aztarna -t ROS2 -d 15
 ```
 
 ### Run the code (example piping directly from zmap):

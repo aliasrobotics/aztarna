@@ -3,7 +3,7 @@
 """
 ROS Scanner module.
 
-:author: Gorka Olalde Mendia(@olaldiko), Xabier Perez Baskaran(@xabierpb)
+:author Alias Robotics SL (https://aliasrobotics.com)
 """
 import asyncio
 import aiohttp
