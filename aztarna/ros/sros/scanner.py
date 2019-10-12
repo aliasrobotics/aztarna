@@ -3,7 +3,7 @@
 """
 SROS Scanner module.
 
-
+:author Alias Robotics SL (https://aliasrobotics.com)
 """
 
 import asyncio

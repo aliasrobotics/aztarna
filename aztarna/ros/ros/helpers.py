@@ -3,7 +3,7 @@
 """
 ROS Scanner helper module.
 
-
+:author Alias Robotics SL (https://aliasrobotics.com)
 """
 from aztarna.ros.commons import BaseNodeROS, BaseNodeROS, BaseServiceROS, BaseHostROS
 
