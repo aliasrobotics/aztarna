@@ -17,7 +17,8 @@
 #     docker run  -it --rm --net=host aztarna_docker <aztarna args>
 ####
 
-FROM ros:dashing
+# FROM ros:dashing
+FROM osrf/ros2:nightly
 # ARG AZTARNA_COMMIT=master
 # ENV AZTARNA_COMMIT ${AZTARNA_COMMIT}
 

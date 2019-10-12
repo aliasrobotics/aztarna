@@ -136,7 +136,7 @@ class ROS2Scanner(RobotAdapter):
         # Explore the specified domain or all depending on the arguments provided (-d option)
         # TODO: consider ranges (e.g. 1-5) if provided
         domain_id_range_init = 0
-        domain_id_range_end = 5
+        domain_id_range_end = max_ros_domain_id
         domain_id_range = range(domain_id_range_init, domain_id_range_end+1)
 
         if self.domain is not None:
