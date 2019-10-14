@@ -1,5 +1,6 @@
 import os
 import time
+import threading
 from typing import List
 
 from aztarna.commons import RobotAdapter
@@ -11,12 +12,39 @@ from aztarna.ros.ros2.helpers import ROS2Node, ROS2Host, ROS2Topic, ROS2Service,
 #   See https://answers.ros.org/question/318386/ros2-max-domain-id/
 max_ros_domain_id = 232
 
+
 class ROS2Scanner(RobotAdapter):
 
     def __init__(self):
         super().__init__()
         self.found_hosts = []
         self.scanner_node_name = 'aztarna'
+
+    def on_thread(self, domain_id):
+
+        try:
+            import rclpy
+            from rclpy.context import Context
+        except ImportError:
+            raise Exception('ROS2 needs to be installed and sourced to run ROS2 scans')
+
+        print("Exploring ROS_DOMAIN_ID: " + str(domain_id))
+        os.environ['ROS_DOMAIN_ID'] = str(domain_id)
+        rclpy.init()
+        scanner_node = rclpy.create_node(self.scanner_node_name)
+        found_nodes = self.scan_ros2_nodes(scanner_node)
+        if found_nodes:
+            host = ROS2Host()
+            host.domain_id = domain_id
+            host.nodes = found_nodes
+            host.topics = self.scan_ros2_topics(scanner_node)
+            host.services = self.scan_ros2_services(scanner_node)
+            if self.extended:
+                for node in found_nodes:
+                    self.get_node_topics(scanner_node, node)
+                    self.get_node_services(scanner_node, node)
+            self.found_hosts.append(host)
+        rclpy.shutdown()
 
     def scan_pipe_main(self):
         raise NotImplementedError
@@ -127,12 +155,6 @@ class ROS2Scanner(RobotAdapter):
 
         :return: A list containing the found ROS2 systems.
         """
-        try:
-            import rclpy
-            from rclpy.context import Context
-        except ImportError:
-            raise Exception('ROS2 needs to be installed and sourced to run ROS2 scans')
-        
         # Explore the specified domain or all depending on the arguments provided (-d option)
         # TODO: consider ranges (e.g. 1-5) if provided
         domain_id_range_init = 0
@@ -143,26 +165,11 @@ class ROS2Scanner(RobotAdapter):
             domain_id_range = [self.domain]            
         else:
             print("Exploring ROS_DOMAIN_ID from: "+str(domain_id_range_init)+str(" to ")+str(domain_id_range_end))
-
+        threads = []
         for i in domain_id_range:
-            print("Exploring ROS_DOMAIN_ID: "+str(i))
-            os.environ['ROS_DOMAIN_ID'] = str(i)
-            rclpy.init()
-            scanner_node = rclpy.create_node(self.scanner_node_name)
-            time.sleep(1)
-            found_nodes = self.scan_ros2_nodes(scanner_node)
-            if found_nodes:
-                host = ROS2Host()
-                host.domain_id = i
-                host.nodes = found_nodes
-                host.topics = self.scan_ros2_topics(scanner_node)
-                host.services = self.scan_ros2_services(scanner_node)
-                if self.extended:
-                    for node in found_nodes:
-                        self.get_node_topics(scanner_node, node)
-                        self.get_node_services(scanner_node, node)
-                self.found_hosts.append(host)
-            rclpy.shutdown()
+            t = threading.Thread(self.on_thread(i))
+            threads.append(t)
+            t.start()
         return self.found_hosts
 
     def scan_ros2_nodes(self, scanner_node) -> List[ROS2Node]:
