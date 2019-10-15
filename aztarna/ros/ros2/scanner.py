@@ -11,6 +11,12 @@ from aztarna.ros.ros2.helpers import ROS2Node, ROS2Host, ROS2Topic, ROS2Service,
 #   See https://github.com/eProsima/Fast-RTPS/issues/223
 #   See https://answers.ros.org/question/318386/ros2-max-domain-id/
 max_ros_domain_id = 232
+rmw_implementations = [
+        'rmw_opensplice_cpp',
+        'rmw_fastrtps_cpp',
+        'rmw_connext_cpp',
+        'rmw_cyclonedds_cpp'
+        ]
 
 
 class ROS2Scanner(RobotAdapter):
@@ -19,6 +25,19 @@ class ROS2Scanner(RobotAdapter):
         super().__init__()
         self.found_hosts = []
         self.scanner_node_name = 'aztarna'
+
+    @staticmethod
+    def get_available_rmw_implementations():
+        try:
+            from ros2pkg.api import get_package_names
+        except ImportError or ModuleNotFoundError:
+            raise Exception('ROS2 needs to be installed and sourced to run ROS2 scans')
+        packages = get_package_names()
+        available_middlewares = []
+        for pkg in packages:
+            if pkg in rmw_implementations:
+                available_middlewares.append(pkg)
+        return available_middlewares
 
     def on_thread(self, domain_id):
 
@@ -30,21 +49,24 @@ class ROS2Scanner(RobotAdapter):
 
         print("Exploring ROS_DOMAIN_ID: " + str(domain_id))
         os.environ['ROS_DOMAIN_ID'] = str(domain_id)
-        rclpy.init()
-        scanner_node = rclpy.create_node(self.scanner_node_name)
-        found_nodes = self.scan_ros2_nodes(scanner_node)
-        if found_nodes:
-            host = ROS2Host()
-            host.domain_id = domain_id
-            host.nodes = found_nodes
-            host.topics = self.scan_ros2_topics(scanner_node)
-            host.services = self.scan_ros2_services(scanner_node)
-            if self.extended:
-                for node in found_nodes:
-                    self.get_node_topics(scanner_node, node)
-                    self.get_node_services(scanner_node, node)
-            self.found_hosts.append(host)
-        rclpy.shutdown()
+        available_middlewares = self.get_available_rmw_implementations()
+        for rmw in available_middlewares:
+            os.environ['RMW_IMPLEMENTATION'] = rmw
+            rclpy.init()
+            scanner_node = rclpy.create_node(self.scanner_node_name)
+            found_nodes = self.scan_ros2_nodes(scanner_node)
+            if found_nodes:
+                host = ROS2Host()
+                host.domain_id = domain_id
+                host.nodes = found_nodes
+                host.topics = self.scan_ros2_topics(scanner_node)
+                host.services = self.scan_ros2_services(scanner_node)
+                if self.extended:
+                    for node in found_nodes:
+                        self.get_node_topics(scanner_node, node)
+                        self.get_node_services(scanner_node, node)
+                self.found_hosts.append(host)
+            rclpy.shutdown()
 
     def scan_pipe_main(self):
         raise NotImplementedError
