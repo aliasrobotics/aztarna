@@ -177,16 +177,15 @@ class ROS2Scanner(RobotAdapter):
 
         :return: A list containing the found ROS2 systems.
         """
-        # Explore the specified domain or all depending on the arguments provided (-d option)
-        # TODO: consider ranges (e.g. 1-5) if provided
         domain_id_range_init = 0
-        domain_id_range_end = 5
-        domain_id_range = range(domain_id_range_init, domain_id_range_end+1)
+        domain_id_range_end = max_ros_domain_id
+        domain_id_range = range(domain_id_range_init, domain_id_range_end)
 
         if self.domain is not None:
             domain_id_range = [self.domain]            
         else:
             print("Exploring ROS_DOMAIN_ID from: "+str(domain_id_range_init)+str(" to ")+str(domain_id_range_end))
+        print('Scanning the network...')
         threads = []
         for i in domain_id_range:
             t = threading.Thread(self.on_thread(i))
