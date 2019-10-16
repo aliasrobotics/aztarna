@@ -1,5 +1,6 @@
 import os
 import time
+import pyshark
 import threading
 from typing import List
 
@@ -52,12 +53,12 @@ class ROS2Scanner(RobotAdapter):
         # available_middlewares = self.get_available_rmw_implementations()
         # for rmw in available_middlewares:
         #   os.environ['RMW_IMPLEMENTATION'] = rmw
-        
+
         rclpy.init()
-        
+
         # # Implementation based on rclpy has some issues have been detected
         # # when reproduced both in Linux and OS X. Essentially, calls to fetch nodes
-        # # topics and services deliver incomplete information.        
+        # # topics and services deliver incomplete information.
         # scanner_node = rclpy.create_node(self.scanner_node_name)
         # found_nodes = self.scan_ros2_nodes(scanner_node)
         # print(len(found_nodes))
@@ -81,18 +82,18 @@ class ROS2Scanner(RobotAdapter):
         node_count = 0
         topic_count = 0
         services_count = 0
-        
+
         found_nodes = None
         found_topics = None
         found_services = None
-        
+
         for i in range(10):
             scanner_node = rclpy.create_node(self.scanner_node_name)
             found_nodes_aux = self.scan_ros2_nodes(scanner_node)
             if (len(found_nodes_aux) > node_count):
                 node_count = len(found_nodes_aux)
                 found_nodes = found_nodes_aux
-        
+
             if found_nodes_aux:
                 host = ROS2Host()
                 host.domain_id = domain_id
@@ -105,8 +106,8 @@ class ROS2Scanner(RobotAdapter):
                 found_services_aux = self.scan_ros2_services(scanner_node)
                 if (len(found_services_aux) > services_count):
                     services_count = len(found_services_aux)
-                    found_services = found_services_aux                
-        
+                    found_services = found_services_aux
+
         # print("nodes: "+str(len(found_nodes)))
         # print("topics: "+str(len(found_topics)))
         # print("services: "+str(len(found_services)))
@@ -125,6 +126,7 @@ class ROS2Scanner(RobotAdapter):
 
     def scan_pipe_main(self):
         raise NotImplementedError
+
 
     def print_results(self):
         """
@@ -235,12 +237,27 @@ class ROS2Scanner(RobotAdapter):
 
         :return: A list containing the found ROS2 systems.
         """
+
+        # Run passive mode using interface passed over argument
+        if self.passive is not None:
+            self.scan_passive(self.passive)
+            return
+
+        try:
+            import rclpy
+            from rclpy.context import Context
+        except ImportError:
+            raise Exception('ROS2 needs to be installed and sourced to run ROS2 scans')
+
+        # Explore the specified domain or all depending on the arguments provided (-d option)
+        # TODO: consider ranges (e.g. 1-5) if provided
         domain_id_range_init = 0
         domain_id_range_end = max_ros_domain_id
         domain_id_range = range(domain_id_range_init, domain_id_range_end)
 
+        # Choose domain id
         if self.domain is not None:
-            domain_id_range = [self.domain]            
+            domain_id_range = [self.domain]
         else:
             print("Exploring ROS_DOMAIN_ID from: "+str(domain_id_range_init)+str(" to ")+str(domain_id_range_end))
         print('Scanning the network...')
@@ -313,3 +330,8 @@ class ROS2Scanner(RobotAdapter):
         """
         services = scanner_node.get_service_names_and_types_by_node(node.name, node.namespace)
         node.services = raw_services_to_pyobj_list(services)
+
+    @staticmethod
+    def scan_passive(interface: str):
+        for pkg in pyshark.LiveCapture(interface=interface, display_filter='rtps'):
+            print(pkg)

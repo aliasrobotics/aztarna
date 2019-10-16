@@ -85,6 +85,7 @@ setup(
         'uvloop==0.12.2',
         'XlsxWriter==1.1.6',
         'yarl==1.3.0',
+        'pyshark==0.4.2.9',
     ],
     include_package_data=True
 )

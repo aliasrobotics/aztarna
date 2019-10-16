@@ -34,6 +34,7 @@ def main():
     parser.add_argument('-d', '--domain', help='ROS 2 DOMAIN ID (ROS_DOMAIN_ID environmental variable). Only applies to ROS 2.', type=int)
     parser.add_argument('--shodan', help='Use shodan for the scan types that support it.', action='store_true')
     parser.add_argument('--api-key', help='Shodan API Key')
+    parser.add_argument('--passive', help='Passive search for ROS2')
     argcomplete.autocomplete(parser)
     args = parser.parse_args()
     try:
@@ -69,7 +70,7 @@ def main():
 
         # TODO Implement a regex for port argument
         try:
-                scanner.ports = range(int(args.ports.split('-')[0]), int(args.ports.split('-')[1]))
+            scanner.ports = range(int(args.ports.split('-')[0]), int(args.ports.split('-')[1]))
         except:
             try:
                 scanner.ports = [int(port) for port in args.ports.split(',')]
@@ -82,6 +83,7 @@ def main():
         scanner.extended = args.extended
         scanner.rate = args.rate
         scanner.domain = args.domain
+        scanner.passive = args.passive
         scanner.scan()
 
         if args.out_file:

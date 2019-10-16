@@ -28,6 +28,7 @@ class ROS2Host:
         self.nodes = []
         self.topics = []
         self.domain_id = 0
+        self.passive = ''
 
 
 class ROS2Service:
