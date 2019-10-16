@@ -76,9 +76,11 @@ class ROS2Scanner(RobotAdapter):
     def __init__(self):
         super().__init__()
         self.found_hosts = []
-        self.scanner_node_name = 'aztarna'
-        # findings is a list of elements where each element
-        self.processed_nodes = []
+        self.scanner_node_name = 'aztarna'        
+        
+        # a list of ROS 2 nodes processed with their corresponding abstractions
+        # filled in across different calls
+        self.processed_nodes = [] 
 
     @staticmethod
     def get_available_rmw_implementations():
@@ -93,9 +95,18 @@ class ROS2Scanner(RobotAdapter):
                 available_middlewares.append(pkg)
         return available_middlewares
 
+    def ros2cli_api(self, domain_id):
+        """
+        Invokes the different methods of the ros2cli API to fetch abstractions
+        from the ROS 2 graph and populates self.processed_nodes
+        """
+        self.ros2node(domain_id)
+        self.ros2topic(domain_id)
+        self.ros2service(domain_id)
+
     def ros2node(self, domain_id):
         """
-        'ros2 node list' fetched from ros2cli in there
+        'ros2 node list' fetched from ros2cli and more
         """
         print("Exploring ROS_DOMAIN_ID: " + str(domain_id))
         os.environ['ROS_DOMAIN_ID'] = str(domain_id)
@@ -104,28 +115,44 @@ class ROS2Scanner(RobotAdapter):
             node_names = get_node_names(node=node, include_hidden_nodes="-a")
         
         nodes = sorted(n.full_name for n in node_names)        
-        for nodo in nodes:
-            
+        for nodo in nodes:   
+            # TODO (@vmayoral): create abstractions and populate on-the-go (e.g. here a ROS2node abstraction)         
             with DirectNode(nodo) as node:
-                print(nodo)
+                # print(nodo)
                 subscribers = get_subscriber_info(node=node, remote_node_name=nodo)
-                print('  Subscribers:')
-                print_names_and_types(subscribers)
+                print(subscribers)
+                # print('  Subscribers:')
+                # print_names_and_types(subscribers)
                 publishers = get_publisher_info(node=node, remote_node_name=nodo)
-                print('  Publishers:')
-                print_names_and_types(publishers)
+                print(publishers)
+                # print('  Publishers:')
+                # print_names_and_types(publishers)
                 services = get_service_info(node=node, remote_node_name=nodo)
-                print('  Services:')
-                print_names_and_types(services)                
+                # print('  Services:')
+                # print_names_and_types(services)                
                 actions_servers = get_action_server_info(
                     node=node, remote_node_name=nodo)
-                print('  Action Servers:')
-                print_names_and_types(actions_servers)
+                # print('  Action Servers:')
+                # print_names_and_types(actions_servers)
                 actions_clients = get_action_client_info(
                     node=node, remote_node_name=nodo)
-                print('  Action Clients:')
-                print_names_and_types(actions_clients)
+                # print('  Action Clients:')
+                # print_names_and_types(actions_clients)
+
+    def ros2topic(self, domain_id):
+        """
+        TODO
+        """
+        # TODO (@LanderU)
+        pass
         
+    def ros2service(self, domain_id):
+        """
+        TODO
+        """
+        # TODO (@LanderU)
+        pass
+
     def on_thread(self, domain_id):
         """
         Calls rclpy methods to implement a quick way to footprint the network
@@ -165,28 +192,6 @@ class ROS2Scanner(RobotAdapter):
 
     def scan_pipe_main(self):
         raise NotImplementedError
-
-    def print_results(self):
-        """
-        Print scanner results on stdout.
-        """
-        for host in self.found_hosts:
-            print(f'[+] Host found in Domain ID {host.domain_id}')
-            print('\tTopics:')
-            if host.topics:
-                for topic in host.topics:
-                    print(f'\t\tTopic Name: {topic.name} \t|\t Topic Type: {topic.topic_type}')
-            print('\tServices:')
-            if host.services:
-                for service in host.services:
-                    print(f'\t\tService Name: {service.name} \t|\t Service Type: {service.service_type}')
-            print('\tNodes:')
-            if host.nodes:
-                for node in host.nodes:
-                    print(f'\t\tNode Name: {node.name} \t|\t Namespace: {node.namespace}')
-                    if self.extended:
-                        self.print_node_topics(node)
-                print('-' * 80)
 
     @staticmethod
     def print_node_topics(node: ROS2Node):
@@ -269,36 +274,6 @@ class ROS2Scanner(RobotAdapter):
                 f'{service.service_type};\n'
             lines.append(line)
 
-    def scan(self) -> List[ROS2Host]:
-        """
-        Scan the local network and all available ROS_DOMAIN_IDs against ROS2 nodes.
-
-        :return: A list containing the found ROS2 systems.
-        """
-        domain_id_range_init = 0
-        domain_id_range_end = max_ros_domain_id
-        domain_id_range = range(domain_id_range_init, domain_id_range_end)
-
-        if self.domain is not None:
-            domain_id_range = [self.domain]
-        else:
-            print("Exploring ROS_DOMAIN_ID from: "+str(domain_id_range_init)+str(" to ")+str(domain_id_range_end))
-        
-        print('Scanning the network...')        
-        threads = []
-        for i in domain_id_range:
-            if self.use_daemon:
-                # use the ros2cli daemon                
-                # self.ros2node(i)
-                t = threading.Thread(self.ros2node(i))
-                threads.append(t)
-                t.start()
-            else:
-                t = threading.Thread(self.on_thread(i))
-                threads.append(t)
-                t.start()
-        return self.found_hosts
-
     def scan_ros2_nodes(self, scanner_node) -> List[ROS2Node]:
         """
         Helper function to scan the nodes on a certain domain.
@@ -360,4 +335,67 @@ class ROS2Scanner(RobotAdapter):
         :param node: Target :class:`aztarna.ros.ros2.helpers.ROS2Node`
         """
         services = scanner_node.get_service_names_and_types_by_node(node.name, node.namespace)
-        node.services = raw_services_to_pyobj_list(services)
+        node.services = raw_services_to_pyobj_list(services)            
+
+    def print_results(self):
+        """
+        Print scanner results on stdout.
+        """
+        for host in self.found_hosts:
+            print(f'[+] Host found in Domain ID {host.domain_id}')
+            print('\tTopics:')
+            if host.topics:
+                for topic in host.topics:
+                    print(f'\t\tTopic Name: {topic.name} \t|\t Topic Type: {topic.topic_type}')
+            print('\tServices:')
+            if host.services:
+                for service in host.services:
+                    print(f'\t\tService Name: {service.name} \t|\t Service Type: {service.service_type}')
+            print('\tNodes:')
+            if host.nodes:
+                for node in host.nodes:
+                    print(f'\t\tNode Name: {node.name} \t|\t Namespace: {node.namespace}')
+                    if self.extended:
+                        self.print_node_topics(node)
+                print('-' * 80)
+
+    def scan(self) -> List[ROS2Host]:
+        """
+        Scan the local network and all available ROS_DOMAIN_IDs against ROS2 nodes.
+
+        :return: A list containing the ROS2 abstractions found.
+        """
+        domain_id_range_init = 0
+        domain_id_range_end = max_ros_domain_id
+        domain_id_range = range(domain_id_range_init, domain_id_range_end)
+
+        if self.domain is not None:
+            domain_id_range = [self.domain]
+        else:
+            print("Exploring ROS_DOMAIN_ID from: "+str(domain_id_range_init)+str(" to ")+str(domain_id_range_end))
+        
+        print('Scanning the network...')        
+        threads = []
+        for i in domain_id_range:
+            if self.use_daemon:
+                # This approach does the following:
+                # 1. calls ros2cli ros2node and populates abstractions from helper2, 
+                #       dumping them into self.processed_nodes as it applies
+                # 2. calls ros2cli ros2topic and populates
+                # 3. calls ros2cli ros2service and populates                
+                
+                # NOTE: scanning all the domains can take several minutes
+                t = threading.Thread(self.ros2cli_api(i))
+                threads.append(t)
+                t.start()
+            else:
+                # This approach does the following:
+                # 1. calls rclpy scan_ros2_nodes and populates abstractons from helper
+                # 2. calls rclpy scan_ros2_topics and populates
+                # 3. calls rclpy scan_ros2_services and populates
+                
+                # NOTE: scanning all the domains takes only a few seconds
+                t = threading.Thread(self.on_thread(i))
+                threads.append(t)
+                t.start()
+        return self.found_hosts
