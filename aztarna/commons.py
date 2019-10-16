@@ -20,6 +20,7 @@ class RobotAdapter:
         self._rate = 1000
         self.semaphore = asyncio.Semaphore(self._rate)
         self.domain = None
+        self.use_daemon = False
 
     @property
     def rate(self):
