@@ -22,11 +22,6 @@ rmw_implementations = [
 
 class ROS2Scanner(RobotAdapter):
 
-    # Max value of ROS_DOMAIN_ID
-    #   See https://github.com/eProsima/Fast-RTPS/issues/223
-    #   See https://answers.ros.org/question/318386/ros2-max-domain-id/
-    max_ros_domain_id = 232
-
     def __init__(self):
         super().__init__()
         self.found_hosts = []
@@ -58,12 +53,12 @@ class ROS2Scanner(RobotAdapter):
         # available_middlewares = self.get_available_rmw_implementations()
         # for rmw in available_middlewares:
         #   os.environ['RMW_IMPLEMENTATION'] = rmw
-        
+
         rclpy.init()
-        
+
         # # Implementation based on rclpy has some issues have been detected
         # # when reproduced both in Linux and OS X. Essentially, calls to fetch nodes
-        # # topics and services deliver incomplete information.        
+        # # topics and services deliver incomplete information.
         # scanner_node = rclpy.create_node(self.scanner_node_name)
         # found_nodes = self.scan_ros2_nodes(scanner_node)
         # print(len(found_nodes))
@@ -87,18 +82,18 @@ class ROS2Scanner(RobotAdapter):
         node_count = 0
         topic_count = 0
         services_count = 0
-        
+
         found_nodes = None
         found_topics = None
         found_services = None
-        
+
         for i in range(10):
             scanner_node = rclpy.create_node(self.scanner_node_name)
             found_nodes_aux = self.scan_ros2_nodes(scanner_node)
             if (len(found_nodes_aux) > node_count):
                 node_count = len(found_nodes_aux)
                 found_nodes = found_nodes_aux
-        
+
             if found_nodes_aux:
                 host = ROS2Host()
                 host.domain_id = domain_id
@@ -111,8 +106,8 @@ class ROS2Scanner(RobotAdapter):
                 found_services_aux = self.scan_ros2_services(scanner_node)
                 if (len(found_services_aux) > services_count):
                     services_count = len(found_services_aux)
-                    found_services = found_services_aux                
-        
+                    found_services = found_services_aux
+
         # print("nodes: "+str(len(found_nodes)))
         # print("topics: "+str(len(found_topics)))
         # print("services: "+str(len(found_services)))
@@ -242,7 +237,6 @@ class ROS2Scanner(RobotAdapter):
 
         :return: A list containing the found ROS2 systems.
         """
-<<<<<<< HEAD
 
         # Run passive mode using interface passed over argument
         if self.passive is not None:
@@ -257,8 +251,6 @@ class ROS2Scanner(RobotAdapter):
 
         # Explore the specified domain or all depending on the arguments provided (-d option)
         # TODO: consider ranges (e.g. 1-5) if provided
-=======
->>>>>>> 78ea2e5a1116253f333a904efdda5db1e3c1772b
         domain_id_range_init = 0
         domain_id_range_end = max_ros_domain_id
         domain_id_range = range(domain_id_range_init, domain_id_range_end)
