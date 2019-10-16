@@ -119,26 +119,30 @@ class ROS2Scanner(RobotAdapter):
         for nodo in nodes:   
             # TODO (@vmayoral): create abstractions and populate on-the-go (e.g. here a ROS2node abstraction)         
             with DirectNode(nodo) as node:
-                # print(nodo)
+                # TODO: remove print
+                print(nodo)
                 subscribers = get_subscriber_info(node=node, remote_node_name=nodo)
-                print(subscribers)
-                # print('  Subscribers:')
-                # print_names_and_types(subscribers)
+                # TODO: remove prints
+                print('  Subscribers:')
+                print_names_and_types(subscribers)
                 publishers = get_publisher_info(node=node, remote_node_name=nodo)
-                print(publishers)
-                # print('  Publishers:')
-                # print_names_and_types(publishers)
+                # TODO: remove prints
+                print('  Publishers:')
+                print_names_and_types(publishers)
                 services = get_service_info(node=node, remote_node_name=nodo)
-                # print('  Services:')
-                # print_names_and_types(services)                
+                # TODO: remove prints
+                print('  Services:')
+                print_names_and_types(services)                
                 actions_servers = get_action_server_info(
                     node=node, remote_node_name=nodo)
-                # print('  Action Servers:')
-                # print_names_and_types(actions_servers)
+                # TODO: remove prints
+                print('  Action Servers:')
+                print_names_and_types(actions_servers)
                 actions_clients = get_action_client_info(
                     node=node, remote_node_name=nodo)
-                # print('  Action Clients:')
-                # print_names_and_types(actions_clients)
+                # TODO: remove prints
+                print('  Action Clients:')
+                print_names_and_types(actions_clients)
 
     def ros2topic(self, domain_id):
         """
