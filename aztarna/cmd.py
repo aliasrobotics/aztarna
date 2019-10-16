@@ -32,6 +32,7 @@ def main():
     parser.add_argument('-e', '--extended', help='Extended scan of the hosts', action='store_true')
     parser.add_argument('-r', '--rate', help='Maximum simultaneous network connections', default=100, type=int)
     parser.add_argument('-d', '--domain', help='ROS 2 DOMAIN ID (ROS_DOMAIN_ID environmental variable). Only applies to ROS 2.', type=int)
+    parser.add_argument('--daemon', help='Use rclpy daemon (coming from ros2cli).', action='store_true')
     parser.add_argument('--shodan', help='Use shodan for the scan types that support it.', action='store_true')
     parser.add_argument('--api-key', help='Shodan API Key')
     argcomplete.autocomplete(parser)
@@ -82,6 +83,8 @@ def main():
         scanner.extended = args.extended
         scanner.rate = args.rate
         scanner.domain = args.domain
+        if args.daemon is True:
+            scanner.use_daemon = True
         scanner.scan()
 
         if args.out_file:
