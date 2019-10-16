@@ -1,17 +1,19 @@
 import os
 import time
+import pyshark
 from typing import List
 
 from aztarna.commons import RobotAdapter
 from aztarna.ros.ros2.helpers import ROS2Node, ROS2Host, ROS2Topic, ROS2Service, raw_topics_to_pyobj_list, \
     raw_services_to_pyobj_list
 
-# Max value of ROS_DOMAIN_ID
-#   See https://github.com/eProsima/Fast-RTPS/issues/223
-#   See https://answers.ros.org/question/318386/ros2-max-domain-id/
-max_ros_domain_id = 232
 
 class ROS2Scanner(RobotAdapter):
+
+    # Max value of ROS_DOMAIN_ID
+    #   See https://github.com/eProsima/Fast-RTPS/issues/223
+    #   See https://answers.ros.org/question/318386/ros2-max-domain-id/
+    max_ros_domain_id = 232
 
     def __init__(self):
         super().__init__()
@@ -20,6 +22,7 @@ class ROS2Scanner(RobotAdapter):
 
     def scan_pipe_main(self):
         raise NotImplementedError
+
 
     def print_results(self):
         """
@@ -127,20 +130,27 @@ class ROS2Scanner(RobotAdapter):
 
         :return: A list containing the found ROS2 systems.
         """
+
+        # Run passive mode using interface passed over argument
+        if self.passive is not None:
+            self.scan_passive(self.passive)
+            return
+
         try:
             import rclpy
             from rclpy.context import Context
         except ImportError:
             raise Exception('ROS2 needs to be installed and sourced to run ROS2 scans')
-        
+
         # Explore the specified domain or all depending on the arguments provided (-d option)
         # TODO: consider ranges (e.g. 1-5) if provided
         domain_id_range_init = 0
         domain_id_range_end = 5
         domain_id_range = range(domain_id_range_init, domain_id_range_end+1)
 
+        # Choose domain id
         if self.domain is not None:
-            domain_id_range = [self.domain]            
+            domain_id_range = [self.domain]
         else:
             print("Exploring ROS_DOMAIN_ID from: "+str(domain_id_range_init)+str(" to ")+str(domain_id_range_end))
 
@@ -227,3 +237,8 @@ class ROS2Scanner(RobotAdapter):
         """
         services = scanner_node.get_service_names_and_types_by_node(node.name, node.namespace)
         node.services = raw_services_to_pyobj_list(services)
+
+    @staticmethod
+    def scan_passive(interface: str):
+        for pkg in pyshark.LiveCapture(interface=interface, display_filter='rtps'):
+            print(pkg)
