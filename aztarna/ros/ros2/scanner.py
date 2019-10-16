@@ -40,6 +40,53 @@ class ROS2Scanner(RobotAdapter):
                 available_middlewares.append(pkg)
         return available_middlewares
 
+    def ros2node(self, *args):
+        """
+        'ros2 node list' fetched from ros2cli in there
+        """
+        from ros2cli.node.strategy import add_arguments
+        from ros2cli.node.strategy import NodeStrategy
+        from ros2node.api import get_node_names
+        from ros2node.verb import VerbExtension
+        from ros2cli.node.direct import DirectNode
+        from ros2cli.node.strategy import add_arguments
+        from ros2cli.node.strategy import NodeStrategy
+        # from ros2node.api import get_action_client_info
+        # from ros2node.api import get_action_server_info
+        # from ros2node.api import get_node_names
+        # from ros2node.api import get_publisher_info
+        # from ros2node.api import get_service_info
+        # from ros2node.api import get_subscriber_info
+        # from ros2node.api import NodeNameCompleter
+        # from ros2node.verb import VerbExtension
+        
+        with NodeStrategy(args) as node:
+            node_names = get_node_names(node=node, include_hidden_nodes=args)
+
+        # print(*sorted(n.full_name for n in node_names), sep='\n')
+        nodes = sorted(n.full_name for n in node_names)
+        print(nodes)
+        
+        # with DirectNode(args) as node:
+        #     print(args.node_name)
+        #     subscribers = get_subscriber_info(node=node, remote_node_name=args.node_name)
+        #     print('  Subscribers:')
+        #     print_names_and_types(subscribers)
+        #     publishers = get_publisher_info(node=node, remote_node_name=args.node_name)
+        #     print('  Publishers:')
+        #     print_names_and_types(publishers)
+        #     services = get_service_info(node=node, remote_node_name=args.node_name)
+        #     print('  Services:')
+        #     print_names_and_types(services)
+        #     actions_servers = get_action_server_info(
+        #         node=node, remote_node_name=args.node_name)
+        #     print('  Action Servers:')
+        #     print_names_and_types(actions_servers)
+        #     actions_clients = get_action_client_info(
+        #         node=node, remote_node_name=args.node_name)
+        #     print('  Action Clients:')
+        #     print_names_and_types(actions_clients)
+        
     def on_thread(self, domain_id):
 
         try:
@@ -53,76 +100,10 @@ class ROS2Scanner(RobotAdapter):
         # available_middlewares = self.get_available_rmw_implementations()
         # for rmw in available_middlewares:
         #   os.environ['RMW_IMPLEMENTATION'] = rmw
-
-        rclpy.init()
-
-        # # Implementation based on rclpy has some issues have been detected
-        # # when reproduced both in Linux and OS X. Essentially, calls to fetch nodes
-        # # topics and services deliver incomplete information.
-        # scanner_node = rclpy.create_node(self.scanner_node_name)
-        # found_nodes = self.scan_ros2_nodes(scanner_node)
-        # print(len(found_nodes))
-        # if found_nodes:
-        #     host = ROS2Host()
-        #     host.domain_id = domain_id
-        #     host.nodes = found_nodes
-        #     host.topics = self.scan_ros2_topics(scanner_node)
-        #     print(len(host.topics))
-        #     host.services = self.scan_ros2_services(scanner_node)
-        #     print(len(host.services))
-        #     if self.extended:
-        #         for node in found_nodes:
-        #             self.get_node_topics(scanner_node, node)
-        #             self.get_node_services(scanner_node, node)
-        #     self.found_hosts.append(host)
-
-        # TODO: This implementation is a quick fix to cope with the limitations
-        # identified in both OS X and Linux. Once this is cleared, code should revert to the above
-        # simpler implementation
-        node_count = 0
-        topic_count = 0
-        services_count = 0
-
-        found_nodes = None
-        found_topics = None
-        found_services = None
-
-        for i in range(10):
-            scanner_node = rclpy.create_node(self.scanner_node_name)
-            found_nodes_aux = self.scan_ros2_nodes(scanner_node)
-            if (len(found_nodes_aux) > node_count):
-                node_count = len(found_nodes_aux)
-                found_nodes = found_nodes_aux
-
-            if found_nodes_aux:
-                host = ROS2Host()
-                host.domain_id = domain_id
-                host.nodes = found_nodes_aux
-                found_topics_aux = self.scan_ros2_topics(scanner_node)
-                # print("topics_aux found: "+str(len(found_topics_aux)))
-                if (len(found_topics_aux) > topic_count):
-                    topic_count = len(found_topics_aux)
-                    found_topics = found_topics_aux
-                found_services_aux = self.scan_ros2_services(scanner_node)
-                if (len(found_services_aux) > services_count):
-                    services_count = len(found_services_aux)
-                    found_services = found_services_aux
-
-        # print("nodes: "+str(len(found_nodes)))
-        # print("topics: "+str(len(found_topics)))
-        # print("services: "+str(len(found_services)))
-        if found_nodes:
-            host = ROS2Host()
-            host.domain_id = domain_id
-            host.nodes = found_nodes
-            host.topics = found_topics
-            host.services = found_services
-            if self.extended:
-                for node in found_nodes:
-                    self.get_node_topics(scanner_node, node)
-                    self.get_node_services(scanner_node, node)
-            self.found_hosts.append(host)
-        rclpy.shutdown()
+        
+        self.ros2node("-a") # hacky, need to pass arguments this way for now. TODO: improve
+        
+        
 
     def scan_pipe_main(self):
         raise NotImplementedError
