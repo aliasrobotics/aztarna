@@ -1,5 +1,6 @@
 import os
 import time
+import threading
 from typing import List
 
 from aztarna.commons import RobotAdapter
@@ -10,6 +11,13 @@ from aztarna.ros.ros2.helpers import ROS2Node, ROS2Host, ROS2Topic, ROS2Service,
 #   See https://github.com/eProsima/Fast-RTPS/issues/223
 #   See https://answers.ros.org/question/318386/ros2-max-domain-id/
 max_ros_domain_id = 232
+rmw_implementations = [
+        'rmw_opensplice_cpp',
+        'rmw_fastrtps_cpp',
+        'rmw_connext_cpp',
+        'rmw_cyclonedds_cpp'
+        ]
+
 
 class ROS2Scanner(RobotAdapter):
 
@@ -17,6 +25,103 @@ class ROS2Scanner(RobotAdapter):
         super().__init__()
         self.found_hosts = []
         self.scanner_node_name = 'aztarna'
+
+    @staticmethod
+    def get_available_rmw_implementations():
+        try:
+            from ros2pkg.api import get_package_names
+        except ImportError or ModuleNotFoundError:
+            raise Exception('ROS2 needs to be installed and sourced to run ROS2 scans')
+        packages = get_package_names()
+        available_middlewares = []
+        for pkg in packages:
+            if pkg in rmw_implementations:
+                available_middlewares.append(pkg)
+        return available_middlewares
+
+    def on_thread(self, domain_id):
+
+        try:
+            import rclpy
+            from rclpy.context import Context
+        except ImportError:
+            raise Exception('ROS2 needs to be installed and sourced to run ROS2 scans')
+
+        print("Exploring ROS_DOMAIN_ID: " + str(domain_id))
+        os.environ['ROS_DOMAIN_ID'] = str(domain_id)
+        # available_middlewares = self.get_available_rmw_implementations()
+        # for rmw in available_middlewares:
+        #   os.environ['RMW_IMPLEMENTATION'] = rmw
+        
+        rclpy.init()
+        
+        # # Implementation based on rclpy has some issues have been detected
+        # # when reproduced both in Linux and OS X. Essentially, calls to fetch nodes
+        # # topics and services deliver incomplete information.        
+        # scanner_node = rclpy.create_node(self.scanner_node_name)
+        # found_nodes = self.scan_ros2_nodes(scanner_node)
+        # print(len(found_nodes))
+        # if found_nodes:
+        #     host = ROS2Host()
+        #     host.domain_id = domain_id
+        #     host.nodes = found_nodes
+        #     host.topics = self.scan_ros2_topics(scanner_node)
+        #     print(len(host.topics))
+        #     host.services = self.scan_ros2_services(scanner_node)
+        #     print(len(host.services))
+        #     if self.extended:
+        #         for node in found_nodes:
+        #             self.get_node_topics(scanner_node, node)
+        #             self.get_node_services(scanner_node, node)
+        #     self.found_hosts.append(host)
+
+        # TODO: This implementation is a quick fix to cope with the limitations
+        # identified in both OS X and Linux. Once this is cleared, code should revert to the above
+        # simpler implementation
+        node_count = 0
+        topic_count = 0
+        services_count = 0
+        
+        found_nodes = None
+        found_topics = None
+        found_services = None
+        
+        for i in range(10):
+            scanner_node = rclpy.create_node(self.scanner_node_name)
+            found_nodes_aux = self.scan_ros2_nodes(scanner_node)
+            if (len(found_nodes_aux) > node_count):
+                node_count = len(found_nodes_aux)
+                found_nodes = found_nodes_aux
+        
+            if found_nodes_aux:
+                host = ROS2Host()
+                host.domain_id = domain_id
+                host.nodes = found_nodes_aux
+                found_topics_aux = self.scan_ros2_topics(scanner_node)
+                # print("topics_aux found: "+str(len(found_topics_aux)))
+                if (len(found_topics_aux) > topic_count):
+                    topic_count = len(found_topics_aux)
+                    found_topics = found_topics_aux
+                found_services_aux = self.scan_ros2_services(scanner_node)
+                if (len(found_services_aux) > services_count):
+                    services_count = len(found_services_aux)
+                    found_services = found_services_aux                
+        
+        # print("nodes: "+str(len(found_nodes)))
+        # print("topics: "+str(len(found_topics)))
+        # print("services: "+str(len(found_services)))
+        if found_nodes:
+            host = ROS2Host()
+            host.domain_id = domain_id
+            host.nodes = found_nodes
+            host.topics = found_topics
+            host.services = found_services
+            if self.extended:
+                for node in found_nodes:
+                    self.get_node_topics(scanner_node, node)
+                    self.get_node_services(scanner_node, node)
+            self.found_hosts.append(host)
+        rclpy.shutdown()
 
     def scan_pipe_main(self):
         raise NotImplementedError
@@ -28,17 +133,20 @@ class ROS2Scanner(RobotAdapter):
         for host in self.found_hosts:
             print(f'[+] Host found in Domain ID {host.domain_id}')
             print('\tTopics:')
-            for topic in host.topics:
-                print(f'\t\tTopic Name: {topic.name} \t|\t Topic Type: {topic.topic_type}')
+            if host.topics:
+                for topic in host.topics:
+                    print(f'\t\tTopic Name: {topic.name} \t|\t Topic Type: {topic.topic_type}')
             print('\tServices:')
-            for service in host.services:
-                print(f'\t\tService Name: {service.name} \t|\t Service Type: {service.service_type}')
+            if host.services:
+                for service in host.services:
+                    print(f'\t\tService Name: {service.name} \t|\t Service Type: {service.service_type}')
             print('\tNodes:')
-            for node in host.nodes:
-                print(f'\t\tNode Name: {node.name} \t|\t Namespace: {node.namespace}')
-                if self.extended:
-                    self.print_node_topics(node)
-            print('-' * 80)
+            if host.nodes:
+                for node in host.nodes:
+                    print(f'\t\tNode Name: {node.name} \t|\t Namespace: {node.namespace}')
+                    if self.extended:
+                        self.print_node_topics(node)
+                print('-' * 80)
 
     @staticmethod
     def print_node_topics(node: ROS2Node):
@@ -127,42 +235,20 @@ class ROS2Scanner(RobotAdapter):
 
         :return: A list containing the found ROS2 systems.
         """
-        try:
-            import rclpy
-            from rclpy.context import Context
-        except ImportError:
-            raise Exception('ROS2 needs to be installed and sourced to run ROS2 scans')
-        
-        # Explore the specified domain or all depending on the arguments provided (-d option)
-        # TODO: consider ranges (e.g. 1-5) if provided
         domain_id_range_init = 0
-        domain_id_range_end = 5
-        domain_id_range = range(domain_id_range_init, domain_id_range_end+1)
+        domain_id_range_end = max_ros_domain_id
+        domain_id_range = range(domain_id_range_init, domain_id_range_end)
 
         if self.domain is not None:
             domain_id_range = [self.domain]            
         else:
             print("Exploring ROS_DOMAIN_ID from: "+str(domain_id_range_init)+str(" to ")+str(domain_id_range_end))
-
+        print('Scanning the network...')
+        threads = []
         for i in domain_id_range:
-            print("Exploring ROS_DOMAIN_ID: "+str(i))
-            os.environ['ROS_DOMAIN_ID'] = str(i)
-            rclpy.init()
-            scanner_node = rclpy.create_node(self.scanner_node_name)
-            time.sleep(1)
-            found_nodes = self.scan_ros2_nodes(scanner_node)
-            if found_nodes:
-                host = ROS2Host()
-                host.domain_id = i
-                host.nodes = found_nodes
-                host.topics = self.scan_ros2_topics(scanner_node)
-                host.services = self.scan_ros2_services(scanner_node)
-                if self.extended:
-                    for node in found_nodes:
-                        self.get_node_topics(scanner_node, node)
-                        self.get_node_services(scanner_node, node)
-                self.found_hosts.append(host)
-            rclpy.shutdown()
+            t = threading.Thread(self.on_thread(i))
+            threads.append(t)
+            t.start()
         return self.found_hosts
 
     def scan_ros2_nodes(self, scanner_node) -> List[ROS2Node]:

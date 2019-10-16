@@ -13,7 +13,7 @@ from aztarna.ros.sros import SROSScanner
 from aztarna.ros.ros import ROSScanner
 from aztarna.industrialrouters.scanner import IndustrialRouterAdapter
 
-asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
+# asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 
 logging.getLogger(__name__).setLevel(logging.DEBUG)
 
