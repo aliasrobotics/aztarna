@@ -2,6 +2,7 @@ from typing import List
 
 default_topics = ['/rosout', '/parameter_events']
 
+
 class ROS2host:
     """
     A class abstracting a host running ROS 2
@@ -13,6 +14,7 @@ class ROS2host:
         self.nodes = []
         self.topics = []
         self.domain_id = 0
+
 
 class ROS2node:
     """
@@ -37,30 +39,46 @@ class ROS2node:
         return_str += "\t Namespace: "+str(self.namespace)+"\n"
         return return_str
 
+
 class ROS2topic:
     """
     A class abstracting a ROS 2 topic
     """
     def __init__(self):
-        # TODO: fillme (@LanderU)
         self.name = ''
         self.topic_type = ''
         self.domain_id = 0
+        self.subscribers = 0
+        self.publishers = 0
 
     def __str__(self):
-        return self.name
+        return_str = ''
+        return_str += 'Topic:\n'
+        return_str += '\t Name: ' + str(self.name) + '\n'
+        return_str += '\t ROS2_DOMAIN_ID: ' + str(self.domain_id) + '\n'
+        return_str += '\t Number of publishers: ' + str(self.publishers) + '\n'
+        return_str += '\t Number of subscribers: ' + str(self.publishers) + '\n'
+        return_str += "\t Namespace: " + str(self.namespace) + "\n"
+        return return_str
+
 
 class ROS2service:
     """
     A class abstracting a ROS 2 service
     """
     def __init__(self):
-        # TODO: fillme (@LanderU)
         self.name = ''
+        self.domain_id = 0
         self.service_type = ''
 
     def __str__(self):
-        return self.name
+        return_str = ''
+        return_str += 'Services:\n'
+        return_str += '\t Name: ' + str(self.name) + '\n'
+        return_str += '\t ROS2_DOMAIN_ID: ' + str(self.domain_id) + '\n'
+        return_str += '\t Service type: ' + self.service_type() + '\n'
+        return return_str
+
 
 class ROS2actionServer:
     """
@@ -69,7 +87,8 @@ class ROS2actionServer:
     def __init__(self):
         # TODO: fillme
         raise NotImplementedError
-    
+
+
 class ROS2actionClient:
     """
     A class abstracting a ROS 2 ActionClient
