@@ -2,7 +2,6 @@ from typing import List
 
 default_topics = ['/rosout', '/parameter_events']
 
-
 class ROS2host:
     """
     A class abstracting a host running ROS 2
@@ -31,7 +30,12 @@ class ROS2node:
         self.action_clients = [] 
         
     def __str__(self):
-        return self.name
+        return_str = ""
+        return_str += "Node:\n"
+        return_str += "\t Name: "+str(self.name)+"\n"
+        return_str += "\t ROS2_DOMAIN_ID: "+str(self.domain_id)+"\n"
+        return_str += "\t Namespace: "+str(self.namespace)+"\n"
+        return return_str
 
 class ROS2topic:
     """

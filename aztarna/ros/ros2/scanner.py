@@ -24,6 +24,7 @@ from ros2node.verb.info import print_names_and_types
 from aztarna.commons import RobotAdapter
 from aztarna.ros.ros2.helpers import ROS2Node, ROS2Host, ROS2Topic, ROS2Service, raw_topics_to_pyobj_list, \
     raw_services_to_pyobj_list
+# from aztarna.ros.ros2.helpers2 import ROS2host, ROS2node, ROS2topic, ROS2service, ROS2actionServer, ROS2actionClient
 
 # Max value of ROS_DOMAIN_ID
 #   See https://github.com/eProsima/Fast-RTPS/issues/223
@@ -79,9 +80,25 @@ class ROS2Scanner(RobotAdapter):
         self.found_hosts = []
         self.scanner_node_name = 'aztarna'        
         
-        # a list of ROS 2 nodes processed with their corresponding abstractions
-        # filled in across different calls
-        self.processed_nodes = [] 
+        # Two alternatives were considered here, either using classes to abstract
+        # the different ROS 2 abstractions (implemented in helpers2.py) or 
+        # a simple list[dict]. The second option was selected for brevity.
+        
+        # a list of ROS 2 nodes abstracted as dictionaries, where each key 
+        # represents a the corresponding element within a node and the value 
+        # captures its values. In case of several elements within a value, 
+        # a list or alternative another dict might be created
+        #
+        # For clarity, an example instance is described below:
+        #     self.processed_nodes = 
+        #     [ {
+        #         "name": "/listener", 
+        #         "domain": 0,
+        #         "namespace": "/"
+        #       },
+        #       ...            
+        #     ]
+        self.processed_nodes = []
 
     @staticmethod
     def get_available_rmw_implementations():
@@ -116,33 +133,44 @@ class ROS2Scanner(RobotAdapter):
             node_names = get_node_names(node=node, include_hidden_nodes="-a")
         
         nodes = sorted(n.full_name for n in node_names)        
-        for nodo in nodes:   
-            # TODO (@vmayoral): create abstractions and populate on-the-go (e.g. here a ROS2node abstraction)         
+        for nodo in nodes:
+            # # Abstractions from helper2            
+            # output_node = ROS2node()
+            # output_node.name = nodo
+            # output_node.domain_id = domain_id
+            # output_node.namespace = output_node.name[:(output_node.name.rfind("/") + 1)] # fetch the substring until the last "/"
+            
+            # Abstractions using a list[dict] as defined above (see self.processed_nodes):
+            output_node = {}
+            output_node["name"] = nodo
+            output_node["domain"] = domain_id
+            output_node["namespace"] = output_node["name"][:(output_node["name"].rfind("/") + 1)] # fetch the substring until the last "/"            
+            print(output_node)
             with DirectNode(nodo) as node:
-                # TODO: remove print
-                print(nodo)
                 subscribers = get_subscriber_info(node=node, remote_node_name=nodo)
+                # print(subscribers)
                 # TODO: remove prints
-                print('  Subscribers:')
-                print_names_and_types(subscribers)
+                # print('  Subscribers:')
+                # print_names_and_types(subscribers)
                 publishers = get_publisher_info(node=node, remote_node_name=nodo)
+                # print(publishers)
                 # TODO: remove prints
-                print('  Publishers:')
-                print_names_and_types(publishers)
+                # print('  Publishers:')
+                # print_names_and_types(publishers)
                 services = get_service_info(node=node, remote_node_name=nodo)
                 # TODO: remove prints
-                print('  Services:')
-                print_names_and_types(services)                
+                # print('  Services:')
+                # print_names_and_types(services)                
                 actions_servers = get_action_server_info(
                     node=node, remote_node_name=nodo)
                 # TODO: remove prints
-                print('  Action Servers:')
-                print_names_and_types(actions_servers)
+                # print('  Action Servers:')
+                # print_names_and_types(actions_servers)
                 actions_clients = get_action_client_info(
                     node=node, remote_node_name=nodo)
                 # TODO: remove prints
-                print('  Action Clients:')
-                print_names_and_types(actions_clients)
+                # print('  Action Clients:')
+                # print_names_and_types(actions_clients)
 
     def ros2topic(self, domain_id):
         """
