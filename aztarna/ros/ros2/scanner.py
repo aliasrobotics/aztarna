@@ -94,7 +94,14 @@ class ROS2Scanner(RobotAdapter):
         #     [ {
         #         "name": "/listener", 
         #         "domain": 0,
-        #         "namespace": "/"
+        #         "namespace": "/",
+        #         "subscribers": [Topic(name='/parameter_events', types=['rcl_interfaces/msg/ParameterEvent']), 
+        #                         Topic(name='/rosout', types=['rcl_interfaces/msg/Log'])],
+        #         "publishers": [...],
+        #         "services": [],
+        #         "actionservers": [],
+        #         "actionclients": [],
+        #         ...
         #       },
         #       ...            
         #     ]
@@ -144,33 +151,38 @@ class ROS2Scanner(RobotAdapter):
             output_node = {}
             output_node["name"] = nodo
             output_node["domain"] = domain_id
-            output_node["namespace"] = output_node["name"][:(output_node["name"].rfind("/") + 1)] # fetch the substring until the last "/"            
-            print(output_node)
+            output_node["namespace"] = output_node["name"][:(output_node["name"].rfind("/") + 1)] # fetch the substring until the last "/"
             with DirectNode(nodo) as node:
                 subscribers = get_subscriber_info(node=node, remote_node_name=nodo)
-                # print(subscribers)
+                output_node["subscribers"] = subscribers                
                 # TODO: remove prints
                 # print('  Subscribers:')
                 # print_names_and_types(subscribers)
                 publishers = get_publisher_info(node=node, remote_node_name=nodo)
+                output_node["publishers"] = publishers
                 # print(publishers)
                 # TODO: remove prints
                 # print('  Publishers:')
                 # print_names_and_types(publishers)
                 services = get_service_info(node=node, remote_node_name=nodo)
+                output_node["services"] = services
                 # TODO: remove prints
                 # print('  Services:')
                 # print_names_and_types(services)                
                 actions_servers = get_action_server_info(
                     node=node, remote_node_name=nodo)
+                output_node["actionservers"] = actions_servers
                 # TODO: remove prints
                 # print('  Action Servers:')
                 # print_names_and_types(actions_servers)
                 actions_clients = get_action_client_info(
                     node=node, remote_node_name=nodo)
+                output_node["actionclients"] = actions_clients
                 # TODO: remove prints
                 # print('  Action Clients:')
                 # print_names_and_types(actions_clients)
+            self.processed_nodes.append(output_node)
+            # print(self.processed_nodes)
 
     def ros2topic(self, domain_id):
         """
