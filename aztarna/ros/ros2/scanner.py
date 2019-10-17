@@ -136,7 +136,7 @@ class ROS2Scanner(RobotAdapter):
         """
         'ros2 node list' fetched from ros2cli and more
         """
-        print("Exploring ROS_DOMAIN_ID: " + str(domain_id))
+        print("Exploring ROS_DOMAIN_ID: " + str(domain_id) + ' for nodes')
         os.environ['ROS_DOMAIN_ID'] = str(domain_id)
         
         with NodeStrategy("-a") as node:
@@ -145,7 +145,7 @@ class ROS2Scanner(RobotAdapter):
         nodes = sorted(n.full_name for n in node_names)
         output_node = {}
         for nodo in nodes:
-            # # Abstractions from helper2            
+            # # Abstractions from helper2
             # output_node = ROS2node()
             # output_node.name = nodo
             # output_node.domain_id = domain_id
@@ -156,19 +156,20 @@ class ROS2Scanner(RobotAdapter):
             #output_node["namespace"] = output_node["name"][:(output_node["name"].rfind("/") + 1)] # fetch the substring until the last "/"
 
             with DirectNode(nodo) as node:
-                output_node[nodo] = {
-                                     'domain': domain_id,
-                                     'subscribers': get_subscriber_info(node=node, remote_node_name=nodo),
-                                     'publishers': get_publisher_info(node=node, remote_node_name=nodo),
-                                     'services': get_service_info(node=node, remote_node_name=nodo),
-                                     'actionservers': get_action_server_info(node=node, remote_node_name=nodo),
-                                     'actionclient': get_action_client_info(node=node, remote_node_name=nodo)
-                                    }
-            self.processed_nodes.append(output_node)
+                if str(nodo) != '/_ros2cli_daemon_0':
+                    output_node[nodo] = {
+                                          'domain': domain_id,
+                                          'subscribers': get_subscriber_info(node=node, remote_node_name=nodo),
+                                          'publishers': get_publisher_info(node=node, remote_node_name=nodo),
+                                          'services': get_service_info(node=node, remote_node_name=nodo),
+                                          'actionservers': get_action_server_info(node=node, remote_node_name=nodo),
+                                          'actionclient': get_action_client_info(node=node, remote_node_name=nodo)
+                                        }
+        self.processed_nodes.append(output_node)
 
     def ros2topic(self, domain_id):
 
-        print("Exploring ROS_DOMAIN_ID for topics: " + str(domain_id))
+        print("Exploring ROS_DOMAIN_ID: " + str(domain_id) + ' for topics')
         os.environ['ROS_DOMAIN_ID'] = str(domain_id)
 
         with NodeStrategy('-t') as node:
@@ -188,7 +189,7 @@ class ROS2Scanner(RobotAdapter):
             self.processed_topics.append(output_topic)
 
     def ros2service(self, domain_id):
-        print("Exploring ROS_DOMAIN_ID for services: " + str(domain_id))
+        print('Exploring ROS_DOMAIN_ID: ' + str(domain_id) + ' for services')
         os.environ['ROS_DOMAIN_ID'] = str(domain_id)
 
         with NodeStrategy('-t') as node:
