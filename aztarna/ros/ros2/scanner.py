@@ -1,30 +1,26 @@
 import os
-import time
+from collections import namedtuple
 import pyshark
 import threading
 from typing import List
-from ros2cli.node.strategy import add_arguments
-from ros2cli.node.strategy import NodeStrategy
-from ros2node.api import get_node_names
-from ros2node.verb import VerbExtension
-from ros2cli.node.direct import DirectNode
-from ros2cli.node.strategy import add_arguments
-from ros2cli.node.strategy import NodeStrategy
-from ros2node.api import *
-from rclpy.action.graph import get_action_client_names_and_types_by_node
-from rclpy.action.graph import get_action_server_names_and_types_by_node
-from ros2node.api import get_node_names
-from ros2node.api import get_publisher_info
-from ros2node.api import get_service_info
-from ros2node.api import get_subscriber_info
-from ros2node.api import NodeNameCompleter
-from ros2node.verb import VerbExtension
-from ros2node.verb.info import print_names_and_types
+
+try:
+    from ros2cli.node.strategy import add_arguments, NodeStrategy
+    from ros2node.api import get_node_names, get_publisher_info, NodeNameCompleter
+    from ros2node.verb import VerbExtension
+    from ros2cli.node.direct import DirectNode
+    from rclpy.action.graph import get_action_client_names_and_types_by_node, get_action_server_names_and_types_by_node
+    from ros2node.api import get_service_info, get_subscriber_info
+    from ros2node.verb.info import print_names_and_types
+    from ros2topic.api import get_topic_names_and_types
+    from ros2service.api import get_service_names_and_types
+    from ros2service.verb import VerbExtension
+except ImportError or ModuleNotFoundError:
+    print('ROS2 needs to be installed and sourced to run ROS2 scans')
 
 from aztarna.commons import RobotAdapter
 from aztarna.ros.ros2.helpers import ROS2Node, ROS2Host, ROS2Topic, ROS2Service, raw_topics_to_pyobj_list, \
     raw_services_to_pyobj_list
-# from aztarna.ros.ros2.helpers2 import ROS2host, ROS2node, ROS2topic, ROS2service, ROS2actionServer, ROS2actionClient
 
 # Max value of ROS_DOMAIN_ID
 #   See https://github.com/eProsima/Fast-RTPS/issues/223
@@ -37,11 +33,15 @@ rmw_implementations = [
         'rmw_cyclonedds_cpp'
         ]
 
+default_topics = ['/rosout', '/parameter_events']
 NodeName = namedtuple('NodeName', ('name', 'namespace', 'full_name'))
 TopicInfo = namedtuple('Topic', ('name', 'types'))
+ServiceInfo = namedtuple('Service', ('name', 'types'))
 
 # Helper functions for the use of the ros2cli daemon.
 # Fetched from ros2node.api.__init__
+
+
 def parse_node_name(node_name):
     full_node_name = node_name
     if not full_node_name.startswith('/'):
@@ -50,7 +50,8 @@ def parse_node_name(node_name):
     if namespace == '':
         namespace = '/'
     return NodeName(node_basename, namespace, full_node_name)
-    
+
+
 def get_action_server_info(*, node, remote_node_name):
     remote_node = parse_node_name(remote_node_name)
     names_and_types = get_action_server_names_and_types_by_node(
@@ -106,6 +107,8 @@ class ROS2Scanner(RobotAdapter):
         #       ...            
         #     ]
         self.processed_nodes = []
+        self.processed_topics = []
+        self.processed_services = []
 
     @staticmethod
     def get_available_rmw_implementations():
@@ -139,7 +142,8 @@ class ROS2Scanner(RobotAdapter):
         with NodeStrategy("-a") as node:
             node_names = get_node_names(node=node, include_hidden_nodes="-a")
         
-        nodes = sorted(n.full_name for n in node_names)        
+        nodes = sorted(n.full_name for n in node_names)
+        output_node = {}
         for nodo in nodes:
             # # Abstractions from helper2            
             # output_node = ROS2node()
@@ -148,61 +152,62 @@ class ROS2Scanner(RobotAdapter):
             # output_node.namespace = output_node.name[:(output_node.name.rfind("/") + 1)] # fetch the substring until the last "/"
             
             # Abstractions using a list[dict] as defined above (see self.processed_nodes):
-            output_node = {}
-            output_node["name"] = nodo
-            output_node["domain"] = domain_id
-            output_node["namespace"] = output_node["name"][:(output_node["name"].rfind("/") + 1)] # fetch the substring until the last "/"
+            #output_node = {"name": nodo, "domain": domain_id}
+            #output_node["namespace"] = output_node["name"][:(output_node["name"].rfind("/") + 1)] # fetch the substring until the last "/"
+
             with DirectNode(nodo) as node:
-                subscribers = get_subscriber_info(node=node, remote_node_name=nodo)
-                output_node["subscribers"] = subscribers                
-                # TODO: remove prints
-                # print('  Subscribers:')
-                # print_names_and_types(subscribers)
-                publishers = get_publisher_info(node=node, remote_node_name=nodo)
-                output_node["publishers"] = publishers
-                # print(publishers)
-                # TODO: remove prints
-                # print('  Publishers:')
-                # print_names_and_types(publishers)
-                services = get_service_info(node=node, remote_node_name=nodo)
-                output_node["services"] = services
-                # TODO: remove prints
-                # print('  Services:')
-                # print_names_and_types(services)                
-                actions_servers = get_action_server_info(
-                    node=node, remote_node_name=nodo)
-                output_node["actionservers"] = actions_servers
-                # TODO: remove prints
-                # print('  Action Servers:')
-                # print_names_and_types(actions_servers)
-                actions_clients = get_action_client_info(
-                    node=node, remote_node_name=nodo)
-                output_node["actionclients"] = actions_clients
-                # TODO: remove prints
-                # print('  Action Clients:')
-                # print_names_and_types(actions_clients)
+                output_node[nodo] = {
+                                     'domain': domain_id,
+                                     'subscribers': get_subscriber_info(node=node, remote_node_name=nodo),
+                                     'publishers': get_publisher_info(node=node, remote_node_name=nodo),
+                                     'services': get_service_info(node=node, remote_node_name=nodo),
+                                     'actionservers': get_action_server_info(node=node, remote_node_name=nodo),
+                                     'actionclient': get_action_client_info(node=node, remote_node_name=nodo)
+                                    }
             self.processed_nodes.append(output_node)
-            # print(self.processed_nodes)
 
     def ros2topic(self, domain_id):
-        """
-        TODO
-        """
-        # TODO (@LanderU)
-        pass
-        
+
+        print("Exploring ROS_DOMAIN_ID for topics: " + str(domain_id))
+        os.environ['ROS_DOMAIN_ID'] = str(domain_id)
+
+        with NodeStrategy('-t') as node:
+            topic_names_and_types = get_topic_names_and_types(node=node)
+
+        output_topic = {}
+        if topic_names_and_types:
+            for (topic_name, topic_types) in topic_names_and_types:
+                with DirectNode(topic_name) as node:
+                    if topic_name not in default_topics:
+                        output_topic[topic_name] = {
+                                                    'domain': domain_id,
+                                                    'type': str(topic_types).replace('[', '').replace(']', ''),
+                                                    'publishers': node.count_publishers(topic_name),
+                                                    'subscriber': node.count_subscribers(topic_name)
+                                                    }
+            self.processed_topics.append(output_topic)
+
     def ros2service(self, domain_id):
-        """
-        TODO
-        """
-        # TODO (@LanderU)
-        pass
+        print("Exploring ROS_DOMAIN_ID for services: " + str(domain_id))
+        os.environ['ROS_DOMAIN_ID'] = str(domain_id)
+
+        with NodeStrategy('-t') as node:
+            service_names_and_types = get_service_names_and_types(
+                node=node)
+        output_service = {}
+        if service_names_and_types:
+            for (service_name, service_types) in service_names_and_types:
+                output_service[service_name] = {'domain': domain_id,
+                                                'type': str(service_types).replace('[', '').replace(']', '')
+                                                }
+
+        self.processed_services.append(output_service)
 
     def on_thread(self, domain_id):
         """
         Calls rclpy methods to implement a quick way to footprint the network
         
-        TODO: creates a single host, this is wrong, should be reviewed.
+        TODO: @LanderU creates a single host, this is wrong, should be reviewed.
         """
         try:
             import rclpy
@@ -409,6 +414,24 @@ class ROS2Scanner(RobotAdapter):
                         self.print_node_topics(node)
                 print('-' * 80)
 
+    @staticmethod
+    def print_results_daemon(nodes, topics, services):
+        print('Nodes: ')
+        for node in nodes:
+            for key in node:
+                print('\t' + key)
+                print('\t\t ' + str(str(node[key]).replace(',', '\n\t\t')).replace('{', '').replace('}', '').replace('\'', ''))
+        print('Topics: ')
+        for topic in topics:
+            for key in topic:
+                print('\t' + key)
+                print('\t\t ' + str(str(topic[key]).replace(',', '\n\t\t')).replace('{', '').replace('}', '').replace('\'', ''))
+        print('Services: ')
+        for service in services:
+            for key in service:
+                print('\t' + key)
+                print('\t\t ' + str(str(service[key]).replace(',', '\n\t\t')).replace('{', '').replace('}', '').replace('\'', ''))
+
     def scan(self) -> List[ROS2Host]:
         """
         Scan the local network and all available ROS_DOMAIN_IDs against ROS2 nodes.
@@ -422,7 +445,7 @@ class ROS2Scanner(RobotAdapter):
         if self.domain is not None:
             domain_id_range = [self.domain]
         else:
-            print("Exploring ROS_DOMAIN_ID from: "+str(domain_id_range_init)+str(" to ")+str(domain_id_range_end))
+            print("Exploring ROS_DOMAIN_ID from: " + str(domain_id_range_init) + str(" to ") + str(domain_id_range_end))
         
         print('Scanning the network...')        
         threads = []
@@ -438,6 +461,7 @@ class ROS2Scanner(RobotAdapter):
                 t = threading.Thread(self.ros2cli_api(i))
                 threads.append(t)
                 t.start()
+                self.print_results_daemon(self.processed_nodes, self.processed_topics, self.processed_services)
             else:
                 # This approach does the following:
                 #   1. calls rclpy scan_ros2_nodes and populates abstractons from helper
@@ -448,4 +472,5 @@ class ROS2Scanner(RobotAdapter):
                 t = threading.Thread(self.on_thread(i))
                 threads.append(t)
                 t.start()
+
         return self.found_hosts
