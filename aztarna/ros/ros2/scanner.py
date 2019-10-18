@@ -396,39 +396,51 @@ class ROS2Scanner(RobotAdapter):
     def print_results(self):
         """
         Print scanner results on stdout.
-        """
-        for host in self.found_hosts:
-            print(f'[+] Host found in Domain ID {host.domain_id}')
-            print('\tTopics:')
-            if host.topics:
-                for topic in host.topics:
-                    print(f'\t\tTopic Name: {topic.name} \t|\t Topic Type: {topic.topic_type}')
-            print('\tServices:')
-            if host.services:
-                for service in host.services:
-                    print(f'\t\tService Name: {service.name} \t|\t Service Type: {service.service_type}')
-            print('\tNodes:')
-            if host.nodes:
-                for node in host.nodes:
-                    print(f'\t\tNode Name: {node.name} \t|\t Namespace: {node.namespace}')
-                    if self.extended:
-                        self.print_node_topics(node)
-                print('-' * 80)
+        """        
+        if self.use_daemon:
+            self.print_results_daemon()
+        else:
+            for host in self.found_hosts:
+                print(f'[+] Host found in Domain ID {host.domain_id}')
+                print('\tTopics:')
+                if host.topics:
+                    for topic in host.topics:
+                        print(f'\t\tTopic Name: {topic.name} \t|\t Topic Type: {topic.topic_type}')
+                print('\tServices:')
+                if host.services:
+                    for service in host.services:
+                        print(f'\t\tService Name: {service.name} \t|\t Service Type: {service.service_type}')
+                print('\tNodes:')
+                if host.nodes:
+                    for node in host.nodes:
+                        print(f'\t\tNode Name: {node.name} \t|\t Namespace: {node.namespace}')
+                        if self.extended:
+                            self.print_node_topics(node)
+                    print('-' * 80)
 
-    @staticmethod
-    def print_results_daemon(nodes, topics, services):
+    def print_results_daemon(self):
+        """
+        Helper method to print information fetched using rclpy ros2cli daemon
+        """
         print('Nodes: ')
-        for node in nodes:
-            for key in node:
-                print('\t' + key)
-                print('\t\t ' + str(str(node[key]).replace(',', '\n\t\t')).replace('{', '').replace('}', '').replace('\'', ''))
+        for node in self.processed_nodes:
+            for node_key, node_values in node.items():
+                # Apply filters to the print_results by default
+                if not(self.hidden):
+                    if "_ros2cli" in node_key:
+                        continue
+
+                print('\t' + str(node_key))
+                # Iterate over node sub-elements
+                for elem_key, elem_value in node_values.items():
+                    print('\t\t' + str(elem_key) + ": " + str(elem_value))            
         print('Topics: ')
-        for topic in topics:
+        for topic in self.processed_topics:
             for key in topic:
                 print('\t' + key)
                 print('\t\t ' + str(str(topic[key]).replace(',', '\n\t\t')).replace('{', '').replace('}', '').replace('\'', ''))
         print('Services: ')
-        for service in services:
+        for service in self.processed_services:
             for key in service:
                 print('\t' + key)
                 print('\t\t ' + str(str(service[key]).replace(',', '\n\t\t')).replace('{', '').replace('}', '').replace('\'', ''))
@@ -441,7 +453,7 @@ class ROS2Scanner(RobotAdapter):
         """
         domain_id_range_init = 0
         domain_id_range_end = max_ros_domain_id
-        domain_id_range = range(domain_id_range_init, domain_id_range_end)
+        domain_id_range = range(domain_id_range_init, domain_id_range_end + 1)
 
         if self.domain is not None:
             domain_id_range = [self.domain]
@@ -462,7 +474,7 @@ class ROS2Scanner(RobotAdapter):
                 t = threading.Thread(self.ros2cli_api(i))
                 threads.append(t)
                 t.start()
-                self.print_results_daemon(self.processed_nodes, self.processed_topics, self.processed_services)
+                # self.print_results_daemon()
             else:
                 # This approach does the following:
                 #   1. calls rclpy scan_ros2_nodes and populates abstractons from helper
