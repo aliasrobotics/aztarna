@@ -170,8 +170,7 @@ aztarna -t ROS2 -d 15
 aztarna -t ros2 -d 0 --daemon --hidden
 ```
 
-### Run de code with ROS 2 using passive mode to search the hosts. if you set 'any' as argument, is
-going to search on all interfaces in your system:
+### Run de code with ROS 2 using passive mode to search the hosts. if you set 'any' as argument, is going to search on all interfaces in your system:
 
 ```bash
 aztarna -t ros2 --passive any
