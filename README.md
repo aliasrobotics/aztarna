@@ -86,17 +86,18 @@ docker build -t aztarna_docker .
 
 ```bash
 usage: aztarna [-h] -t TYPE [-a ADDRESS] [-p PORTS] [-i INPUT_FILE]
-               [-o OUT_FILE] [-e] [-r RATE] [--shodan] [--api-key API_KEY]
+               [-o OUT_FILE] [-e] [-r RATE] [-d DOMAIN] [--daemon] [--hidden]
+               [--shodan] [--api-key API_KEY] [--passive PASSIVE]
 
 Aztarna
 
 optional arguments:
   -h, --help            show this help message and exit
-  -t TYPE, --type TYPE  <ROS/ros/SROS/sros/IROUTERS/irouters/ROSIN/rosin> Scan ROS, SROS
-                        hosts or Industrial routers
+  -t TYPE, --type TYPE  <ROS/ros/SROS/sros/ROS2/ros2/IROUTERS/irouters> Scan
+                        ROS, SROS, ROS2 hosts or Industrial routers
   -a ADDRESS, --address ADDRESS
                         Single address or network range to scan.
-  -p PORTS, --ports PORTS   
+  -p PORTS, --ports PORTS
                         Ports to scan (format: 13311 or 11111-11155 or
                         1,2,3,4)
   -i INPUT_FILE, --input_file INPUT_FILE
@@ -105,9 +106,15 @@ optional arguments:
                         Output file for the results
   -e, --extended        Extended scan of the hosts
   -r RATE, --rate RATE  Maximum simultaneous network connections
+  -d DOMAIN, --domain DOMAIN
+                        ROS 2 DOMAIN ID (ROS_DOMAIN_ID environmental
+                        variable). Only applies to ROS 2.
+  --daemon              Use rclpy daemon (coming from ros2cli).
+  --hidden              Show hidden ROS 2 nodes. By default filtering
+                        _ros2cli*
   --shodan              Use shodan for the scan types that support it.
   --api-key API_KEY     Shodan API Key
-
+  --passive PASSIVE     Passive search for ROS2
 ```
 
 ### Run the code (example input file):
@@ -163,6 +170,12 @@ aztarna -t ROS2 -d 15
 aztarna -t ros2 -d 0 --daemon --hidden
 ```
 
+### Run de code with ROS 2 using passive mode to search the hosts. if you set 'any' as argument, is
+going to search on all interfaces in your system:
+
+```bash
+aztarna -t ros2 --passive any
+```
 
 ### Run the code (example piping directly from zmap):
 
