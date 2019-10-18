@@ -145,7 +145,7 @@ aztarna -t ROS -p 11311-11500 -a 115.129.241.241
 aztarna -t ROS -p 11311,11312,11313 -a 115.129.241.241
 ```
 
-### Run the code with ROS 2 (example exploring all ranges, 0-232)
+### Run the code with ROS 2 (example exploring all ranges, 0-231)
 
 ```bash
 aztarna -t ROS2
@@ -156,6 +156,13 @@ aztarna -t ROS2
 ```bash
 aztarna -t ROS2 -d 15
 ```
+
+### Run the code with ROS 2 using rclpy ros2cli daemon and with `ROS_DOMAIN_ID=0` while showing hidden nodes
+
+```bash
+aztarna -t ros2 -d 0 --daemon --hidden
+```
+
 
 ### Run the code (example piping directly from zmap):
 
