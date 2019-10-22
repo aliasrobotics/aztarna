@@ -22,6 +22,7 @@ class RobotAdapter:
         self.domain = None
         self.use_daemon = False
         self.hidden = False
+        self.passive = False
 
     @property
     def rate(self):

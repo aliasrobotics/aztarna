@@ -387,9 +387,8 @@ class ROS2Scanner(RobotAdapter):
         """
         services = scanner_node.get_service_names_and_types_by_node(node.name, node.namespace)
         node.services = raw_services_to_pyobj_list(services)            
-
-    @staticmethod
-    def scan_passive(interface: str):
+    
+    def scan_passive(self, interface: str):
         for pkg in pyshark.LiveCapture(interface=interface, display_filter='rtps'):
             print(pkg)
 
@@ -453,8 +452,14 @@ class ROS2Scanner(RobotAdapter):
         """
         domain_id_range_init = 0
         domain_id_range_end = max_ros_domain_id
-        domain_id_range = range(domain_id_range_init, domain_id_range_end + 1)
+        domain_id_range = range(domain_id_range_init, domain_id_range_end)
 
+        if self.passive:
+            # Launch a passive scan for RTPS packages in all network interfaces
+            # TODO: pass the corresponding provided interface if matches with 
+            #     available ones. Capture errors and process them as well.
+            self.scan_passive("any")
+            
         if self.domain is not None:
             domain_id_range = [self.domain]
         else:
