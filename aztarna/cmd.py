@@ -36,7 +36,7 @@ def main():
     parser.add_argument('--hidden', help='Show hidden ROS 2 nodes. By default filtering _ros2cli*', action='store_true')
     parser.add_argument('--shodan', help='Use shodan for the scan types that support it.', action='store_true')
     parser.add_argument('--api-key', help='Shodan API Key')
-    parser.add_argument('--passive', help='Passive search for ROS2')
+    parser.add_argument('--passive', help='Passive search for ROS2', action='store_true')
     argcomplete.autocomplete(parser)
     args = parser.parse_args()
     try:
@@ -89,6 +89,8 @@ def main():
             scanner.use_daemon = True        
         if args.hidden is True:
             scanner.hidden = True
+        if args.passive is True:
+            scanner.passive = True
         scanner.scan()
 
         if args.out_file:
