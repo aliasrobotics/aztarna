@@ -8,11 +8,6 @@ This repository contains Alias Robotics' aztarna, a footprinting tool for robots
 [![PyPI version](https://badge.fury.io/py/aztarna.svg)](https://badge.fury.io/py/aztarna)   [![Documentation Status](https://readthedocs.org/projects/aztarna/badge/?version=latest)](https://aztarna.readthedocs.io/en/latest/?badge=latest)    [![Article](https://img.shields.io/badge/article-arxiv%3A1812.09490-red.svg)](https://arxiv.org/pdf/1812.09490.pdf)
 
 
-Aztarna's ROS2 and ROS-Industrial modules are an effort part of the RedROS-I and RedROS2-I FTPs funded by [ROSIN](http://rosin-project.eu/) (European Union’s Horizon 2020 research and innovation programme) with the grant agreement No 732287.
-
-<img src="http://rosin-project.eu/wp-content/uploads/2017/03/Logo_ROSIN_CMYK-Website.png"/>
-
-
 
 ### For ROS
 * A list of the ROS nodes present in the system (Publishers and Subscribers)
@@ -213,3 +208,24 @@ If you're using our work for your research, please cite us as:
   adsnote = {Provided by the SAO/NASA Astrophysics Data System}
 }
 ```
+
+***
+<!--
+    ROSIN acknowledgement from the ROSIN press kit
+    @ https://github.com/rosin-project/press_kit
+-->
+
+<a href="http://rosin-project.eu">
+  <img src="http://rosin-project.eu/wp-content/uploads/rosin_ack_logo_wide.png"
+       alt="rosin_logo" height="60" >
+</a></br>
+
+Supported by ROSIN - ROS-Industrial Quality-Assured Robot Software Components.
+More information: <a href="http://rosin-project.eu">rosin-project.eu</a>
+
+<img src="http://rosin-project.eu/wp-content/uploads/rosin_eu_flag.jpg"
+     alt="eu_flag" height="45" align="left" >
+
+This repository was partly funded by ROSIN RedROS2-I FTP which received funding from the European Union’s Horizon 2020
+research and innovation programme under the project ROSIN with the grant agreement No 732287.
+
