@@ -226,20 +226,24 @@ class ROS2Scanner(RobotAdapter):
         # when reproduced both in Linux and OS X. Essentially, calls to fetch nodes
         # topics and services deliver incomplete information.        
         rclpy.init()
-        scanner_node = rclpy.create_node(self.scanner_node_name)
-        found_nodes = self.scan_ros2_nodes(scanner_node)
-        if found_nodes:
-            host = ROS2Host()
-            host.domain_id = domain_id
-            host.nodes = found_nodes
-            host.topics = self.scan_ros2_topics(scanner_node)
-            host.services = self.scan_ros2_services(scanner_node)
-            if self.extended:
-                for node in found_nodes:
-                    self.get_node_topics(scanner_node, node)
-                    self.get_node_services(scanner_node, node)
-            self.found_hosts.append(host)
-        rclpy.shutdown()
+        try:
+            scanner_node = rclpy.create_node(self.scanner_node_name)
+            found_nodes = self.scan_ros2_nodes(scanner_node)
+            if found_nodes:
+                host = ROS2Host()
+                host.domain_id = domain_id
+                host.nodes = found_nodes
+                host.topics = self.scan_ros2_topics(scanner_node)
+                host.services = self.scan_ros2_services(scanner_node)
+                if self.extended:
+                    for node in found_nodes:
+                        self.get_node_topics(scanner_node, node)
+                        self.get_node_services(scanner_node, node)
+                self.found_hosts.append(host)
+            rclpy.shutdown()
+            
+        except:            
+            raise Exception("Security plugins not supported in aztarna!")
 
     def scan_pipe_main(self):
         raise NotImplementedError
