@@ -22,8 +22,8 @@ FROM ros:dashing
 # ENV AZTARNA_COMMIT ${AZTARNA_COMMIT}
 
 RUN \
-    echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections
-    apt-get -qq update && apt-get -qqy upgrade \
+    echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections \
+    && apt-get -qq update && apt-get -qqy upgrade \
     && apt-get -qqy install \
       libgmp3-dev gengetopt \
       libpcap-dev flex byacc \
