@@ -22,7 +22,8 @@ FROM ros:dashing
 # ENV AZTARNA_COMMIT ${AZTARNA_COMMIT}
 
 RUN \
-    apt-get -qq update && apt-get -qqy upgrade \
+    echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections \
+    && apt-get -qq update && apt-get -qqy upgrade \
     && apt-get -qqy install \
       libgmp3-dev gengetopt \
       libpcap-dev flex byacc \
@@ -30,6 +31,7 @@ RUN \
       libunistring-dev wget \
       libxml2-dev libxslt1-dev \
       libffi-dev libssl-dev \
+      tshark \
     && rm -rf /var/lib/apt/lists/*
 
 # copy the aztarna files the FS and install it
