@@ -50,7 +50,7 @@ class ROSIndustrialScanner(RobotAdapter):
 
     def print_results(self):
         for host in self.hosts:
-            self.logger.warning(f'[+] ROSIN Host Found at {host.address}:{host.port}!!!')
+            self.logger.warning(f'[+] ROSIN Host Found at {host.address}:{host.port}!!!')  # noqa: E999
 
     def write_to_file(self, out_file):
         with open(out_file, 'w') as f:
