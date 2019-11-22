@@ -31,7 +31,7 @@ class HelpersNetWorking:
         """
         ret = None
         # Ping command count option as function of OS
-        param = '-n' if system_name().lower() is 'windows' else '-c'
+        param = '-n' if system_name().lower() == 'windows' else '-c'
         # Building the command. Ex: "ping -c 1 google.com"
         command = ['ping', param, '1', host]
         with open("/dev/null", "w+") as f:
