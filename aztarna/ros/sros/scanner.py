@@ -10,6 +10,7 @@ import asyncio
 import logging
 import random
 import traceback
+import sys
 from ipaddress import AddressValueError
 
 from aztarna.commons import RobotAdapter
