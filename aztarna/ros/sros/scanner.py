@@ -9,6 +9,7 @@ SROS Scanner module.
 import asyncio
 import logging
 import random
+import sys
 import traceback
 from ipaddress import AddressValueError
 

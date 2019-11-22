@@ -96,24 +96,24 @@ class ROS2Scanner(RobotAdapter):
     def __init__(self):
         super().__init__()
         self.found_hosts = []
-        self.scanner_node_name = 'aztarna'        
-        
+        self.scanner_node_name = 'aztarna'
+
         # Two alternatives were considered here, either using classes to abstract
-        # the different ROS 2 abstractions (implemented in helpers2.py) or 
+        # the different ROS 2 abstractions (implemented in helpers2.py) or
         # a simple list[dict]. The second option was selected for brevity.
-        
-        # a list of ROS 2 nodes abstracted as dictionaries, where each key 
-        # represents a the corresponding element within a node and the value 
-        # captures its values. In case of several elements within a value, 
+
+        # a list of ROS 2 nodes abstracted as dictionaries, where each key
+        # represents a the corresponding element within a node and the value
+        # captures its values. In case of several elements within a value,
         # a list or alternative another dict might be created
         #
         # For clarity, an example instance is described below:
-        #     self.processed_nodes = 
+        #     self.processed_nodes =
         #     [ {
-        #         "name": "/listener", 
+        #         "name": "/listener",
         #         "domain": 0,
         #         "namespace": "/",
-        #         "subscribers": [Topic(name='/parameter_events', types=['rcl_interfaces/msg/ParameterEvent']), 
+        #         "subscribers": [Topic(name='/parameter_events', types=['rcl_interfaces/msg/ParameterEvent']),
         #                         Topic(name='/rosout', types=['rcl_interfaces/msg/Log'])],
         #         "publishers": [...],
         #         "services": [],
@@ -121,7 +121,7 @@ class ROS2Scanner(RobotAdapter):
         #         "actionclients": [],
         #         ...
         #       },
-        #       ...            
+        #       ...
         #     ]
         self.processed_nodes = []
         self.processed_topics = []
@@ -155,10 +155,10 @@ class ROS2Scanner(RobotAdapter):
         """
         print("Exploring ROS_DOMAIN_ID: " + str(domain_id) + ' for nodes')
         os.environ['ROS_DOMAIN_ID'] = str(domain_id)
-        
+
         with NodeStrategy("-a") as node:
             node_names = get_node_names(node=node, include_hidden_nodes="-a")
-        
+
         nodes = sorted(n.full_name for n in node_names)
         output_node = {}
         for nodo in nodes:
@@ -167,7 +167,7 @@ class ROS2Scanner(RobotAdapter):
             # output_node.name = nodo
             # output_node.domain_id = domain_id
             # output_node.namespace = output_node.name[:(output_node.name.rfind("/") + 1)] # fetch the substring until the last "/"
-            
+
             # Abstractions using a list[dict] as defined above (see self.processed_nodes):
             #output_node = {"name": nodo, "domain": domain_id}
             #output_node["namespace"] = output_node["name"][:(output_node["name"].rfind("/") + 1)] # fetch the substring until the last "/"
@@ -224,7 +224,7 @@ class ROS2Scanner(RobotAdapter):
     def on_thread(self, domain_id):
         """
         Calls rclpy methods to implement a quick way to footprint the network
-        
+
         TODO: @LanderU creates a single host, this is wrong, should be reviewed.
         """
         try:
@@ -238,10 +238,10 @@ class ROS2Scanner(RobotAdapter):
         # available_middlewares = self.get_available_rmw_implementations()
         # for rmw in available_middlewares:
         #   os.environ['RMW_IMPLEMENTATION'] = rmw
-        
+
         # Implementation based on rclpy has some issues have been detected
         # when reproduced both in Linux and OS X. Essentially, calls to fetch nodes
-        # topics and services deliver incomplete information.        
+        # topics and services deliver incomplete information.
         rclpy.init()
         try:
             scanner_node = rclpy.create_node(self.scanner_node_name)
@@ -258,8 +258,8 @@ class ROS2Scanner(RobotAdapter):
                         self.get_node_services(scanner_node, node)
                 self.found_hosts.append(host)
             rclpy.shutdown()
-            
-        except:            
+
+        except:
             raise Exception("Security plugins not supported in aztarna!")
 
     def scan_pipe_main(self):
@@ -272,7 +272,7 @@ class ROS2Scanner(RobotAdapter):
 
         :param node: :class:`aztarna.ros.ros2.helpers.ROS2Node` containing the topics.
         """
-        print(f'\t\tPublished topics:')
+        print(f'\t\tPublished topics:')  # noqa: E999
         for topic in node.published_topics:
             print(f'\t\t\tTopic Name: {topic.name} \t|\t Topic Type: {topic.topic_type}')
         print('\t\tSubscribed topics:')
@@ -407,8 +407,8 @@ class ROS2Scanner(RobotAdapter):
         :param node: Target :class:`aztarna.ros.ros2.helpers.ROS2Node`
         """
         services = scanner_node.get_service_names_and_types_by_node(node.name, node.namespace)
-        node.services = raw_services_to_pyobj_list(services)            
-    
+        node.services = raw_services_to_pyobj_list(services)
+
     def scan_passive(self, interface: str):
         for pkg in pyshark.LiveCapture(interface=interface, display_filter='rtps'):
             print(pkg)
@@ -416,7 +416,7 @@ class ROS2Scanner(RobotAdapter):
     def print_results(self):
         """
         Print scanner results on stdout.
-        """        
+        """
         if self.use_daemon:
             self.print_results_daemon()
         else:
@@ -453,7 +453,7 @@ class ROS2Scanner(RobotAdapter):
                 print('\t' + str(node_key))
                 # Iterate over node sub-elements
                 for elem_key, elem_value in node_values.items():
-                    print('\t\t' + str(elem_key) + ": " + str(elem_value))            
+                    print('\t\t' + str(elem_key) + ": " + str(elem_value))
         print('Topics: ')
         for topic in self.processed_topics:
             for key in topic:
@@ -477,25 +477,25 @@ class ROS2Scanner(RobotAdapter):
 
         if self.passive:
             # Launch a passive scan for RTPS packages in all network interfaces
-            # TODO: pass the corresponding provided interface if matches with 
+            # TODO: pass the corresponding provided interface if matches with
             #     available ones. Capture errors and process them as well.
             self.scan_passive("any")
-            
+
         if self.domain is not None:
             domain_id_range = [self.domain]
         else:
             print("Exploring ROS_DOMAIN_ID from: " + str(domain_id_range_init) + str(" to ") + str(domain_id_range_end))
-        
-        print('Scanning the network...')        
+
+        print('Scanning the network...')
         threads = []
         for i in domain_id_range:
             if self.use_daemon:
                 # This approach does the following:
-                #   1. calls ros2cli ros2node and populates abstractions from helper2, 
+                #   1. calls ros2cli ros2node and populates abstractions from helper2,
                 #       dumping them into self.processed_nodes as it applies
                 #   2. calls ros2cli ros2topic and populates
-                #   3. calls ros2cli ros2service and populates                
-                
+                #   3. calls ros2cli ros2service and populates
+
                 # NOTE: scanning all the domains can take several minutes
                 t = threading.Thread(self.ros2cli_api(i))
                 threads.append(t)
@@ -506,7 +506,7 @@ class ROS2Scanner(RobotAdapter):
                 #   1. calls rclpy scan_ros2_nodes and populates abstractons from helper
                 #   2. calls rclpy scan_ros2_topics and populates
                 #   3. calls rclpy scan_ros2_services and populates
-                
+
                 # NOTE: scanning all the domains takes only a few seconds
                 t = threading.Thread(self.on_thread(i))
                 threads.append(t)
