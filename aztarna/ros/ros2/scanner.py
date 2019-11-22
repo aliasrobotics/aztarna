@@ -272,9 +272,9 @@ class ROS2Scanner(RobotAdapter):
 
         :param node: :class:`aztarna.ros.ros2.helpers.ROS2Node` containing the topics.
         """
-        print(f'\t\tPublished topics:')
+        print(f'\t\tPublished topics:')  # noqa: E999
         for topic in node.published_topics:
-            print(f'\t\t\tTopic Name: {topic.name} \t|\t Topic Type: {topic.topic_type}')
+            print(f'\t\t\tTopic Name: {topic.name} \t|\t Topic Type: {topic.topic_type}')  # noqa
         print('\t\tSubscribed topics:')
         for topic in node.subscribed_topics:
             print(f'\t\t\tTopic Name: {topic.name} \t|\t Topic Type: {topic.topic_type}')
