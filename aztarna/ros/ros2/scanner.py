@@ -15,7 +15,24 @@ try:
     from ros2topic.api import get_topic_names_and_types
     from ros2service.api import get_service_names_and_types
     from ros2service.verb import VerbExtension
-except ImportError or ModuleNotFoundError:
+except ImportError:
+    # NOTE: from ROS 2 Eloquent on:
+    #   it can't find get_service_info anymore due to API changes. See
+    #   https://github.com/ros2/ros2cli/commit/e020486c82cdee1c8d622f5c88fe564ef1b564e7#diff-4602044fc49daf9e20cd8c4ff8d27923
+    #   which essentially removes the get_service_info primitive
+    from ros2cli.node.strategy import add_arguments, NodeStrategy
+    from ros2node.api import get_node_names, get_publisher_info, NodeNameCompleter
+    from ros2node.verb import VerbExtension
+    from ros2cli.node.direct import DirectNode
+    from rclpy.action.graph import get_action_client_names_and_types_by_node, get_action_server_names_and_types_by_node
+    from ros2node.api import get_subscriber_info
+    from ros2node.api import get_service_client_info as get_service_info
+    from ros2node.verb.info import print_names_and_types
+    from ros2topic.api import get_topic_names_and_types
+    from ros2service.api import get_service_names_and_types
+    from ros2service.verb import VerbExtension
+except ModuleNotFoundError:
+    # generally when ROS 2 is missing
     print('ROS2 needs to be installed and sourced to run ROS2 scans')
 
 from aztarna.commons import RobotAdapter
