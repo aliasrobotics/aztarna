@@ -8,9 +8,6 @@ import argcomplete
 import uvloop
 
 from aztarna.ros.industrial.scanner import ROSIndustrialScanner
-from aztarna.ros.ros2.scanner import ROS2Scanner
-from aztarna.ros.sros import SROSScanner
-from aztarna.ros.ros import ROSScanner
 from aztarna.industrialrouters.scanner import IndustrialRouterAdapter
 
 # asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
@@ -41,8 +38,10 @@ def main():
     args = parser.parse_args()
     try:
         if args.type == 'ROS' or args.type == 'ros':
+            from aztarna.ros.ros import ROSScanner
             scanner = ROSScanner()
         elif args.type == 'SROS' or args.type == 'sros':
+            from aztarna.ros.sros import SROSScanner
             scanner = SROSScanner()
         elif args.type == 'IROUTERS' or args.type == 'irouters':
             scanner = IndustrialRouterAdapter()
@@ -53,6 +52,7 @@ def main():
         elif args.type.upper() == 'ROSIN':
             scanner = ROSIndustrialScanner()
         elif args.type.upper() == 'ROS2':
+            from aztarna.ros.ros2.scanner import ROS2Scanner
             scanner = ROS2Scanner()
         else:
             logger.critical('Invalid type selected')
