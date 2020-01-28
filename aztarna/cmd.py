@@ -86,7 +86,7 @@ def main():
         scanner.rate = args.rate
         scanner.domain = args.domain
         if args.daemon is True:
-            scanner.use_daemon = True        
+            scanner.use_daemon = True
         if args.hidden is True:
             scanner.hidden = True
         if args.passive is True:

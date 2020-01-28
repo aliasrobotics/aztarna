@@ -72,8 +72,8 @@ class ROSScanner(RobotAdapter):
                         self.logger.critical('[-] Error getting system state. Probably not a ROS Master')
 
                 except Exception as e:
-                    # traceback.print_tb(e.__traceback__)
-                    self.logger.error('[-] Error connecting to host ' + str(ros_host.address) + ':' + str(ros_host.port) + ' -> '+str(e) + '\n\tNot a ROS host')
+                    # self.logger.error('[-] Error connecting to host ' + str(ros_host.address) + ':' + str(ros_host.port) + ' -> '+str(e) + '\n\tNot a ROS host')
+                    pass  # do not log anything to ensure a clean output
 
     def extract_nodes(self, source_array, topics, pub_or_sub, host):
         """
@@ -206,9 +206,10 @@ class ROSScanner(RobotAdapter):
                 for service in node.services:
                     print('\t\t * ' + str(service))
 
+            print('\nCommunications: ')
             for i in range(len(host.communications)):
                 comm = host.communications[i]
-                print('\n\t CommunicationROS ' + str(i) + ':')
+                print('\n\t Communication ' + str(i) + ':')
                 print('\t\t - Publishers:')
                 for node in comm.publishers:
                     print('\t\t\t' + str(node))
