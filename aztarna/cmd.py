@@ -33,6 +33,7 @@ def main():
     parser.add_argument('--hidden', help='Show hidden ROS 2 nodes. By default filtering _ros2cli*', action='store_true')
     parser.add_argument('--shodan', help='Use shodan for the scan types that support it.', action='store_true')
     parser.add_argument('--api-key', help='Shodan API Key')
+    parser.add_argument('--verbose', help='Verbose output')
     parser.add_argument('--passive', help='Passive search for ROS2', action='store_true')
     argcomplete.autocomplete(parser)
     args = parser.parse_args()
@@ -96,7 +97,8 @@ def main():
         if args.out_file:
             scanner.write_to_file(args.out_file)
         else:
-            scanner.print_results()
+            if args.verbose is True:
+                scanner.print_results()
     except Exception as e:
         logger.critical('Exception occurred during execution')
         raise e
