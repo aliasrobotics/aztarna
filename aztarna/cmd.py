@@ -29,6 +29,7 @@ def main():
     parser.add_argument('-e', '--extended', help='Extended scan of the hosts', action='store_true')
     parser.add_argument('-r', '--rate', help='Maximum simultaneous network connections', default=100, type=int)    
     parser.add_argument('-d', '--domain', help='ROS 2 DOMAIN ID (ROS_DOMAIN_ID environmental variable). Only applies to ROS 2.', type=int)
+    parser.add_argument('-v', '--verbose', help='Verbose output', action='store_true')
     parser.add_argument('--daemon', help='Use rclpy daemon (coming from ros2cli).', action='store_true')
     parser.add_argument('--hidden', help='Show hidden ROS 2 nodes. By default filtering _ros2cli*', action='store_true')
     parser.add_argument('--shodan', help='Use shodan for the scan types that support it.', action='store_true')
@@ -97,7 +98,7 @@ def main():
         if args.out_file:
             scanner.write_to_file(args.out_file)
         else:
-            if args.verbose is True:
+            if args.extended is True:
                 scanner.print_results()
     except Exception as e:
         logger.critical('Exception occurred during execution')
