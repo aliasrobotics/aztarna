@@ -20,7 +20,7 @@ def main():
     """
     logging.basicConfig(level=logging.INFO, format="%(name)s - %(message)s")
     logger = logging.getLogger(__name__)
-    parser = ArgumentParser(description='Aztarna')
+    parser = ArgumentParser(description='Aztarna, a reconnaissance tool for robots and robot components.')
     parser.add_argument('-t', '--type', help='<ROS/ros/SROS/sros/ROS2/ros2/IROUTERS/irouters> Scan ROS, SROS, ROS2 hosts or Industrial routers', required=True)
     parser.add_argument('-a', '--address', help='Single address or network range to scan.')
     parser.add_argument('-p', '--ports', help='Ports to scan (format: 13311 or 11111-11155 or 1,2,3,4)', default='11311')
