@@ -1,3 +1,5 @@
+> This repository has been archived and is not maintained any further. Refer to [alurity](https://aliasrobotics.com/alurity.php) for future progress on robot footprinting and fingerprinting.
+
 # aztarna
 <a href="http://www.aliasrobotics.com"><img src="https://aliasrobotics.com/img/git_alias_logo.png" align="left" hspace="8" vspace="2" width="200"></a>
 
