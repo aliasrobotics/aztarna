@@ -37,7 +37,7 @@ setup(
         'console_scripts': ['aztarna=aztarna.cmd:main'],
     },
     install_requires=[
-        'aiohttp==3.5.4',
+        'aiohttp==3.14.1',
         'aiohttp-xmlrpc==0.7.4',
         'alabaster==0.7.12',
         'argcomplete==1.9.5',
