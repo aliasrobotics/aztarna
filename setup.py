@@ -51,7 +51,7 @@ setup(
         'Click==7.0',
         'click-plugins==1.1.1',
         'colorama==0.4.1',
-        'cryptography==2.6.1',
+        'cryptography==48.0.1',
         'dnspython==1.16.0',
         'docutils==0.14',
         'idna==2.8',
