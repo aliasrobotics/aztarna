@@ -1,0 +1,32 @@
+cff-version: 1.2.0
+message: "If you use Aztarna, please cite the paper below."
+title: Aztarna
+type: software
+version: 1.2.2
+authors:
+  - name: Alias Robotics
+repository-code: https://github.com/aliasrobotics/aztarna
+url: https://cybersecurityrobotics.com/research/aztarna-robot-footprinting/
+preferred-citation:
+  type: article
+  title: "Aztarna, a footprinting tool for robots"
+  authors:
+    - given-names: Víctor
+      family-names: Mayoral-Vilches
+    - given-names: Gorka
+      family-names: Olalde Mendia
+    - given-names: Xabier
+      family-names: Perez Baskaran
+    - given-names: Alejandro
+      family-names: Hernández Cordero
+    - given-names: Lander
+      family-names: Usategui San Juan
+    - given-names: Endika
+      family-names: Gil-Uriarte
+    - given-names: Odei
+      family-names: Olalde Saez de Urabain
+    - given-names: Laura
+      family-names: Alzola Kirschgens
+  year: 2018
+  journal: arXiv
+  url: https://arxiv.org/abs/1812.09490

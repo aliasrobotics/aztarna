@@ -17,9 +17,10 @@ setup(
                 'aztarna.ros.ros2',
                 'aztarna.industrialrouters',
               ],
-    url='https://www.aliasrobotics.com/research/aztarna.htm',
+    url='https://github.com/aliasrobotics/aztarna',
     project_urls={
-        'Source Code': 'https://github.com/aliasrobotics/aztarna'
+        'Source Code': 'https://github.com/aliasrobotics/aztarna',
+        'Research': 'https://cybersecurityrobotics.com/research/aztarna-robot-footprinting/',
     },
     license='GPLv3',
     author='Alias Robotics',

@@ -9,6 +9,7 @@ This repository contains Alias Robotics' aztarna, a footprinting tool for robots
 
 [![PyPI version](https://badge.fury.io/py/aztarna.svg)](https://badge.fury.io/py/aztarna)   [![Documentation Status](https://readthedocs.org/projects/aztarna/badge/?version=latest)](https://aztarna.readthedocs.io/en/latest/?badge=latest)    [![Article](https://img.shields.io/badge/article-arxiv%3A1812.09490-red.svg)](https://arxiv.org/pdf/1812.09490.pdf)
 
+**HTML reading edition:** [Aztarna, a footprinting tool for robots](https://cybersecurityrobotics.com/research/aztarna-robot-footprinting/)
 
 
 ### For ROS
@@ -230,4 +231,3 @@ More information: <a href="http://rosin-project.eu">rosin-project.eu</a>
 
 This repository was partly funded by ROSIN RedROS2-I FTP which received funding from the European Union’s Horizon 2020
 research and innovation programme under the project ROSIN with the grant agreement No 732287.
-
